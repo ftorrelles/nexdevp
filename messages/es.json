@@ -1,26 +1,67 @@
 {
   "nav": {
+    "home": "Inicio",
     "services": "Servicios",
     "cases": "Casos",
     "about": "Nosotros",
     "contact": "Contacto"
   },
   "cta": {
-    "book": "Reservar consulta gratuita",
+    "book": "Agendar llamada",
+    "bookFull": "Agendar llamada gratuita",
     "whatsapp": "Escribinos por WhatsApp",
-    "learnMore": "Ver más"
+    "learnMore": "Ver más",
+    "viewCase": "Ver caso completo",
+    "bookConsultation": "Reservar consulta"
   },
   "hero": {
     "headline": "Sistemas digitales que hacen crecer tu negocio",
     "subheadline": "Diseñamos e implementamos soluciones a medida que eliminan fricciones y aceleran resultados."
   },
+  "sections": {
+    "cases": "Casos",
+    "services": "Servicios",
+    "methodology": "Metodología",
+    "about": "Sobre nosotros",
+    "contact": "Contacto",
+    "retainer": "Soporte continuo",
+    "pains": "¿Te suena familiar?",
+    "leadCapture": "¿Listo para empezar?"
+  },
   "localeSwitcher": {
     "label": "Idioma",
     "es": "Español",
-    "en": "English"
+    "en": "English",
+    "ariaLabel": "Cambiar idioma"
   },
   "meta": {
     "siteTitle": "nexdevp — Sistemas digitales para negocios",
     "siteDescription": "Diseñamos e implementamos sistemas digitales que hacen crecer tu negocio. Consultoría, desarrollo y automatización."
+  },
+  "footer": {
+    "copyright": "© {year} nexdevp. Todos los derechos reservados.",
+    "nav": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "cases": "Casos",
+      "about": "Nosotros",
+      "contact": "Contacto"
+    }
+  },
+  "booking": {
+    "dialogTitle": "Agendar llamada gratuita",
+    "dialogDescription": "Elegí el horario que mejor te quede para una llamada de diagnóstico sin costo.",
+    "closeButton": "Cerrar",
+    "fallbackLink": "Abrir agenda en nueva pestaña"
+  },
+  "aria": {
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "closeDialog": "Cerrar diálogo",
+    "logoAlt": "nexdevp — sistemas digitales para negocios",
+    "whatsappLink": "Contactar por WhatsApp",
+    "bookingButton": "Agendar llamada con nexdevp",
+    "localeSwitcher": "Cambiar idioma",
+    "externalLink": "Abre en nueva pestaña"
   }
 }

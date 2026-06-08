@@ -1,26 +1,67 @@
 {
   "nav": {
+    "home": "Home",
     "services": "Services",
     "cases": "Cases",
     "about": "About",
     "contact": "Contact"
   },
   "cta": {
-    "book": "Book a free consultation",
+    "book": "Book a call",
+    "bookFull": "Book a free call",
     "whatsapp": "Message us on WhatsApp",
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "viewCase": "View full case study",
+    "bookConsultation": "Book a consultation"
   },
   "hero": {
     "headline": "Digital systems that grow your business",
     "subheadline": "We design and implement tailored solutions that eliminate friction and accelerate results."
   },
+  "sections": {
+    "cases": "Cases",
+    "services": "Services",
+    "methodology": "Methodology",
+    "about": "About us",
+    "contact": "Contact",
+    "retainer": "Ongoing support",
+    "pains": "Does this sound familiar?",
+    "leadCapture": "Ready to get started?"
+  },
   "localeSwitcher": {
     "label": "Language",
     "es": "Español",
-    "en": "English"
+    "en": "English",
+    "ariaLabel": "Switch language"
   },
   "meta": {
     "siteTitle": "nexdevp — Digital systems for business",
     "siteDescription": "We design and implement digital systems that grow your business. Consulting, development and automation."
+  },
+  "footer": {
+    "copyright": "© {year} nexdevp. All rights reserved.",
+    "nav": {
+      "home": "Home",
+      "services": "Services",
+      "cases": "Cases",
+      "about": "About",
+      "contact": "Contact"
+    }
+  },
+  "booking": {
+    "dialogTitle": "Book a free call",
+    "dialogDescription": "Choose the time that works best for you for a free diagnostic call.",
+    "closeButton": "Close",
+    "fallbackLink": "Open calendar in new tab"
+  },
+  "aria": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "closeDialog": "Close dialog",
+    "logoAlt": "nexdevp — digital systems for business",
+    "whatsappLink": "Contact via WhatsApp",
+    "bookingButton": "Book a call with nexdevp",
+    "localeSwitcher": "Switch language",
+    "externalLink": "Opens in new tab"
   }
 }

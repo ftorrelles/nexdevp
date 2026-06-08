@@ -16,7 +16,10 @@
   },
   "hero": {
     "headline": "Digital systems that grow your business",
-    "subheadline": "We design and implement tailored solutions that eliminate friction and accelerate results."
+    "subheadline": "We implement AI Sales Engineering. Our system contacts, qualifies and books your leads in under 60 seconds, eliminating manual work.",
+    "headline_line1": "How much money are you leaving",
+    "headline_line2": "on the table by",
+    "headline_accent": "not responding fast?"
   },
   "sections": {
     "cases": "Cases",
@@ -29,8 +32,10 @@
     "leadCapture": "Ready to get started?"
   },
   "pains": {
-    "eyebrow": "The problem",
-    "heading": "Does this sound familiar?",
+    "eyebrow": "THE PROBLEM",
+    "heading": "The Cost of",
+    "heading_accent": "Inefficiency",
+    "subtitle": "Every minute without a response is a lead going cold. This is what the real problem looks like.",
     "pain1": {
       "title": "Manual processes stealing your time",
       "body": "Your team spends hours on repetitive tasks: copying data between spreadsheets, sending follow-up emails, building reports by hand. Time that could go to work that actually matters.",
@@ -53,8 +58,9 @@
     "cardCta": "Request a quote"
   },
   "methodology": {
-    "eyebrow": "How we work",
-    "heading": "Methodology",
+    "eyebrow": "METHODOLOGY",
+    "heading": "From stranger to customer",
+    "heading_accent": "in 3 simple steps",
     "step1": {
       "number": "01",
       "title": "Diagnose",

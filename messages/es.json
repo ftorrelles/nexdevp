@@ -16,7 +16,10 @@
   },
   "hero": {
     "headline": "Sistemas digitales que hacen crecer tu negocio",
-    "subheadline": "Diseñamos e implementamos soluciones a medida que eliminan fricciones y aceleran resultados."
+    "subheadline": "Implementamos Ingeniería de Ventas con IA. Nuestro sistema contacta, cualifica y agenda tus leads en menos de 60 segundos, eliminando el trabajo manual.",
+    "headline_line1": "¿Cuánto dinero dejas",
+    "headline_line2": "sobre la mesa por",
+    "headline_accent": "no responder rápido?"
   },
   "sections": {
     "cases": "Casos",
@@ -29,21 +32,23 @@
     "leadCapture": "¿Listo para empezar?"
   },
   "pains": {
-    "eyebrow": "El problema",
-    "heading": "¿Te suena familiar?",
+    "eyebrow": "EL PROBLEMA",
+    "heading": "El Costo de la",
+    "heading_accent": "Ineficiencia",
+    "subtitle": "Cada minuto sin respuesta es un lead que se enfría. Así se ve el problema real.",
     "pain1": {
-      "title": "Procesos manuales que roban tiempo",
-      "body": "Tu equipo invierte horas en tareas repetitivas: copiar datos entre planillas, enviar correos de seguimiento, armar reportes a mano. Tiempo que podría ir al trabajo que realmente importa.",
+      "title": "Filtrado de Curiosos",
+      "body": "Tu equipo pierde horas calificando contactos que nunca van a comprar. El agente filtra automáticamente y solo pasa los leads que valen la pena.",
       "cta": "Ver soluciones"
     },
     "pain2": {
-      "title": "Decisiones sin datos en tiempo real",
-      "body": "Tenés información dispersa en distintas herramientas y tenés que esperar hasta el cierre de mes para saber cómo está yendo el negocio. Decisiones tardías cuestan dinero.",
+      "title": "Tareas Repetitivas",
+      "body": "Responder las mismas preguntas de siempre, copiar datos entre planillas, enviar seguimientos manualmente. Todo eso lo puede hacer una IA.",
       "cta": "Ver soluciones"
     },
     "pain3": {
-      "title": "Tecnología que no se adapta a tu negocio",
-      "body": "Usás herramientas genéricas que te obligan a adaptar tus procesos a ellas, en lugar de al revés. Cada workaround es deuda que se acumula.",
+      "title": "Abandono de Leads",
+      "body": "El 78% de los leads compra al primero que responde. Si tardás más de 5 minutos, ya perdiste. Nuestro agente responde en menos de 60 segundos.",
       "cta": "Ver soluciones"
     }
   },
@@ -53,8 +58,9 @@
     "cardCta": "Solicitar presupuesto"
   },
   "methodology": {
-    "eyebrow": "Cómo trabajamos",
-    "heading": "Metodología",
+    "eyebrow": "METODOLOGÍA",
+    "heading": "De desconocido a cliente",
+    "heading_accent": "en 3 pasos simples",
     "step1": {
       "number": "01",
       "title": "Diagnosticamos",

@@ -10,9 +10,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-accent text-black font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+    'bg-nex-green text-nex-black font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-nex-green focus-visible:ring-offset-2 focus-visible:ring-offset-nex-black',
   ghost:
-    'bg-transparent text-cream border border-cream/30 hover:border-cream/60 focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+    'bg-transparent text-nex-white border border-nex-white/30 hover:border-nex-white/60 focus-visible:ring-2 focus-visible:ring-nex-white focus-visible:ring-offset-2 focus-visible:ring-offset-nex-black',
 }
 
 export function Button({

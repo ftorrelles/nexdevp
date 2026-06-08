@@ -1,7 +1,5 @@
 import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
-import { SectionShell } from '@/components/editorial/SectionShell'
-import { Reveal } from '@/components/editorial/Reveal'
 
 export async function About() {
   const t = await getTranslations('about')
@@ -24,33 +22,38 @@ export async function About() {
   ]
 
   return (
-    <div className="bg-surface">
-      <SectionShell eyebrow={t('eyebrow')} heading={t('heading')}>
+    <section className="bg-nex-black py-24 px-6 lg:px-12" id="about">
+      <div className="max-w-6xl mx-auto">
+        <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-4">
+          {t('eyebrow')}
+        </p>
+        <h2 className="font-jost font-bold text-4xl lg:text-5xl text-nex-white mb-12">
+          {t('heading')}
+        </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {founders.map((founder) => (
-            <Reveal key={founder.key}>
-              <div className="flex flex-col items-start gap-5">
-                <div className="relative w-20 h-20 rounded-full overflow-hidden bg-surface border border-cream/10">
-                  <Image
-                    src="/brand/logo-light.png"
-                    alt={founder.imageAlt}
-                    width={80}
-                    height={80}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div>
-                  <h3 className="font-cormorant text-2xl text-cream">{founder.name}</h3>
-                  <p className="font-dm-mono text-xs text-accent uppercase tracking-widest mt-1 mb-3">
-                    {founder.role}
-                  </p>
-                  <p className="font-jost text-sm text-muted leading-relaxed">{founder.bio}</p>
-                </div>
+            <div key={founder.key} className="bg-nex-dark rounded-xl border border-white/5 p-6 flex flex-col gap-5">
+              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-nex-dark border border-white/10">
+                <Image
+                  src="/brand/logo-light.png"
+                  alt={founder.imageAlt}
+                  width={64}
+                  height={64}
+                  className="object-cover w-full h-full"
+                />
               </div>
-            </Reveal>
+              <div>
+                <h3 className="font-jost font-bold text-xl text-nex-white">{founder.name}</h3>
+                <p className="font-dm-mono text-xs text-nex-green uppercase tracking-widest mt-1 mb-3">
+                  {founder.role}
+                </p>
+                <p className="font-jost text-sm text-nex-grey leading-relaxed">{founder.bio}</p>
+              </div>
+            </div>
           ))}
         </div>
-      </SectionShell>
-    </div>
+      </div>
+    </section>
   )
 }

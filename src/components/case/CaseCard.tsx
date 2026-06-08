@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server'
-import { Card } from '@/components/editorial/Card'
 import { Link } from '@/i18n/navigation'
 import { pick } from '@/content/types'
 import type { CaseStudy, Locale } from '@/content/types'
@@ -16,7 +15,6 @@ export async function CaseCard({ caseStudy, locale }: CaseCardProps) {
   const basePath = locale === 'es' ? 'casos' : 'cases'
   const href = `/${basePath}/${slug}`
 
-  // Get the first paragraph of pain as the pain headline
   const painBlocks = pick(caseStudy.pain, locale)
   const firstPain = painBlocks.find((b) => b.type === 'paragraph')
   const painHeadline = firstPain && firstPain.type === 'paragraph' ? firstPain.text : ''
@@ -24,28 +22,37 @@ export async function CaseCard({ caseStudy, locale }: CaseCardProps) {
   const firstMetric = caseStudy.metrics[0]
 
   return (
-    <Card className="flex flex-col h-full">
-      <p className="font-dm-mono text-xs text-accent uppercase tracking-widest mb-2">
+    <div className="bg-nex-black rounded-xl border border-white/5 p-6 flex flex-col h-full">
+      {/* Industry badge */}
+      <p className="font-dm-mono text-xs text-nex-green uppercase tracking-widest mb-2">
         {pick(caseStudy.industry, locale)}
       </p>
-      <h3 className="font-cormorant text-2xl text-cream mb-3">{caseStudy.client}</h3>
-      <p className="font-jost text-sm text-muted leading-relaxed mb-4 line-clamp-3 flex-1">
+
+      {/* Client name */}
+      <h3 className="font-jost font-bold text-xl text-nex-white mb-3">
+        {caseStudy.client}
+      </h3>
+
+      {/* Pain excerpt */}
+      <p className="font-jost text-sm text-nex-grey leading-relaxed mb-4 line-clamp-3 flex-1">
         {painHeadline}
       </p>
+
+      {/* Metric badge */}
       {firstMetric && (
-        <div className="border-t border-cream/10 pt-4 mb-4">
-          <span className="font-dm-mono text-2xl text-accent">{firstMetric.value}</span>
-          <span className="font-jost text-xs text-muted ml-2">
-            {pick(firstMetric.label, locale)}
+        <div className="mb-4">
+          <span className="inline-block bg-nex-green/10 text-nex-green rounded-full px-3 py-1 text-xs font-mono font-semibold">
+            {firstMetric.value} {pick(firstMetric.label, locale)}
           </span>
         </div>
       )}
+
       <Link
         href={href}
-        className="font-dm-mono text-xs text-accent uppercase tracking-widest hover:underline"
+        className="font-dm-mono text-xs text-nex-green uppercase tracking-widest hover:underline mt-auto"
       >
         {t('viewCase')} →
       </Link>
-    </Card>
+    </div>
   )
 }

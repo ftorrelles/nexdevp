@@ -21,16 +21,16 @@ export async function Footer({ locale }: FooterProps) {
   ]
 
   return (
-    <footer className="bg-surface border-t border-cream/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-nex-black border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           {/* Logo */}
           <Link href="/" aria-label={t('nav.home')}>
             <Image
-              src="/brand/logo-light.png"
+              src="/brand/logo-light.svg"
               alt="nexdevp"
               width={120}
-              height={40}
+              height={32}
               className="h-8 w-auto"
             />
           </Link>
@@ -42,7 +42,7 @@ export async function Footer({ locale }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-jost text-sm text-muted hover:text-cream transition-colors"
+                    className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -55,8 +55,8 @@ export async function Footer({ locale }: FooterProps) {
           <LocaleSwitcher locale={locale} />
         </div>
 
-        <div className="mt-8 pt-8 border-t border-cream/10">
-          <p className="font-jost text-xs text-muted">
+        <div className="mt-8 pt-8 border-t border-white/5">
+          <p className="font-jost text-xs text-nex-grey">
             {t('copyright').replace('{year}', String(year))}
           </p>
         </div>

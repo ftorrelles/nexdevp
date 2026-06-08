@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { BookingDialog } from '@/components/cta/BookingDialog'
 
@@ -15,13 +14,8 @@ export function Navbar() {
       <div className="px-6 lg:px-12 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" aria-label="nexdevp home">
-          <Image
-            src="/brand/logo-light.svg"
-            alt="nexdevp"
-            width={120}
-            height={32}
-            priority
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-light.svg" alt="nexdevp" style={{ height: '32px', width: 'auto' }} />
         </Link>
 
         {/* Center nav links (hidden on mobile) */}

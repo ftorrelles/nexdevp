@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server'
-import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { LocaleSwitcher } from '@/components/editorial/LocaleSwitcher'
 import type { Locale } from '@/content/types'
@@ -26,13 +25,8 @@ export async function Footer({ locale }: FooterProps) {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           {/* Logo */}
           <Link href="/" aria-label={t('nav.home')}>
-            <Image
-              src="/brand/logo-light.svg"
-              alt="nexdevp"
-              width={120}
-              height={32}
-              className="h-8 w-auto"
-            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo-light.svg" alt="nexdevp" style={{ height: '32px', width: 'auto' }} />
           </Link>
 
           {/* Nav */}

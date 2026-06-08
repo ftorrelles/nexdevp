@@ -1,35 +1,59 @@
-import { getTranslations } from 'next-intl/server'
 import { BookingDialog } from '@/components/cta/BookingDialog'
+import { Link } from '@/i18n/navigation'
 
-export async function Hero() {
-  const t = await getTranslations('hero')
-
+export function Hero() {
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-6 lg:px-12 bg-nex-black">
-      <div className="max-w-4xl mx-auto w-full">
-        {/* Eyebrow */}
-        <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-6">
-          INGENIERÍA DE VENTAS CON IA
-        </p>
+    <section className="min-h-screen flex items-center bg-nex-black px-6 lg:px-12 py-24">
+      <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-16 items-center">
+        {/* Left: content */}
+        <div className="text-center lg:text-left">
+          {/* Eyebrow */}
+          <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-6">
+            CONSULTORÍA · SOFTWARE · AUTOMATIZACIÓN IA
+          </p>
 
-        {/* H1 */}
-        <h1 className="font-jost font-bold text-5xl sm:text-6xl lg:text-7xl text-nex-white leading-tight mb-6">
-          {t('headline_line1')}{' '}
-          <br className="hidden sm:block" />
-          {t('headline_line2')}{' '}
-          <br className="hidden sm:block" />
-          <span className="text-nex-green">{t('headline_accent')}</span>
-        </h1>
+          {/* H1 */}
+          <h1 className="font-jost font-extrabold text-4xl sm:text-5xl lg:text-6xl text-nex-white leading-tight mb-6">
+            Cada proceso sin controlar
+            <br />
+            es dinero que tu negocio
+            <br />
+            <span className="text-nex-green">está regalando.</span>
+          </h1>
 
-        {/* Subheadline */}
-        <p className="font-jost text-lg text-nex-grey max-w-2xl leading-relaxed mb-10">
-          {t('subheadline')}
-        </p>
+          {/* Sub */}
+          <p className="font-jost font-light text-lg text-nex-grey max-w-xl mx-auto lg:mx-0 leading-relaxed mb-10">
+            Construimos software a medida y sistemas de ventas con IA — para que operes mejor,
+            respondas más rápido y no pierdas ni un peso.
+          </p>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap gap-4">
-          <BookingDialog triggerLabel="Cotizar mi Proyecto →" variant="primary" />
-          <BookingDialog triggerLabel="Ver Demo" variant="ghost" />
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-10">
+            <BookingDialog triggerLabel="Cotizar mi Proyecto →" variant="primary" />
+            <Link
+              href="/#demo"
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-md
+                font-jost text-sm font-semibold text-nex-white border border-nex-white/30
+                hover:border-nex-white/60 transition-colors"
+            >
+              Ver Demo ↓
+            </Link>
+          </div>
+
+          {/* Inline stats */}
+          <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start">
+            <span className="font-dm-mono text-xs text-nex-grey">30% menos desperdicio</span>
+            <span className="text-nex-grey/30">|</span>
+            <span className="font-dm-mono text-xs text-nex-grey">30min→2min</span>
+            <span className="text-nex-grey/30">|</span>
+            <span className="font-dm-mono text-xs text-nex-grey">100+ proyectos</span>
+          </div>
+        </div>
+
+        {/* Right: dark abstract space */}
+        <div className="hidden lg:block">
+          <div className="aspect-square max-w-md ml-auto rounded-2xl border border-white/5 bg-nex-dark
+            bg-[radial-gradient(circle_at_30%_30%,rgba(0,255,163,0.04),transparent_60%)]" />
         </div>
       </div>
     </section>

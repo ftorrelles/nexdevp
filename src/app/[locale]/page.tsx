@@ -1,11 +1,15 @@
 import { setRequestLocale } from 'next-intl/server'
 import { getPublishedCases } from '@/content/case-studies'
 import { getServices } from '@/content/services'
+import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/sections/Hero'
 import { Pains } from '@/components/sections/Pains'
 import { Services } from '@/components/sections/Services'
 import { Methodology } from '@/components/sections/Methodology'
+import { DemoSection } from '@/components/sections/DemoSection'
 import { Cases } from '@/components/sections/Cases'
+import { Stats } from '@/components/sections/Stats'
+import { Guarantee } from '@/components/sections/Guarantee'
 import { Retainer } from '@/components/sections/Retainer'
 import { About } from '@/components/sections/About'
 import { LeadCapture } from '@/components/sections/LeadCapture'
@@ -24,16 +28,22 @@ export default async function HomePage({ params }: Props) {
   const services = getServices()
 
   return (
-    <main>
-      <Hero />
-      <Pains />
-      <Services services={services} locale={locale as Locale} />
-      <Methodology />
-      <Cases cases={cases} locale={locale as Locale} />
-      <Retainer />
-      <About />
-      <LeadCapture />
-      <Footer locale={locale as Locale} />
-    </main>
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <Pains />
+        <Services services={services} locale={locale as Locale} />
+        <Methodology />
+        <DemoSection />
+        <Cases cases={cases} locale={locale as Locale} />
+        <Stats />
+        <Guarantee />
+        <Retainer />
+        <About />
+        <LeadCapture />
+        <Footer locale={locale as Locale} />
+      </main>
+    </>
   )
 }

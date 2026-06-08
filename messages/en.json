@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "services": "Services",
+    "cases": "Cases",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "cta": {
+    "book": "Book a free consultation",
+    "whatsapp": "Message us on WhatsApp",
+    "learnMore": "Learn more"
+  },
+  "hero": {
+    "headline": "Digital systems that grow your business",
+    "subheadline": "We design and implement tailored solutions that eliminate friction and accelerate results."
+  },
+  "localeSwitcher": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English"
+  },
+  "meta": {
+    "siteTitle": "nexdevp — Digital systems for business",
+    "siteDescription": "We design and implement digital systems that grow your business. Consulting, development and automation."
+  }
+}

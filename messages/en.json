@@ -28,6 +28,84 @@
     "pains": "Does this sound familiar?",
     "leadCapture": "Ready to get started?"
   },
+  "pains": {
+    "eyebrow": "The problem",
+    "heading": "Does this sound familiar?",
+    "pain1": {
+      "title": "Manual processes stealing your time",
+      "body": "Your team spends hours on repetitive tasks: copying data between spreadsheets, sending follow-up emails, building reports by hand. Time that could go to work that actually matters.",
+      "cta": "See solutions"
+    },
+    "pain2": {
+      "title": "Decisions without real-time data",
+      "body": "Your information is scattered across different tools and you have to wait until month-end to know how the business is doing. Late decisions cost money.",
+      "cta": "See solutions"
+    },
+    "pain3": {
+      "title": "Technology that doesn't adapt to your business",
+      "body": "You use generic tools that force you to adapt your processes to them, instead of the other way around. Every workaround is debt that accumulates.",
+      "cta": "See solutions"
+    }
+  },
+  "services": {
+    "eyebrow": "What we do",
+    "heading": "Services",
+    "cardCta": "Request a quote"
+  },
+  "methodology": {
+    "eyebrow": "How we work",
+    "heading": "Methodology",
+    "step1": {
+      "number": "01",
+      "title": "Diagnose",
+      "description": "We start by understanding your business: current processes, real pain points, growth objectives. No assumptions — only listening and analysis."
+    },
+    "step2": {
+      "number": "02",
+      "title": "Build",
+      "description": "We develop the solution in short iterations with real deliverables. You see progress from the first week, not at the end of the project."
+    },
+    "step3": {
+      "number": "03",
+      "title": "Grow",
+      "description": "We measure results, adjust, and scale. The system evolves with your business so growth doesn't find you without the infrastructure to support it."
+    },
+    "connector": "→"
+  },
+  "cases": {
+    "eyebrow": "Real results",
+    "heading": "Case studies",
+    "viewCase": "View full case study",
+    "metric": "Result"
+  },
+  "retainer": {
+    "eyebrow": "Strategic partnership",
+    "heading": "Ongoing support",
+    "body": "The launch is just the beginning. Businesses that grow need technology that evolves with them: new features, optimizations, fast response to issues.",
+    "body2": "We work with select clients on a monthly retainer model, as an extended technical team that already knows your system and can act without friction.",
+    "cta": "Let's talk about ongoing support"
+  },
+  "about": {
+    "eyebrow": "The team",
+    "heading": "About us",
+    "founder1": {
+      "name": "Founder 1",
+      "role": "Co-founder & CTO",
+      "bio": "Software architect with over 10 years building systems for growing businesses. Specialist in scalable system design and product teams.",
+      "imageAlt": "Photo of Founder 1, co-founder and CTO of nexdevp"
+    },
+    "founder2": {
+      "name": "Founder 2",
+      "role": "Co-founder & CEO",
+      "bio": "Business strategist focused on digital transformation. Has guided more than 30 companies in implementing technology that generates measurable results.",
+      "imageAlt": "Photo of Founder 2, co-founder and CEO of nexdevp"
+    }
+  },
+  "leadCapture": {
+    "eyebrow": "Next step",
+    "heading": "Ready to grow your business?",
+    "subheading": "A 30-minute call is enough to understand if we can help you. No commitment, no pressure."
+  },
   "localeSwitcher": {
     "label": "Language",
     "es": "Español",

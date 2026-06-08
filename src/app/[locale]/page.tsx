@@ -1,24 +1,39 @@
-import { setRequestLocale } from "next-intl/server";
-import { getTranslations } from "next-intl/server";
+import { setRequestLocale } from 'next-intl/server'
+import { getPublishedCases } from '@/content/case-studies'
+import { getServices } from '@/content/services'
+import { Hero } from '@/components/sections/Hero'
+import { Pains } from '@/components/sections/Pains'
+import { Services } from '@/components/sections/Services'
+import { Methodology } from '@/components/sections/Methodology'
+import { Cases } from '@/components/sections/Cases'
+import { Retainer } from '@/components/sections/Retainer'
+import { About } from '@/components/sections/About'
+import { LeadCapture } from '@/components/sections/LeadCapture'
+import { Footer } from '@/components/sections/Footer'
+import type { Locale } from '@/content/types'
 
 type Props = {
-  params: Promise<{ locale: string }>;
-};
+  params: Promise<{ locale: string }>
+}
 
 export default async function HomePage({ params }: Props) {
-  const { locale } = await params;
-  setRequestLocale(locale);
+  const { locale } = await params
+  setRequestLocale(locale as Locale)
 
-  const t = await getTranslations("hero");
+  const cases = getPublishedCases()
+  const services = getServices()
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4">
-      <h1 className="font-cormorant text-5xl md:text-7xl text-cream text-center leading-tight">
-        {t("headline")}
-      </h1>
-      <p className="mt-6 text-muted font-jost text-lg md:text-xl text-center max-w-2xl">
-        {t("subheadline")}
-      </p>
+    <main>
+      <Hero />
+      <Pains />
+      <Services services={services} locale={locale as Locale} />
+      <Methodology />
+      <Cases cases={cases} locale={locale as Locale} />
+      <Retainer />
+      <About />
+      <LeadCapture />
+      <Footer locale={locale as Locale} />
     </main>
-  );
+  )
 }

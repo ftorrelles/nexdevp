@@ -2,31 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand token definitions
- * IMPORTANT: --color-accent is PROVISIONAL (#2BC653).
- * Sample exact hex from the final logo before launch.
- */
+/* Brand token definitions — dark SaaS palette */
 :root {
-  --color-black: #080808;
-  --color-surface: #111111;
-  --color-cream: #f5f2ed;
-  --color-muted: #aaaaaa;
-  --color-accent: #2bc653;
+  --nex-black: #191a1b;
+  --nex-dark: #1b1b1c;
+  --nex-grey: #8a8c8b;
+  --nex-white: #ffffff;
+  --nex-green: #22b561;
 }
 
 /* Dark-first base */
 @layer base {
   html {
-    background-color: var(--color-black);
-    color: var(--color-cream);
+    background-color: var(--nex-black);
+    color: var(--nex-white);
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-black text-cream font-jost antialiased;
-  }
-
-  /* Smooth scroll for anchor links */
-  html {
-    scroll-behavior: smooth;
+    @apply bg-nex-black text-nex-white font-jost antialiased;
   }
 }

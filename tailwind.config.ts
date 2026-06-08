@@ -9,12 +9,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        black: "var(--color-black)",
-        surface: "var(--color-surface)",
-        cream: "var(--color-cream)",
-        muted: "var(--color-muted)",
-        // PROVISIONAL: replace with exact hex sampled from final logo before launch
-        accent: "var(--color-accent)",
+        "nex-black": "#191a1b",
+        "nex-dark": "#1b1b1c",
+        "nex-grey": "#8a8c8b",
+        "nex-white": "#ffffff",
+        "nex-green": "#22b561",
       },
       fontFamily: {
         cormorant: ["var(--font-cormorant)", "Georgia", "serif"],

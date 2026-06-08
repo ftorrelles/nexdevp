@@ -28,6 +28,84 @@
     "pains": "¿Te suena familiar?",
     "leadCapture": "¿Listo para empezar?"
   },
+  "pains": {
+    "eyebrow": "El problema",
+    "heading": "¿Te suena familiar?",
+    "pain1": {
+      "title": "Procesos manuales que roban tiempo",
+      "body": "Tu equipo invierte horas en tareas repetitivas: copiar datos entre planillas, enviar correos de seguimiento, armar reportes a mano. Tiempo que podría ir al trabajo que realmente importa.",
+      "cta": "Ver soluciones"
+    },
+    "pain2": {
+      "title": "Decisiones sin datos en tiempo real",
+      "body": "Tenés información dispersa en distintas herramientas y tenés que esperar hasta el cierre de mes para saber cómo está yendo el negocio. Decisiones tardías cuestan dinero.",
+      "cta": "Ver soluciones"
+    },
+    "pain3": {
+      "title": "Tecnología que no se adapta a tu negocio",
+      "body": "Usás herramientas genéricas que te obligan a adaptar tus procesos a ellas, en lugar de al revés. Cada workaround es deuda que se acumula.",
+      "cta": "Ver soluciones"
+    }
+  },
+  "services": {
+    "eyebrow": "Qué hacemos",
+    "heading": "Servicios",
+    "cardCta": "Solicitar presupuesto"
+  },
+  "methodology": {
+    "eyebrow": "Cómo trabajamos",
+    "heading": "Metodología",
+    "step1": {
+      "number": "01",
+      "title": "Diagnosticamos",
+      "description": "Empezamos entendiendo tu negocio: procesos actuales, dolores reales, objetivos de crecimiento. Sin supuestos — solo escucha y análisis."
+    },
+    "step2": {
+      "number": "02",
+      "title": "Construimos",
+      "description": "Desarrollamos la solución en iteraciones cortas con entregas reales. Vos ves progreso desde la primera semana, no al final del proyecto."
+    },
+    "step3": {
+      "number": "03",
+      "title": "Hacemos crecer",
+      "description": "Medimos resultados, ajustamos y escalamos. El sistema evoluciona con tu negocio para que el crecimiento no te encuentre sin infraestructura."
+    },
+    "connector": "→"
+  },
+  "cases": {
+    "eyebrow": "Resultados reales",
+    "heading": "Casos de éxito",
+    "viewCase": "Ver caso completo",
+    "metric": "Resultado"
+  },
+  "retainer": {
+    "eyebrow": "Alianza estratégica",
+    "heading": "Soporte continuo",
+    "body": "El lanzamiento es el comienzo. Los negocios que crecen necesitan tecnología que evolucione con ellos: nuevas funcionalidades, optimizaciones, respuesta rápida ante problemas.",
+    "body2": "Trabajamos con clientes seleccionados en modelo de retención mensual, como un equipo técnico extendido que ya conoce tu sistema y puede actuar sin fricción.",
+    "cta": "Hablemos de soporte continuo"
+  },
+  "about": {
+    "eyebrow": "El equipo",
+    "heading": "Sobre nosotros",
+    "founder1": {
+      "name": "Founder 1",
+      "role": "Co-founder & CTO",
+      "bio": "Arquitecto de software con más de 10 años construyendo sistemas para empresas en crecimiento. Especialista en diseño de sistemas escalables y equipos de producto.",
+      "imageAlt": "Foto de Founder 1, co-fundador y CTO de nexdevp"
+    },
+    "founder2": {
+      "name": "Founder 2",
+      "role": "Co-founder & CEO",
+      "bio": "Estratega de negocio con foco en transformación digital. Ha acompañado a más de 30 empresas a implementar tecnología que genera resultados medibles.",
+      "imageAlt": "Foto de Founder 2, co-fundador y CEO de nexdevp"
+    }
+  },
+  "leadCapture": {
+    "eyebrow": "Siguiente paso",
+    "heading": "¿Listo para hacer crecer tu negocio?",
+    "subheading": "Una llamada de 30 minutos es suficiente para entender si podemos ayudarte. Sin compromiso, sin presión."
+  },
   "localeSwitcher": {
     "label": "Idioma",
     "es": "Español",

@@ -1,3 +1,5 @@
+'use client'
+
 import { useTranslations } from 'next-intl'
 import { WHATSAPP_NUMBER } from '@/lib/constants'
 

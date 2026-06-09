@@ -4,7 +4,7 @@ import { Link } from '@/i18n/navigation'
 export function Hero() {
   return (
     <section className="min-h-screen flex items-center bg-nex-black px-6 lg:px-12 py-24">
-      <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-4xl mx-auto w-full">
         {/* Left: content */}
         <div className="text-center lg:text-left">
           {/* Eyebrow */}
@@ -14,11 +14,11 @@ export function Hero() {
 
           {/* H1 */}
           <h1 className="font-jost font-extrabold text-4xl sm:text-5xl lg:text-6xl text-nex-white leading-tight mb-6">
-            Cada proceso sin controlar
+            De procesos caóticos
             <br />
-            es dinero que tu negocio
+            a operaciones que
             <br />
-            <span className="text-nex-green">está regalando.</span>
+            <span className="text-nex-green">se manejan solas.</span>
           </h1>
 
           {/* Sub */}
@@ -50,11 +50,6 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right: dark abstract space */}
-        <div className="hidden lg:block">
-          <div className="aspect-square max-w-md ml-auto rounded-2xl border border-white/5 bg-nex-dark
-            bg-[radial-gradient(circle_at_30%_30%,rgba(0,255,163,0.04),transparent_60%)]" />
-        </div>
       </div>
     </section>
   )

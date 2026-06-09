@@ -24,7 +24,7 @@ export function Hero() {
           {/* Sub */}
           <p className="font-jost font-light text-lg text-nex-grey max-w-xl mx-auto lg:mx-0 leading-relaxed mb-10">
             Construimos software a medida y sistemas de ventas con IA — para que operes mejor,
-            respondas más rápido y no pierdas ni un peso.
+            respondas más rápido y no dejes escapar ninguna oportunidad.
           </p>
 
           {/* CTAs */}

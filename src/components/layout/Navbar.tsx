@@ -15,7 +15,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" aria-label="nexdevp home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-light.svg" alt="nexdevp" style={{ height: '32px', width: 'auto' }} />
+          <img src="/brand/logo-dark.svg" alt="nexdevp" style={{ height: '32px', width: 'auto' }} />
         </Link>
 
         {/* Center nav links (hidden on mobile) */}

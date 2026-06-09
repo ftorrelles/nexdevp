@@ -8,6 +8,7 @@ import { CaseHero } from '@/components/sections/CaseHero'
 import { Methodology } from '@/components/sections/Methodology'
 import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
+import { BeforeAfter } from '@/components/sections/BeforeAfter'
 import { Footer } from '@/components/sections/Footer'
 
 type Props = {
@@ -21,6 +22,7 @@ export default async function HomePage({ params }: Props) {
     <main>
       <Navbar />
       <Hero />
+      <BeforeAfter />
       <Pillars />
       <DemoSection />
       <CaseHero />

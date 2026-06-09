@@ -4,93 +4,88 @@ import { useEffect, useState } from 'react'
 import { BookingDialog } from '@/components/cta/BookingDialog'
 import { Link } from '@/i18n/navigation'
 
-const problems = [
-  'Procesos manuales que consumen horas',
-  'Leads que llegan y nadie responde',
-  'Decisiones sin datos en tiempo real',
-  'Operaciones que dependen de una persona',
+const metrics = [
+  { value: '30%', label: 'menos desperdicio', sub: 'CocinerHosp', delay: 600, from: 'top-left' },
+  { value: '60s', label: 'primera respuesta', sub: 'Agente IA', delay: 900, from: 'top-right' },
+  { value: '30min→2min', label: 'cálculo diario', sub: 'Automatización', delay: 1200, from: 'bottom-left' },
+  { value: '100+', label: 'proyectos entregados', sub: 'Global', delay: 1500, from: 'bottom-right' },
 ]
 
-const solutions = [
-  'Sistemas que operan sin intervención',
-  'Agente IA que responde en 60 segundos',
-  'Dashboards con datos al instante',
-  'Operaciones que escalan solas',
-]
+const fromStyles: Record<string, string> = {
+  'top-left':     'translate(-24px, -24px)',
+  'top-right':    'translate(24px, -24px)',
+  'bottom-left':  'translate(-24px, 24px)',
+  'bottom-right': 'translate(24px, 24px)',
+}
 
 export function Hero() {
-  const [visible, setVisible] = useState<number[]>([])
+  const [headlineVisible, setHeadlineVisible] = useState(false)
+  const [visibleCards, setVisibleCards] = useState<number[]>([])
 
   useEffect(() => {
-    const total = problems.length + solutions.length
-    for (let i = 0; i < total; i++) {
-      setTimeout(() => {
-        setVisible((prev) => [...prev, i])
-      }, 300 + i * 380)
-    }
+    setTimeout(() => setHeadlineVisible(true), 200)
+    metrics.forEach((m, i) => {
+      setTimeout(() => setVisibleCards((prev) => [...prev, i]), m.delay)
+    })
   }, [])
 
   return (
-    <section className="min-h-screen flex flex-col bg-nex-black">
+    <section className="relative min-h-screen flex flex-col items-center justify-center bg-nex-black px-6 lg:px-12 py-24 overflow-hidden">
 
-      {/* Split panels */}
-      <div className="flex-1 grid lg:grid-cols-2 border-b border-white/5">
+      {/* Dot grid background */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+      {/* Green glow center */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-nex-green/5 blur-3xl pointer-events-none" />
 
-        {/* LEFT — Before */}
-        <div className="relative flex flex-col justify-center px-10 lg:px-16 py-16 border-b lg:border-b-0 lg:border-r border-white/5">
-          <div className="absolute inset-0 bg-red-500/[0.03] pointer-events-none" />
-          <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-red-400/70 mb-8">
-            Sin nexdevp
-          </p>
-          <ul className="space-y-5">
-            {problems.map((p, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3 transition-all duration-500"
-                style={{
-                  opacity: visible.includes(i) ? 1 : 0,
-                  transform: visible.includes(i) ? 'translateX(0)' : 'translateX(-16px)',
-                }}
-              >
-                <span className="mt-0.5 text-red-400 font-bold text-sm flex-shrink-0">✗</span>
-                <span className="font-jost text-base text-nex-grey leading-snug">{p}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* Floating metric cards */}
+      {metrics.map((m, i) => {
+        const isVisible = visibleCards.includes(i)
+        const isLeft = m.from.includes('left')
+        const isTop = m.from.includes('top')
+        return (
+          <div
+            key={i}
+            className="absolute hidden lg:block"
+            style={{
+              ...(isTop ? { top: '18%' } : { bottom: '18%' }),
+              ...(isLeft ? { left: '6%' } : { right: '6%' }),
+              transition: 'opacity 0.6s ease, transform 0.6s ease',
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translate(0,0)' : fromStyles[m.from],
+            }}
+          >
+            <div className="bg-nex-dark border border-white/8 rounded-xl px-5 py-4 min-w-[160px]">
+              <p className="font-jost font-extrabold text-2xl text-nex-green leading-none mb-1">
+                {m.value}
+              </p>
+              <p className="font-jost text-xs text-nex-white">{m.label}</p>
+              <p className="font-dm-mono text-[9px] text-nex-grey uppercase tracking-widest mt-1">
+                {m.sub}
+              </p>
+            </div>
+          </div>
+        )
+      })}
 
-        {/* RIGHT — After */}
-        <div className="relative flex flex-col justify-center px-10 lg:px-16 py-16">
-          <div className="absolute inset-0 bg-nex-green/[0.03] pointer-events-none" />
-          <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green/70 mb-8">
-            Con nexdevp
-          </p>
-          <ul className="space-y-5">
-            {solutions.map((s, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3 transition-all duration-500"
-                style={{
-                  opacity: visible.includes(problems.length + i) ? 1 : 0,
-                  transform: visible.includes(problems.length + i)
-                    ? 'translateX(0)'
-                    : 'translateX(16px)',
-                }}
-              >
-                <span className="mt-0.5 text-nex-green font-bold text-sm flex-shrink-0">✓</span>
-                <span className="font-jost text-base text-nex-white leading-snug">{s}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* Bottom: headline + CTAs */}
-      <div className="px-6 lg:px-12 py-16 text-center">
-        <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green mb-5">
+      {/* Center content */}
+      <div
+        className="relative z-10 text-center max-w-3xl mx-auto"
+        style={{
+          transition: 'opacity 0.8s ease, transform 0.8s ease',
+          opacity: headlineVisible ? 1 : 0,
+          transform: headlineVisible ? 'translateY(0)' : 'translateY(20px)',
+        }}
+      >
+        <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green mb-6">
           CONSULTORÍA · SOFTWARE · AUTOMATIZACIÓN IA
         </p>
-        <h1 className="font-jost font-extrabold text-4xl sm:text-5xl lg:text-6xl text-nex-white leading-tight mb-6 max-w-3xl mx-auto">
+        <h1 className="font-jost font-extrabold text-5xl sm:text-6xl lg:text-7xl text-nex-white leading-[1.05] mb-6">
           De procesos caóticos<br />
           a operaciones que{' '}
           <span className="text-nex-green">se manejan solas.</span>
@@ -99,7 +94,7 @@ export function Hero() {
           Construimos software a medida y sistemas de ventas con IA —
           para que operes mejor y no dejes escapar ninguna oportunidad.
         </p>
-        <div className="flex flex-wrap gap-4 justify-center mb-10">
+        <div className="flex flex-wrap gap-4 justify-center">
           <BookingDialog triggerLabel="Cotizar mi Proyecto →" variant="primary" />
           <Link
             href="#demo"
@@ -109,13 +104,6 @@ export function Hero() {
           >
             Ver Demo ↓
           </Link>
-        </div>
-        <div className="flex flex-wrap items-center gap-4 justify-center">
-          <span className="font-dm-mono text-xs text-nex-grey">30% menos desperdicio</span>
-          <span className="text-nex-grey/30">|</span>
-          <span className="font-dm-mono text-xs text-nex-grey">30min → 2min</span>
-          <span className="text-nex-grey/30">|</span>
-          <span className="font-dm-mono text-xs text-nex-grey">100+ proyectos</span>
         </div>
       </div>
 

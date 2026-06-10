@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.16",
+    "@supabase/supabase-js": "^2.108.1",
     "framer-motion": "^12.40.0",
     "next": "15.3.3",
     "next-intl": "^4.1.0",

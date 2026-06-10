@@ -1,20 +1,11 @@
-export function Stats() {
+import { getTranslations } from 'next-intl/server'
+
+export async function Stats() {
+  const t = await getTranslations('stats')
   const stats = [
-    {
-      number: '03+',
-      label: 'AÑOS DE COMPROMISO',
-      description: 'Construyendo sistemas que generan resultados reales',
-    },
-    {
-      number: '100+',
-      label: 'PROYECTOS ENTREGADOS',
-      description: 'Desde startups hasta empresas consolidadas',
-    },
-    {
-      number: '100%',
-      label: 'DEDICACIÓN',
-      description: 'Cada cliente recibe atención de los fundadores directamente',
-    },
+    { number: t('stat1_number'), label: t('stat1_label'), description: t('stat1_desc') },
+    { number: t('stat2_number'), label: t('stat2_label'), description: t('stat2_desc') },
+    { number: t('stat3_number'), label: t('stat3_label'), description: t('stat3_desc') },
   ]
 
   return (

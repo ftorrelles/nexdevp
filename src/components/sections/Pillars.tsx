@@ -1,20 +1,22 @@
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 
-export function Pillars() {
+export async function Pillars() {
+  const t = await getTranslations('pillars')
   return (
-    <section className="bg-nex-dark py-24 px-6 lg:px-12">
+    <section id="servicios" className="bg-nex-dark py-24 px-6 lg:px-12">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-4">
-            LO QUE HACEMOS
+            {t('eyebrow')}
           </p>
           <h2 className="font-jost font-bold text-3xl sm:text-4xl text-nex-white mb-4">
-            Dos pilares. Un objetivo:{' '}
-            <span className="text-nex-green">que no pierdas más dinero.</span>
+            {t('heading')}{' '}
+            <span className="text-nex-green">{t('heading_accent')}</span>
           </h2>
           <p className="font-jost text-nex-grey max-w-xl mx-auto">
-            Cada problema tiene una solución diferente. Elegimos la correcta.
+            {t('sub')}
           </p>
         </div>
 
@@ -24,7 +26,7 @@ export function Pillars() {
           <div className="bg-nex-black border border-white/10 rounded-2xl p-8 flex flex-col">
             {/* Badge */}
             <span className="font-dm-mono text-xs text-nex-green bg-nex-green/10 px-3 py-1 rounded-full w-fit mb-6">
-              SOFTWARE A MEDIDA
+              {t('card1_badge')}
             </span>
 
             {/* Icon */}
@@ -47,21 +49,17 @@ export function Pillars() {
             </div>
 
             <h3 className="font-jost font-bold text-2xl text-nex-white mb-3">
-              Control total de tu operación
+              {t('card1_title')}
             </h3>
             <p className="font-jost text-nex-grey mb-6 leading-relaxed">
-              Procesos manuales, decisiones a ciegas, tiempo y dinero que se pierden sin que nadie lo vea.
+              {t('card1_sub')}
             </p>
 
             <hr className="border-white/10 mb-6" />
 
             {/* What we build */}
             <ul className="space-y-3 mb-6 flex-1">
-              {[
-                'Sistemas de gestión internos a medida',
-                'Dashboards de control en tiempo real',
-                'Automatización de procesos operativos',
-              ].map((item) => (
+              {[t('card1_item1'), t('card1_item2'), t('card1_item3')].map((item) => (
                 <li key={item} className="flex items-start gap-3 font-jost text-sm text-nex-grey">
                   <svg
                     className="w-5 h-5 text-nex-green flex-shrink-0 mt-0.5"
@@ -83,11 +81,10 @@ export function Pillars() {
             {/* Case preview */}
             <div className="bg-nex-dark rounded-xl p-4 mt-4">
               <p className="font-dm-mono text-xs text-nex-grey/60 uppercase tracking-widest mb-2">
-                CASO REAL
+                {t('card1_case_label')}
               </p>
               <p className="font-jost text-sm text-nex-grey leading-relaxed mb-3">
-                Una empresa de catering hospitalario recuperó el 30% de su presupuesto en comida y
-                redujo el cálculo diario de producción de 30 minutos a 2 minutos.
+                {t('card1_case_text')}
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="font-dm-mono text-xs text-nex-green bg-nex-green/10 px-2 py-1 rounded">
@@ -104,7 +101,7 @@ export function Pillars() {
           <div className="bg-nex-black border border-nex-green/30 rounded-2xl p-8 flex flex-col">
             {/* Badge */}
             <span className="font-dm-mono text-xs text-nex-green bg-nex-green/10 px-3 py-1 rounded-full w-fit mb-6">
-              VENTAS CON IA
+              {t('card2_badge')}
             </span>
 
             {/* Icon */}
@@ -126,22 +123,17 @@ export function Pillars() {
             </div>
 
             <h3 className="font-jost font-bold text-2xl text-nex-white mb-3">
-              Tu sistema comercial que nunca duerme
+              {t('card2_title')}
             </h3>
             <p className="font-jost text-nex-grey mb-6 leading-relaxed">
-              Leads que llegan de noche, preguntas repetitivas, agendas sin coordinar. Cada minuto
-              sin respuesta es un cliente que se va.
+              {t('card2_sub')}
             </p>
 
             <hr className="border-nex-green/20 mb-6" />
 
             {/* What we build */}
             <ul className="space-y-3 mb-6 flex-1">
-              {[
-                'Agente de IA para WhatsApp 24/7',
-                'Calificación automática de leads',
-                'Integración con CRM y agenda',
-              ].map((item) => (
+              {[t('card2_item1'), t('card2_item2'), t('card2_item3')].map((item) => (
                 <li key={item} className="flex items-start gap-3 font-jost text-sm text-nex-grey">
                   <svg
                     className="w-5 h-5 text-nex-green flex-shrink-0 mt-0.5"
@@ -163,17 +155,17 @@ export function Pillars() {
             {/* Demo teaser */}
             <div className="bg-nex-dark rounded-xl p-4 mt-4">
               <p className="font-dm-mono text-xs text-nex-grey/60 uppercase tracking-widest mb-2">
-                DEMO EN VIVO
+                {t('card2_demo_label')}
               </p>
               <p className="font-jost text-sm text-nex-grey leading-relaxed mb-3">
-                Probá ahora cómo responde el agente a tus prospectos.
+                {t('card2_demo_text')}
               </p>
               <Link
                 href="/#demo"
                 className="inline-flex items-center gap-1 font-jost text-sm font-semibold text-nex-green
                   hover:text-nex-green/80 transition-colors"
               >
-                Ver demo ↓
+                {t('card2_demo_cta')}
               </Link>
             </div>
           </div>

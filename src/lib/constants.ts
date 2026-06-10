@@ -1,3 +1,3 @@
-export const WHATSAPP_NUMBER = '+549XXXXXXXXXX' // placeholder — launch gate enforces real value
-export const BOOKING_URL = 'https://tidycal.com/placeholder' // placeholder — launch gate enforces real value
+export const WHATSAPP_NUMBER = '+34677525806'
+export const BOOKING_URL = 'https://cal.eu/francisco-torrelles-zdwnp3/30min'
 export const SITE_URL = 'https://nexdevp.com'

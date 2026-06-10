@@ -47,12 +47,14 @@ export async function CaseCard({ caseStudy, locale }: CaseCardProps) {
         </div>
       )}
 
-      <Link
-        href={href}
-        className="font-dm-mono text-xs text-nex-green uppercase tracking-widest hover:underline mt-auto"
-      >
-        {t('viewCase')} →
-      </Link>
+      {caseStudy.videoUrl && (
+        <Link
+          href={href}
+          className="font-dm-mono text-xs text-nex-green uppercase tracking-widest hover:underline mt-auto"
+        >
+          {t('viewCase')} →
+        </Link>
+      )}
     </div>
   )
 }

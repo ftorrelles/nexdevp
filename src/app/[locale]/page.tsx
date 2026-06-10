@@ -9,6 +9,7 @@ import { Methodology } from '@/components/sections/Methodology'
 import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
 import { BeforeAfter } from '@/components/sections/BeforeAfter'
+import { Portfolio } from '@/components/sections/Portfolio'
 import { Footer } from '@/components/sections/Footer'
 
 type Props = {
@@ -20,13 +21,14 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale as Locale)
   return (
     <main>
-      <Navbar />
+      <Navbar locale={locale as Locale} />
       <Hero />
       <BeforeAfter />
       <Pillars />
       <DemoSection />
       <CaseHero />
       <Methodology />
+      <Portfolio />
       <Stats />
       <CtaFinal />
       <Footer locale={locale as Locale} />

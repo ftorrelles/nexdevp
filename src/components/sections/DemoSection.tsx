@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 // ── BUSINESS CONFIGS ──
 interface BusinessConfig {
@@ -12,98 +13,13 @@ interface BusinessConfig {
   responses: Record<string, string | string[]>
 }
 
-const BUSINESSES: Record<string, BusinessConfig> = {
-  clinica: {
-    name: 'Centro Médico San Rafael',
-    avatar: '🏥',
-    desc: 'Clínica privada · Especialidades: pediatría, medicina interna, ginecología · Citas desde $25 · Atiende lunes a sábado',
-    context: [
-      { key: 'Servicios principales', val: 'Pediatría, Medicina Interna, Ginecología, Cardiología' },
-      { key: 'Precio consulta', val: 'Desde $25 · Precio exacto según especialidad' },
-      { key: 'Disponibilidad', val: 'Lunes a Sábado, 8am–6pm · Urgencias hasta 9pm' },
-      { key: 'Cómo agendar', val: 'El agente agenda directamente o pasa a humano si el caso es complejo' },
-    ],
-    chips: ['¿Qué especialidades tienen?', 'Quiero agendar una cita', '¿Cuánto cuesta consulta?', '¿En qué horario atienden?'],
-    responses: {
-      default: [
-        '¡Hola! Bienvenido al Centro Médico San Rafael. Soy el asistente virtual del centro. ¿En qué puedo ayudarte hoy? 😊',
-      ],
-      servicios: 'Contamos con las siguientes especialidades médicas:\n\n• 👶 *Pediatría* — Consulta desde $25\n• 🩺 *Medicina Interna* — Consulta desde $30\n• 👩‍⚕️ *Ginecología* — Consulta desde $35\n• ❤️ *Cardiología* — Consulta desde $40\n\nTodas nuestras consultas incluyen revisión completa. ¿Te gustaría agendar?',
-      cita: '¡Perfecto! Para agendar tu cita necesito algunos datos:\n\n1️⃣ ¿Con qué especialidad necesitas la cita?\n2️⃣ ¿Prefieres mañana por la mañana o la tarde?\n\nTenemos disponibilidad esta semana. 📅',
-      precio: 'Nuestros precios de consulta son:\n\n• Pediatría: *$25*\n• Medicina Interna: *$30*\n• Ginecología: *$35*\n• Cardiología: *$40*\n\n💡 El pago se realiza el día de la consulta. ¿Deseas agendar?',
-      horario: 'Nuestros horarios de atención:\n\n🕗 *Lunes a Viernes:* 8:00am – 6:00pm\n🕗 *Sábado:* 8:00am – 2:00pm\n🚨 *Urgencias:* hasta las 9:00pm\n\n¿En qué momento te quedaría mejor una cita?',
-      gracias: '¡Con mucho gusto! Si tienes alguna duda más no dudes en escribirnos. Te esperamos pronto. 🙏',
-    },
-  },
-  distribuidora: {
-    name: 'Distribuidora El Volcán',
-    avatar: '📦',
-    desc: 'Distribuidora de alimentos · Ventas al mayor y detal · Despacho 24-48h · Pago Móvil y Zelle',
-    context: [
-      { key: 'Productos', val: 'Granos, aceites, harina, azúcar, productos de limpieza' },
-      { key: 'Pedido mínimo', val: '$80 USD para despacho a domicilio' },
-      { key: 'Métodos de pago', val: 'Pago Móvil, Zelle, transferencia bancaria' },
-      { key: 'Despacho', val: '24-48 horas dentro de Caracas y Miranda' },
-    ],
-    chips: ['¿Qué productos tienen?', 'Quiero hacer un pedido', '¿Cuál es el precio del aceite?', '¿Hacen despacho?'],
-    responses: {
-      default: ['¡Hola! Bienvenido a Distribuidora El Volcán. ¿Estás buscando algún producto o quieres ver nuestra lista de precios? 📦'],
-      servicios: 'Estos son los más solicitados esta semana:\n\n🫙 *Aceite de maíz* 1L — $2.80\n🌾 *Harina PAN* 1kg — $1.50\n🫘 *Caraotas negras* 1kg — $1.80\n🧴 *Azúcar blanca* 1kg — $1.20\n\n¿Te interesa alguno? Pedido mínimo para despacho: *$80*.',
-      cita: 'Para procesar tu pedido necesito:\n\n1️⃣ ¿Qué productos y en qué cantidad?\n2️⃣ Dirección de entrega\n3️⃣ ¿Prefieres Zelle o Pago Móvil?\n\nEscríbeme la lista y te calculo el total. 📋',
-      precio: 'Lista de precios actual:\n\n*Aceites:* Maíz 1L $2.80 · Soya 1L $2.60\n*Harinas:* PAN 1kg $1.50 · Trigo 1kg $1.80\n*Granos:* Caraotas $1.80 · Lentejas $2.10\n*Azúcar:* Blanca 1kg $1.20\n\n📦 *Pedido mínimo $80 para despacho.*',
-      horario: 'Tomamos pedidos *todos los días de 7am a 6pm*. El despacho se hace en 24-48 horas hábiles en Caracas y Miranda.\n\n🚚 *Despacho gratuito* en pedidos mayores a $150.',
-      gracias: '¡Gracias a ti! Tu pedido queda registrado y te confirmamos por este mismo chat. 🙌',
-    },
-  },
-  consultora: {
-    name: 'nexdevp',
-    avatar: '💻',
-    desc: 'Ingeniería de Ventas con IA · Sistemas, automatización y agentes de IA · Venezuela e internacional',
-    context: [
-      { key: 'Productos principales', val: 'Motor de Ventas con IA, Presencia Inteligente, Comercio Inteligente' },
-      { key: 'Ticket promedio', val: '$2,200 – $3,200 por proyecto · Retainer desde $1,200/mes' },
-      { key: 'Primera consulta', val: 'Siempre gratis, sin compromiso · 20 minutos' },
-      { key: 'Tiempo de entrega', val: '25 a 45 días según el producto' },
-    ],
-    chips: ['¿Qué servicios ofrecen?', 'Quiero una consulta gratis', '¿Cuánto cuestan sus servicios?', '¿Cuánto tarda un proyecto?'],
-    responses: {
-      default: ['¡Hola! Soy el asistente de nexdevp 👋 Ayudamos a empresas a automatizar sus ventas usando inteligencia artificial. ¿Qué necesita tu negocio?'],
-      servicios: 'Trabajamos con 4 productos principales:\n\n🌐 *Presencia Inteligente* ($2,200) — Web premium + chatbot IA\n🤖 *Motor de Ventas con IA* ($2,800) — Agente IA + CRM + WhatsApp\n🛒 *Comercio Inteligente* ($3,200) — Tienda online + agente de atención\n📈 *Retainer de Crecimiento* ($1,200/mes) — Optimización continua\n\n¿Cuál se ajusta más a lo que buscas?',
-      cita: '¡Perfecto! La primera consulta es *gratis* y dura 20 minutos. Revisamos tu situación y te decimos exactamente qué tiene más sentido para tu negocio.\n\n📅 ¿Cuándo tenés disponibilidad esta semana?',
-      precio: 'Nuestros productos tienen precios fijos:\n\n• Presencia Inteligente: *$2,200*\n• Motor de Ventas con IA: *$2,800* ⭐\n• Comercio Inteligente: *$3,200*\n• Retainer mensual: desde *$1,200/mes*\n\n💡 Primera consulta siempre *gratis*.',
-      horario: 'Atendemos de lunes a viernes de 9am a 6pm. La consulta inicial la hacemos por videollamada.\n\n🕗 Normalmente respondemos en menos de 2 horas.',
-      gracias: '¡Gracias por escribirnos! Quedamos atentos. Un asesor te contactará pronto. 🙏',
-    },
-  },
-  retail: {
-    name: 'Moda Urbana Store',
-    avatar: '👗',
-    desc: 'Tienda de ropa y accesorios · Caracas · Colecciones nuevas cada mes · Envío nacional',
-    context: [
-      { key: 'Productos', val: 'Ropa casual, ropa de trabajo, accesorios, calzado' },
-      { key: 'Precios', val: 'Camisas desde $12 · Pantalones desde $18 · Accesorios desde $5' },
-      { key: 'Formas de pago', val: 'Zelle, Pago Móvil, efectivo USD' },
-      { key: 'Despacho', val: 'Caracas: 24h · Nacional: 3-5 días por MRW o Zoom' },
-    ],
-    chips: ['¿Qué tienen disponible?', 'Quiero ver los precios', '¿Hacen envíos?', '¿Tienen tallas grandes?'],
-    responses: {
-      default: ['¡Hola! Bienvenido a Moda Urbana Store 👗✨ ¿Qué tipo de ropa estás buscando hoy?'],
-      servicios: 'Tenemos disponible:\n\n👕 *Camisas básicas* desde $12 · Tallas XS-XXL\n👖 *Pantalones* desde $18 · Jeans y casuales\n👗 *Vestidos* desde $22 · Colección nueva esta semana\n👟 *Calzado* desde $25\n💍 *Accesorios* desde $5\n\n¿Te interesa algo en particular?',
-      cita: '¡Claro! Para prepararte el pedido necesito:\n\n1️⃣ ¿Qué prendas te interesan?\n2️⃣ ¿Cuál es tu talla?\n3️⃣ ¿Estás en Caracas o necesitas envío?\n\nTe mando fotos de las opciones disponibles 📸',
-      precio: 'Rangos de precio actuales:\n\n• Camisas: $12 – $22\n• Pantalones: $18 – $35\n• Vestidos: $22 – $45\n• Calzado: $25 – $55\n• Accesorios: $5 – $25\n\nAceptamos Zelle, Pago Móvil y efectivo USD.',
-      horario: 'Tomamos pedidos *todos los días de 9am a 8pm*.\n\n🚚 Caracas: *24 horas* · Nacional: *3-5 días*\n\n¿Necesitas algo para este fin de semana?',
-      gracias: '¡Gracias por escribirnos! Cualquier duda sobre tallas o disponibilidad, estamos aquí 🙌',
-    },
-  },
-}
-
 function detectIntent(text: string): string {
   const t = text.toLowerCase()
-  if (/servicio|tienen|ofrecen|especiali|product|qué hay|que hay|catálogo|catalogo|qué hacen/.test(t)) return 'servicios'
-  if (/cita|agendar|reserv|quiero|pedir|pedido|consulta|reunión|reunion/.test(t)) return 'cita'
-  if (/precio|costo|cuánto|cuanto|vale|valor|cobran/.test(t)) return 'precio'
-  if (/horario|hora|atienden|disponib|cuándo|cuando|días|dias/.test(t)) return 'horario'
-  if (/gracias|perfecto|excelente|ok|listo|bien/.test(t)) return 'gracias'
+  if (/servicio|tienen|ofrecen|especiali|product|qué hay|que hay|catálogo|catalogo|qué hacen|what|service|special|offer|have|available/.test(t)) return 'servicios'
+  if (/cita|agendar|reserv|quiero|pedir|pedido|consulta|reunión|reunion|book|schedule|appointment|order|want/.test(t)) return 'cita'
+  if (/precio|costo|cuánto|cuanto|vale|valor|cobran|price|cost|how much|charge/.test(t)) return 'precio'
+  if (/horario|hora|atienden|disponib|cuándo|cuando|días|dias|hour|schedule|open|available|when/.test(t)) return 'horario'
+  if (/gracias|perfecto|excelente|ok|listo|bien|thanks|thank|great|perfect|done/.test(t)) return 'gracias'
   return 'default'
 }
 
@@ -115,29 +31,115 @@ interface Message {
 }
 
 const BIZ_KEYS = ['clinica', 'distribuidora', 'consultora', 'retail'] as const
-const BIZ_LABELS: Record<string, string> = {
-  clinica: 'Clínica',
-  distribuidora: 'Distribuidora',
-  consultora: 'Consultora',
-  retail: 'Retail',
-}
 
 export function DemoSection() {
+  const t = useTranslations('demo')
+
+  const BUSINESSES: Record<string, BusinessConfig> = {
+    clinica: {
+      name: 'Centro Médico San Rafael',
+      avatar: '🏥',
+      desc: t('clinica_desc'),
+      context: [
+        { key: t('clinica_ctx1_key'), val: t('clinica_ctx1_val') },
+        { key: t('clinica_ctx2_key'), val: t('clinica_ctx2_val') },
+        { key: t('clinica_ctx3_key'), val: t('clinica_ctx3_val') },
+        { key: t('clinica_ctx4_key'), val: t('clinica_ctx4_val') },
+      ],
+      chips: [t('clinica_chip1'), t('clinica_chip2'), t('clinica_chip3'), t('clinica_chip4')],
+      responses: {
+        default: [t('clinica_resp_default')],
+        servicios: t('clinica_resp_servicios'),
+        cita: t('clinica_resp_cita'),
+        precio: t('clinica_resp_precio'),
+        horario: t('clinica_resp_horario'),
+        gracias: t('clinica_resp_gracias'),
+      },
+    },
+    distribuidora: {
+      name: 'Distribuidora El Volcán',
+      avatar: '📦',
+      desc: t('dist_desc'),
+      context: [
+        { key: t('dist_ctx1_key'), val: t('dist_ctx1_val') },
+        { key: t('dist_ctx2_key'), val: t('dist_ctx2_val') },
+        { key: t('dist_ctx3_key'), val: t('dist_ctx3_val') },
+        { key: t('dist_ctx4_key'), val: t('dist_ctx4_val') },
+      ],
+      chips: [t('dist_chip1'), t('dist_chip2'), t('dist_chip3'), t('dist_chip4')],
+      responses: {
+        default: [t('dist_resp_default')],
+        servicios: t('dist_resp_servicios'),
+        cita: t('dist_resp_cita'),
+        precio: t('dist_resp_precio'),
+        horario: t('dist_resp_horario'),
+        gracias: t('dist_resp_gracias'),
+      },
+    },
+    consultora: {
+      name: 'nexdevp',
+      avatar: '💻',
+      desc: t('cons_desc'),
+      context: [
+        { key: t('cons_ctx1_key'), val: t('cons_ctx1_val') },
+        { key: t('cons_ctx2_key'), val: t('cons_ctx2_val') },
+        { key: t('cons_ctx3_key'), val: t('cons_ctx3_val') },
+        { key: t('cons_ctx4_key'), val: t('cons_ctx4_val') },
+      ],
+      chips: [t('cons_chip1'), t('cons_chip2'), t('cons_chip3'), t('cons_chip4')],
+      responses: {
+        default: [t('cons_resp_default')],
+        servicios: t('cons_resp_servicios'),
+        cita: t('cons_resp_cita'),
+        precio: t('cons_resp_precio'),
+        horario: t('cons_resp_horario'),
+        gracias: t('cons_resp_gracias'),
+      },
+    },
+    retail: {
+      name: 'Moda Urbana Store',
+      avatar: '👗',
+      desc: t('retail_desc'),
+      context: [
+        { key: t('retail_ctx1_key'), val: t('retail_ctx1_val') },
+        { key: t('retail_ctx2_key'), val: t('retail_ctx2_val') },
+        { key: t('retail_ctx3_key'), val: t('retail_ctx3_val') },
+        { key: t('retail_ctx4_key'), val: t('retail_ctx4_val') },
+      ],
+      chips: [t('retail_chip1'), t('retail_chip2'), t('retail_chip3'), t('retail_chip4')],
+      responses: {
+        default: [t('retail_resp_default')],
+        servicios: t('retail_resp_servicios'),
+        cita: t('retail_resp_cita'),
+        precio: t('retail_resp_precio'),
+        horario: t('retail_resp_horario'),
+        gracias: t('retail_resp_gracias'),
+      },
+    },
+  }
+
+  const BIZ_LABELS: Record<string, string> = {
+    clinica: t('biz_clinica'),
+    distribuidora: t('biz_distribuidora'),
+    consultora: t('biz_consultora'),
+    retail: t('biz_retail'),
+  }
   const [currentBiz, setCurrentBiz] = useState<string>('clinica')
   const [messages, setMessages] = useState<Message[]>([
-    { id: 0, text: 'Escribe como si fueras un cliente del negocio', type: 'system', time: '' },
+    { id: 0, text: t('system_message'), type: 'system', time: '' },
   ])
-  const [chips, setChips] = useState<string[]>(BUSINESSES.clinica.chips)
+  const [chips, setChips] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [msgCount, setMsgCount] = useState(0)
   const [crmAdded, setCrmAdded] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const idCounter = useRef(1)
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = messagesContainerRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [])
 
   useEffect(() => {
@@ -185,7 +187,7 @@ export function DemoSection() {
       addMessage(response as string, 'incoming')
 
       if (newCount === 1) {
-        setChips(['¿Y los precios?', 'Quiero agendar', '¿Cuánto tardan?', 'Gracias, ya está'])
+        setChips([t('chips_followup_1'), t('chips_followup_2'), t('chips_followup_3'), t('chips_followup_4')])
       }
     },
     [inputValue, isTyping, msgCount, crmAdded, currentBiz, addMessage]
@@ -194,7 +196,7 @@ export function DemoSection() {
   const handleBizChange = useCallback(
     (biz: string) => {
       setCurrentBiz(biz)
-      setMessages([{ id: 0, text: 'Escribe como si fueras un cliente del negocio', type: 'system', time: '' }])
+      setMessages([{ id: 0, text: t('system_message'), type: 'system', time: '' }])
       setChips(BUSINESSES[biz].chips)
       setMsgCount(0)
       setCrmAdded(false)
@@ -228,17 +230,17 @@ export function DemoSection() {
       .replace(/\n/g, '<br />')
 
   return (
-    <section className="bg-nex-dark py-24 px-6 lg:px-12">
+    <section id="demo" className="bg-nex-dark py-24 px-6 lg:px-12">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-4">
-          DEMO INTERACTIVA
+          {t('eyebrow')}
         </p>
         <h2 className="font-jost font-bold text-4xl lg:text-5xl text-nex-white mb-4">
-          Así trabaja el Agente. <span className="text-nex-green">En vivo.</span>
+          {t('heading')} <span className="text-nex-green">{t('heading_accent')}</span>
         </h2>
         <p className="font-jost text-nex-grey max-w-2xl mb-10">
-          Elegí un tipo de negocio y escribí como si fueras un cliente. El agente responde, cualifica y agenda en tiempo real.
+          {t('sub')}
         </p>
 
         {/* Business selector */}
@@ -265,7 +267,7 @@ export function DemoSection() {
             {/* Business info */}
             <div>
               <p className="font-dm-mono text-xs text-nex-grey/50 uppercase tracking-[0.2em] mb-2">
-                Empresa en demo
+                {t('context_label')}
               </p>
               <p className="font-jost font-semibold text-nex-white text-lg">{biz.name}</p>
               <p className="font-jost text-sm text-nex-grey mt-1 leading-relaxed">{biz.desc}</p>
@@ -274,7 +276,7 @@ export function DemoSection() {
             {/* Context box */}
             <div className="bg-nex-dark rounded-lg border border-white/5 p-4">
               <p className="font-dm-mono text-xs text-nex-grey/50 uppercase tracking-[0.2em] mb-3">
-                Lo que el agente sabe sobre este negocio
+                {t('agent_knows')}
               </p>
               <div className="space-y-3">
                 {biz.context.map((item, i) => (
@@ -290,40 +292,40 @@ export function DemoSection() {
             <div className="bg-nex-dark rounded-lg border border-white/5 overflow-hidden">
               <div className="bg-nex-black px-4 py-3 flex items-center justify-between">
                 <span className="font-dm-mono text-xs text-nex-grey/50 uppercase tracking-[0.15em]">
-                  CRM · Leads capturados
+                  {t('crm_label')}
                 </span>
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-nex-green animate-pulse" />
-                  <span className="font-dm-mono text-xs text-nex-grey/40">En vivo</span>
+                  <span className="font-dm-mono text-xs text-nex-grey/40">{t('crm_live')}</span>
                 </span>
               </div>
               <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-jost text-sm font-medium text-nex-white">María G.</p>
-                    <p className="font-jost text-xs text-nex-grey/50 mt-0.5">Consulta · Hace 12 min</p>
+                    <p className="font-jost text-sm font-medium text-nex-white">{t('crm_lead1_name')}</p>
+                    <p className="font-jost text-xs text-nex-grey/50 mt-0.5">{t('crm_lead1_time')}</p>
                   </div>
                   <span className="font-dm-mono text-xs px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">
-                    Agendada
+                    {t('crm_lead1_status')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-t border-white/5 pt-3">
                   <div>
-                    <p className="font-jost text-sm font-medium text-nex-white">Carlos M.</p>
-                    <p className="font-jost text-xs text-nex-grey/50 mt-0.5">Consulta · Hace 1h</p>
+                    <p className="font-jost text-sm font-medium text-nex-white">{t('crm_lead2_name')}</p>
+                    <p className="font-jost text-xs text-nex-grey/50 mt-0.5">{t('crm_lead2_time')}</p>
                   </div>
                   <span className="font-dm-mono text-xs px-2 py-1 rounded-full bg-orange-500/10 text-orange-400">
-                    Interesado
+                    {t('crm_lead2_status')}
                   </span>
                 </div>
                 {crmAdded && (
                   <div className="flex items-center justify-between border-t border-white/5 pt-3">
                     <div>
-                      <p className="font-jost text-sm font-medium text-nex-white">Tú (Demo)</p>
-                      <p className="font-jost text-xs text-nex-grey/50 mt-0.5">Demo en curso · Ahora</p>
+                      <p className="font-jost text-sm font-medium text-nex-white">{t('crm_demo_name')}</p>
+                      <p className="font-jost text-xs text-nex-grey/50 mt-0.5">{t('crm_demo_time')}</p>
                     </div>
                     <span className="font-dm-mono text-xs px-2 py-1 rounded-full bg-nex-green/10 text-nex-green">
-                      Nuevo ↑
+                      {t('crm_demo_status')}
                     </span>
                   </div>
                 )}
@@ -332,10 +334,9 @@ export function DemoSection() {
 
             {/* Explanation */}
             <div className="bg-nex-green/5 rounded-lg border border-nex-green/10 p-4">
-              <p className="font-jost font-semibold text-nex-white text-sm mb-2">¿Qué está pasando aquí?</p>
+              <p className="font-jost font-semibold text-nex-white text-sm mb-2">{t('explanation_title')}</p>
               <p className="font-jost text-xs text-nex-grey leading-relaxed">
-                Mientras el agente conversa con el cliente en WhatsApp, toda la información queda
-                registrada automáticamente en el CRM. El dueño del negocio lo ve en tiempo real sin hacer nada.
+                {t('explanation_text')}
               </p>
             </div>
           </div>
@@ -357,13 +358,13 @@ export function DemoSection() {
                 <p className="text-white font-medium text-sm">{biz.name}</p>
                 <p className="text-white/70 text-xs flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block animate-pulse" />
-                  En línea · Responde al instante
+                  {t('online_status')}
                 </p>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1.5">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 flex flex-col gap-1.5">
               {messages.map((msg) => {
                 if (msg.type === 'system') {
                   return (
@@ -422,7 +423,6 @@ export function DemoSection() {
                   ))}
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Quick replies */}
@@ -465,7 +465,7 @@ export function DemoSection() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Escribe un mensaje..."
+                placeholder={t('placeholder')}
                 className="flex-1 rounded-full px-4 py-2 text-sm outline-none border-none"
                 style={{ background: '#fff', color: '#333' }}
               />

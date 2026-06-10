@@ -1,22 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-const problems = [
-  'Procesos manuales que consumen horas',
-  'Leads que llegan y nadie responde',
-  'Decisiones sin datos en tiempo real',
-  'Operaciones que dependen de una persona',
-]
-
-const solutions = [
-  'Sistemas que operan sin intervención',
-  'Agente IA que responde en 60 segundos',
-  'Dashboards con datos al instante',
-  'Operaciones que escalan solas',
-]
+import { useTranslations } from 'next-intl'
 
 export function BeforeAfter() {
+  const t = useTranslations('beforeAfter')
+  const problems = [t('problem1'), t('problem2'), t('problem3'), t('problem4')]
+  const solutions = [t('solution1'), t('solution2'), t('solution3'), t('solution4')]
   const [visible, setVisible] = useState<number[]>([])
   const [started, setStarted] = useState(false)
 
@@ -45,10 +35,10 @@ export function BeforeAfter() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-14">
           <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green mb-3">
-            EL CAMBIO
+            {t('eyebrow')}
           </p>
           <h2 className="font-jost font-extrabold text-3xl sm:text-4xl text-nex-white">
-            Lo que cambia cuando <span className="text-nex-green">trabajamos juntos.</span>
+            {t('heading')} <span className="text-nex-green">{t('heading_accent')}</span>
           </h2>
         </div>
 
@@ -57,7 +47,7 @@ export function BeforeAfter() {
           <div className="relative flex flex-col px-10 py-12 border-b lg:border-b-0 lg:border-r border-white/5">
             <div className="absolute inset-0 bg-red-500/[0.03] pointer-events-none" />
             <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-red-400/70 mb-8">
-              Sin nexdevp
+              {t('col_before')}
             </p>
             <ul className="space-y-5">
               {problems.map((p, i) => (
@@ -80,7 +70,7 @@ export function BeforeAfter() {
           <div className="relative flex flex-col px-10 py-12">
             <div className="absolute inset-0 bg-nex-green/[0.03] pointer-events-none" />
             <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green/70 mb-8">
-              Con nexdevp
+              {t('col_after')}
             </p>
             <ul className="space-y-5">
               {solutions.map((s, i) => (

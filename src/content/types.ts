@@ -18,6 +18,7 @@ export interface CaseStudy {
   body: Localized<RichText>
   metrics: Metric[]
   technologies: string[]
+  videoUrl?: string
   seo: { title: Localized<string>; description: Localized<string> }
 }
 export interface Service {

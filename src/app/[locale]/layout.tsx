@@ -1,76 +1,78 @@
-import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Mono, Jost } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
-import { routing } from "@/i18n/routing";
-import "@/styles/globals.css";
-
-// T-05: Self-hosted fonts via next/font/google (auto self-hosted at build time,
-// zero requests to fonts.googleapis.com at runtime).
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-cormorant",
-});
-
-const dmMono = DM_Mono({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-dm-mono",
-});
-
-const jost = Jost({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  display: "swap",
-  variable: "--font-jost",
-});
+import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/constants'
+import { CustomCursor } from '@/components/ui/CustomCursor'
+import { FloatingWhatsApp } from '@/components/ui/FloatingWhatsApp'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
+import { setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import { routing } from '@/i18n/routing'
 
 type Props = {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-};
-
-// T-04: generateStaticParams — tell Next.js which locale segments to pre-render.
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
 }
 
-export const metadata: Metadata = {
-  title: "nexdevp",
-  description: "Digital systems that grow your business.",
-};
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
+const SEO = {
+  es: {
+    title: 'nexdevp — Software a medida e Ingeniería de Ventas con IA',
+    description:
+      'Consultoría tecnológica especializada en software a medida e ingeniería de ventas con IA. Tu sistema contacta, cualifica y agenda leads en menos de 60 segundos.',
+  },
+  en: {
+    title: 'nexdevp — Custom Software & AI Sales Engineering',
+    description:
+      'Technology consultancy specialized in custom software and AI sales engineering. Your system contacts, qualifies, and books leads in under 60 seconds.',
+  },
+} as const
+
+export async function generateMetadata({ params }: Omit<Props, 'children'>): Promise<Metadata> {
+  const { locale } = await params
+  const seo = SEO[locale as keyof typeof SEO] ?? SEO.es
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: seo.title,
+    description: seo.description,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: { es: '/es', en: '/en', 'x-default': '/es' },
+    },
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url: `/${locale}`,
+      siteName: 'nexdevp',
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo.title,
+      description: seo.description,
+    },
+  }
+}
 
 export default async function LocaleLayout({ children, params }: Props) {
-  const { locale } = await params;
+  const { locale } = await params
 
-  // Validate locale against supported list; 404 for unknown segments.
-  if (!routing.locales.includes(locale as "es" | "en")) {
-    notFound();
+  if (!routing.locales.includes(locale as 'es' | 'en')) {
+    notFound()
   }
 
-  // Required for static rendering with next-intl.
-  setRequestLocale(locale);
-
-  // Fetch locale messages to provide to client components.
-  const messages = await getMessages();
+  setRequestLocale(locale)
+  const messages = await getMessages()
 
   return (
-    <html
-      lang={locale}
-      className={`${cormorant.variable} ${dmMono.variable} ${jost.variable}`}
-    >
-      <body>
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
+    <NextIntlClientProvider messages={messages}>
+      <CustomCursor />
+      {children}
+      <FloatingWhatsApp />
+    </NextIntlClientProvider>
+  )
 }

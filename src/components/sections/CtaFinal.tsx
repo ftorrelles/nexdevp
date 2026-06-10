@@ -1,30 +1,36 @@
-import { BookingDialog } from '@/components/cta/BookingDialog'
+import { getTranslations } from 'next-intl/server'
 import { WhatsAppLink } from '@/components/cta/WhatsAppLink'
+import { ContactForm } from '@/components/sections/ContactForm'
 
-export function CtaFinal() {
+export async function CtaFinal() {
+  const t = await getTranslations('ctaFinal')
   return (
-    <section className="bg-nex-dark py-24 px-6 lg:px-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="rounded-2xl border border-nex-green/30 bg-nex-black p-10 lg:p-16 text-center relative overflow-hidden">
+    <section id="contacto" className="bg-nex-dark py-24 px-6 lg:px-12">
+      <div className="max-w-6xl mx-auto">
+        <div className="rounded-2xl border border-nex-green/30 bg-nex-black p-10 lg:p-16 relative overflow-hidden">
           {/* Subtle green glow top */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-px bg-gradient-to-r from-transparent via-nex-green/60 to-transparent" />
 
-          <p className="font-mono text-nex-green text-xs tracking-[0.25em] uppercase mb-4">
-            Primera consulta · Sin costo · Sin compromiso
-          </p>
-          <h2 className="font-jost font-extrabold text-4xl sm:text-5xl text-nex-white mb-4 leading-tight">
-            ¿Listo para parar<br />
-            <span className="text-nex-green">las fugas?</span>
-          </h2>
-          <p className="font-jost text-nex-grey text-lg mb-10 max-w-xl mx-auto">
-            Te decimos exactamente qué necesita tu negocio — y cómo lo resolvemos.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <BookingDialog
-              triggerLabel="Agendar consulta gratis →"
-              variant="primary"
-            />
-            <WhatsAppLink />
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left column: copy + WhatsApp CTA */}
+            <div>
+              <p className="font-mono text-nex-green text-xs tracking-[0.25em] uppercase mb-4">
+                {t('eyebrow')}
+              </p>
+              <h2 className="font-jost font-extrabold text-4xl sm:text-5xl text-nex-white mb-4 leading-tight">
+                {t('heading')}<br />
+                <span className="text-nex-green">{t('heading_accent')}</span>
+              </h2>
+              <p className="font-jost text-nex-grey text-lg mb-10 max-w-xl">
+                {t('sub')}
+              </p>
+              <WhatsAppLink />
+            </div>
+
+            {/* Right column: contact form */}
+            <div>
+              <ContactForm />
+            </div>
           </div>
         </div>
       </div>

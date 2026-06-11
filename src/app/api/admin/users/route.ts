@@ -31,9 +31,9 @@ export async function POST(req: NextRequest) {
   const user = await requireOwner()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { email, password, role } = await req.json()
-  if (!email || !password || !role) {
-    return NextResponse.json({ error: 'email, password y role son requeridos' }, { status: 400 })
+  const { email, role } = await req.json()
+  if (!email || !role) {
+    return NextResponse.json({ error: 'email y role son requeridos' }, { status: 400 })
   }
 
   const validRoles: UserRole[] = ['owner', 'supervisor', 'vendor']
@@ -42,11 +42,8 @@ export async function POST(req: NextRequest) {
   }
 
   const adminClient = createServiceClient()
-  const { data, error } = await adminClient.auth.admin.createUser({
-    email,
-    password,
-    user_metadata: { role },
-    email_confirm: true,
+  const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
+    data: { role },
   })
 
   if (error) {

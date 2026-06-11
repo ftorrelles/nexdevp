@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -18,21 +19,29 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       })
 
+      const data = await res.json()
+
       if (!res.ok) {
-        setError('Contraseña incorrecta')
+        setError(data.error ?? 'Credenciales incorrectas')
         return
       }
 
       router.push('/admin')
+      router.refresh()
     } catch {
       setError('Error de conexión')
     } finally {
       setLoading(false)
     }
   }
+
+  const inputClass =
+    'bg-nex-black border border-white/10 rounded-lg px-4 py-3 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors'
+  const labelClass =
+    'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-2'
 
   return (
     <div className="min-h-screen bg-nex-black flex items-center justify-center px-4">
@@ -41,15 +50,28 @@ export default function AdminLoginPage() {
           nexdevp CRM
         </h1>
         <p className="font-jost text-nex-grey text-sm mb-8">
-          Ingresá tu contraseña para continuar.
+          Ingresá tus credenciales para continuar.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="password"
-              className="block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-2"
-            >
+            <label htmlFor="email" className={labelClass}>
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+              placeholder="tu@email.com"
+              autoComplete="email"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className={labelClass}>
               Contraseña
             </label>
             <input
@@ -58,8 +80,9 @@ export default function AdminLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-nex-black border border-white/10 rounded-lg px-4 py-3 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors"
+              className={inputClass}
               placeholder="••••••••"
+              autoComplete="current-password"
             />
           </div>
 

@@ -23,5 +23,14 @@ export interface Lead {
   canal?: 'form' | 'whatsapp'
   estado?: 'nuevo' | 'contactado' | 'calificado' | 'cerrado'
   notas?: string
+  assigned_to?: string | null
   created_at?: string
+}
+
+export type UserRole = 'owner' | 'supervisor' | 'vendor'
+
+export interface AdminUser {
+  id: string
+  email: string
+  role: UserRole
 }

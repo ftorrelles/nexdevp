@@ -41,9 +41,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Rol inválido' }, { status: 400 })
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
+
   const adminClient = createServiceClient()
   const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
     data: { role },
+    redirectTo: `${siteUrl}/auth/callback?next=/admin/profile`,
   })
 
   if (error) {

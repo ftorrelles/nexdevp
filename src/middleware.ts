@@ -11,5 +11,5 @@ export default createMiddleware({
 
 export const config = {
   // Match all paths except static assets and Next.js internals.
-  matcher: ['/((?!_next|_vercel|api|admin|.*\\..*).*)'],
+  matcher: ['/((?!_next|_vercel|api|admin|auth|.*\\..*).*)'],
 }

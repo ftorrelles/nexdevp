@@ -83,6 +83,12 @@ export function Footer({ locale }: FooterProps) {
           <div>
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">Idioma</p>
             <LocaleSwitcher locale={locale} />
+            <a
+              href="/admin"
+              className="mt-4 inline-block font-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey/40 hover:text-nex-grey transition-colors"
+            >
+              Admin
+            </a>
           </div>
         </div>
 

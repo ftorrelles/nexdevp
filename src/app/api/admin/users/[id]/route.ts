@@ -48,6 +48,12 @@ export async function DELETE(
   }
 
   const adminClient = createServiceClient()
+
+  const { data: { user: targetUser } } = await adminClient.auth.admin.getUserById(id)
+  if (targetUser?.user_metadata?.is_protected) {
+    return NextResponse.json({ error: 'Este usuario está protegido y no puede ser eliminado' }, { status: 403 })
+  }
+
   const { error } = await adminClient.auth.admin.deleteUser(id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

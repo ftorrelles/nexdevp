@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# ======== GGA — versioned, tool-aware, non-blocking ========
+# Gentleman Guardian Angel code review.
+#
+# This hook lives in `.githooks/` (version-controlled) and is wired up via
+# `core.hooksPath = .githooks`, so it survives `gga install` rewriting
+# `.git/hooks/`. It guarantees commits NEVER hang or block, on any workflow.
+#
+# Behavior by author:
+#   - Claude Code  (CLAUDECODE=1) -> skip; Claude already reviews its own diff.
+#   - Manual / OpenCode / VS Code -> advisory review, hard-capped and never
+#     blocking. If GGA hangs or errors, the commit proceeds anyway and you can
+#     run `gga run` by hand whenever you want a full review.
+
+if [ "$CLAUDECODE" = "1" ]; then
+  echo "GGA: skipped (Claude Code session — diff reviewed in-session)"
+  exit 0
+fi
+
+# Advisory review for human / OpenCode commits. `timeout` caps the OpenCode
+# provider call so a slow/broken provider can't stall the commit; the final
+# `exit 0` keeps the review purely informational.
+if command -v timeout >/dev/null 2>&1; then
+  timeout 90 gga run || echo "GGA: review skipped (timeout/error) — non-blocking. Run 'gga run' manually for a full review."
+else
+  gga run || echo "GGA: review reported issues — non-blocking."
+fi
+
+exit 0
+# ======== GGA END ========

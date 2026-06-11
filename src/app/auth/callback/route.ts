@@ -3,16 +3,23 @@ import { createAuthServerClient } from '@/lib/supabase-server'
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url)
-  const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/admin'
+  const supabase = await createAuthServerClient()
 
+  // PKCE flow (reset password)
+  const code = searchParams.get('code')
   if (code) {
-    const supabase = await createAuthServerClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
+    if (!error) return NextResponse.redirect(`${origin}${next}`)
   }
 
-  return NextResponse.redirect(`${origin}/admin/login?error=invite_invalid`)
+  // Token hash flow (invite emails)
+  const tokenHash = searchParams.get('token_hash')
+  const type = searchParams.get('type') as 'invite' | 'recovery' | 'email' | null
+  if (tokenHash && type) {
+    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type })
+    if (!error) return NextResponse.redirect(`${origin}${next}`)
+  }
+
+  return NextResponse.redirect(`${origin}/admin/login?error=link_invalido`)
 }

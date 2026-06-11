@@ -10,6 +10,8 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [forgotMode, setForgotMode] = useState(false)
+  const [forgotSent, setForgotSent] = useState(false)
   const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -33,6 +35,29 @@ export default function AdminLoginPage() {
 
       router.push('/admin')
       router.refresh()
+    } catch {
+      setError('Error de conexión')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/admin/auth/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) {
+        setForgotSent(true)
+      } else {
+        const data = await res.json()
+        setError(data.error ?? 'No se pudo enviar el email')
+      }
     } catch {
       setError('Error de conexión')
     } finally {
@@ -65,74 +90,127 @@ export default function AdminLoginPage() {
             nexdevp CRM
           </h1>
           <p className="font-jost text-nex-grey text-sm mb-8">
-            Ingresá tus credenciales para continuar.
+            {forgotMode ? 'Te enviamos un link para crear tu contraseña.' : 'Ingresá tus credenciales para continuar.'}
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className={labelClass}>
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-                placeholder="tu@email.com"
-                autoComplete="email"
-              />
+          {forgotSent ? (
+            <div className="space-y-4">
+              <p className="font-jost text-sm text-nex-green">
+                Revisá tu email — te enviamos un link para crear tu contraseña.
+              </p>
+              <button
+                onClick={() => { setForgotMode(false); setForgotSent(false) }}
+                className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
+              >
+                ← Volver al login
+              </button>
             </div>
-
-            <div>
-              <label htmlFor="password" className={labelClass}>
-                Contraseña
-              </label>
-              <div className="relative">
+          ) : forgotMode ? (
+            <form onSubmit={handleForgot} className="space-y-4">
+              <div>
+                <label htmlFor="email-reset" className={labelClass}>Email</label>
                 <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  id="email-reset"
+                  type="email"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`${inputClass} pr-12`}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                  placeholder="tu@email.com"
+                  autoComplete="email"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-nex-grey hover:text-nex-white transition-colors p-1"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                >
-                  {showPassword ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
               </div>
-            </div>
+              {error && <p className="font-jost text-sm text-red-400">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-nex-green text-nex-black font-jost font-bold py-3 px-6 rounded-lg w-full hover:bg-nex-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Enviando...' : 'Enviar link'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setForgotMode(false); setError('') }}
+                className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors w-full text-center"
+              >
+                ← Volver al login
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className={labelClass}>
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                  placeholder="tu@email.com"
+                  autoComplete="email"
+                />
+              </div>
 
-            {error && (
-              <p className="font-jost text-sm text-red-400">{error}</p>
-            )}
+              <div>
+                <label htmlFor="password" className={labelClass}>
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${inputClass} pr-12`}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-nex-grey hover:text-nex-white transition-colors p-1"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-nex-green text-nex-black font-jost font-bold py-3 px-6 rounded-lg w-full hover:bg-nex-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Verificando...' : 'Ingresar'}
-            </button>
-          </form>
+              {error && (
+                <p className="font-jost text-sm text-red-400">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-nex-green text-nex-black font-jost font-bold py-3 px-6 rounded-lg w-full hover:bg-nex-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verificando...' : 'Ingresar'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setForgotMode(true); setError('') }}
+                className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors w-full text-center"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

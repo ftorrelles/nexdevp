@@ -78,15 +78,22 @@
     background-color: var(--nex-black);
     color: var(--nex-white);
     scroll-behavior: smooth;
-    cursor: none;
   }
 
   body {
     @apply bg-nex-black text-nex-white font-jost antialiased;
-    cursor: none;
   }
 
-  a, button, [role="button"] {
-    cursor: none;
+  /* Custom cursor — desktop only */
+  @media (pointer: fine) and (min-width: 1024px) {
+    html {
+      cursor: none;
+    }
+    body {
+      cursor: none;
+    }
+    a, button, [role="button"] {
+      cursor: none;
+    }
   }
 }

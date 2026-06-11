@@ -10,6 +10,9 @@ export function CustomCursor() {
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
+    // Touch/mobile devices don't have a fine pointer — skip entirely
+    if (!window.matchMedia('(pointer: fine) and (min-width: 1024px)').matches) return
+
     const move = (e: MouseEvent) => {
       posRef.current = { x: e.clientX, y: e.clientY }
     }

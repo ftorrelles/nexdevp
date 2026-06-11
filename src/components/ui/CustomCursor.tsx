@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null)
@@ -8,10 +8,12 @@ export function CustomCursor() {
   const posRef = useRef({ x: -100, y: -100 })
   const ringPosRef = useRef({ x: -100, y: -100 })
   const rafRef = useRef<number | null>(null)
+  const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
     // Touch/mobile devices don't have a fine pointer — skip entirely
     if (!window.matchMedia('(pointer: fine) and (min-width: 1024px)').matches) return
+    setEnabled(true)
 
     const move = (e: MouseEvent) => {
       posRef.current = { x: e.clientX, y: e.clientY }
@@ -90,6 +92,8 @@ export function CustomCursor() {
       observer.disconnect()
     }
   }, [])
+
+  if (!enabled) return null
 
   return (
     <>

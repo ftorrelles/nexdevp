@@ -23,3 +23,14 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Local AI tooling
+.atl/
+.claude/
+.engram/
+
+# Sales material (not part of the site)
+catalog/

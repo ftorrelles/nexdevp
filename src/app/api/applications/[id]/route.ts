@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { sendApplicantDecisionEmail } from '@/lib/email'
 
 export async function PATCH(
   req: NextRequest,
@@ -25,11 +26,21 @@ export async function PATCH(
     }
 
     const client = createServiceClient()
-    const { error } = await client.from('career_applications').update({ estado }).eq('id', id)
+    const { data: updated, error } = await client
+      .from('career_applications')
+      .update({ estado })
+      .eq('id', id)
+      .select('nombre, email')
+      .single()
 
     if (error) {
       console.error('Failed to update application:', error)
       return NextResponse.json({ error: 'Failed to update application' }, { status: 500 })
+    }
+
+    // Notify the candidate when they're not selected (best-effort, never blocks).
+    if (estado === 'rechazado' && updated?.email) {
+      await sendApplicantDecisionEmail(updated.email, updated.nombre ?? '', 'rejected')
     }
 
     return NextResponse.json({ success: true })

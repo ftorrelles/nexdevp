@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { sendApplicantDecisionEmail } from '@/lib/email'
 
 // Hiring promotes a candidate to staff, so it is owner-only (same boundary as
 // user management). It flips the applicant's account role to 'vendor' and marks
@@ -21,7 +22,7 @@ export async function POST(
 
     const { data: application, error: fetchError } = await client
       .from('career_applications')
-      .select('user_id, estado')
+      .select('user_id, estado, nombre, email')
       .eq('id', id)
       .single()
 
@@ -54,6 +55,11 @@ export async function POST(
       console.error('Failed to mark application accepted:', estadoError)
       // Role already changed; report partial success so the UI can refresh.
       return NextResponse.json({ success: true, estado: application.estado })
+    }
+
+    // Notify the candidate they were selected (best-effort, never blocks).
+    if (application.email) {
+      await sendApplicantDecisionEmail(application.email, application.nombre ?? '', 'accepted')
     }
 
     return NextResponse.json({ success: true, estado: 'aceptado', role: 'vendor' })

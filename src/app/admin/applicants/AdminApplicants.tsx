@@ -201,6 +201,23 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
     }
   }
 
+  // Hire applicant — promotes their account to vendor (owner only)
+  async function handleHire(app: CareerApplication) {
+    if (!confirm(`¿Contratar a ${app.nombre}? Su cuenta pasará a vendedor con acceso al CRM.`)) return
+    setUpdatingId(app.id!)
+    try {
+      const res = await fetch(`/api/applications/${app.id}/hire`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || 'No se pudo contratar')
+        return
+      }
+      setApplications(prev => prev.map(a => (a.id === app.id ? { ...a, estado: 'aceptado' } : a)))
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
   // Delete Application
   async function handleDeleteApplication(id: string, name: string) {
     if (!confirm(`¿Eliminar la postulación de ${name}?`)) return
@@ -567,13 +584,24 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                           </select>
                         </td>
                         <td className="px-5 py-4">
-                          <button
-                            onClick={() => handleDeleteApplication(app.id!, app.nombre)}
-                            disabled={updatingId === app.id}
-                            className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-red-400/60 hover:text-red-400 transition-colors disabled:opacity-40"
-                          >
-                            Eliminar
-                          </button>
+                          <div className="flex items-center gap-4 whitespace-nowrap">
+                            {role === 'owner' && app.user_id && app.estado !== 'aceptado' && (
+                              <button
+                                onClick={() => handleHire(app)}
+                                disabled={updatingId === app.id}
+                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-nex-green hover:text-nex-green/80 transition-colors disabled:opacity-40"
+                              >
+                                Contratar
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteApplication(app.id!, app.nombre)}
+                              disabled={updatingId === app.id}
+                              className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-red-400/60 hover:text-red-400 transition-colors disabled:opacity-40"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

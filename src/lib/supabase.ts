@@ -34,3 +34,40 @@ export interface AdminUser {
   email: string
   role: UserRole
 }
+
+export interface Career {
+  id?: string
+  title_es: string
+  title_en: string
+  department_es: string
+  department_en: string
+  location_es: string
+  location_en: string
+  type_es: string
+  type_en: string
+  description_es: string
+  description_en: string
+  requirements_es?: string
+  requirements_en?: string
+  responsibilities_es?: string
+  responsibilities_en?: string
+  active?: boolean
+  created_at?: string
+}
+
+export interface CareerApplication {
+  id?: string
+  career_id: string
+  nombre: string
+  email: string
+  telefono?: string
+  mensaje?: string
+  cv_url: string
+  estado?: 'nuevo' | 'revisado' | 'aceptado' | 'rechazado'
+  created_at?: string
+  careers?: {
+    title_es: string
+    title_en: string
+  }
+}
+

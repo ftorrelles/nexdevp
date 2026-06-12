@@ -352,5 +352,30 @@
     "retail_resp_precio": "Rangos de precio actuales:\n\n• Camisas: $12 – $22\n• Pantalones: $18 – $35\n• Vestidos: $22 – $45\n• Calzado: $25 – $55\n• Accesorios: $5 – $25\n\nAceptamos Zelle, Pago Móvil y efectivo USD.",
     "retail_resp_horario": "Tomamos pedidos *todos los días de 9am a 8pm*.\n\n🚚 Caracas: *24 horas* · Nacional: *3-5 días*\n\n¿Necesitas algo para este fin de semana?",
     "retail_resp_gracias": "¡Gracias por escribirnos! Cualquier duda sobre tallas o disponibilidad, estamos aquí 🙌"
+  },
+  "careers": {
+    "title": "Trabajá con nosotros",
+    "subtitle": "Unite a nexdevp y construyamos el futuro de las operaciones inteligentes.",
+    "noPositions": "No tenemos posiciones abiertas en este momento. Sin embargo, siempre estamos buscando talento. ¡Escribinos!",
+    "applyNow": "Ver posición completa y aplicar",
+    "closePosition": "Cerrar detalles",
+    "location": "Ubicación",
+    "type": "Tipo",
+    "department": "Departamento",
+    "requirements": "Requisitos",
+    "responsibilities": "Responsabilidades",
+    "formTitle": "Postularse a esta posición",
+    "nameLabel": "Nombre completo *",
+    "emailLabel": "Email *",
+    "phoneLabel": "Teléfono",
+    "messageLabel": "Mensaje / Carta de presentación",
+    "cvLabel": "Subir Currículum Vitae (PDF o Word) *",
+    "cvDragActive": "Soltá el archivo acá...",
+    "cvDragInactive": "Arrastrá tu CV aquí o hacé clic para buscar",
+    "submitting": "Enviando postulación...",
+    "submitSuccess": "¡Postulación enviada con éxito! Revisaremos tu CV y nos pondremos en contacto pronto.",
+    "submitError": "Ocurrió un error al enviar tu postulación. Por favor, intentalo de nuevo.",
+    "submit": "Enviar postulación",
+    "fileSelected": "Archivo seleccionado: {name}"
   }
 }

@@ -16,6 +16,7 @@ export function Footer({ locale }: FooterProps) {
     { href: '#demo', label: 'Demo' },
     { href: '/#casos', label: 'Casos' },
     { href: '/#portfolio', label: locale === 'es' ? 'Proyectos' : 'Projects' },
+    { href: '/careers', label: locale === 'es' ? 'Trabajá con nosotros' : 'Join Our Team' },
   ]
 
   return (

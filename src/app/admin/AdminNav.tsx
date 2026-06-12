@@ -21,6 +21,7 @@ export function AdminNav({ role, currentPath }: Props) {
 
   const navItems = [
     { href: '/admin', label: 'Leads' },
+    ...((role === 'owner' || role === 'supervisor') ? [{ href: '/admin/applicants', label: 'Applicants' }] : []),
     ...(role === 'owner' ? [{ href: '/admin/users', label: 'Usuarios' }] : []),
     { href: '/admin/profile', label: 'Mi cuenta' },
   ]

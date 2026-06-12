@@ -352,5 +352,30 @@
     "retail_resp_precio": "Current price ranges:\n\n• Shirts: $12 – $22\n• Pants: $18 – $35\n• Dresses: $22 – $45\n• Footwear: $25 – $55\n• Accessories: $5 – $25\n\nWe accept Zelle, Mobile Pay and USD cash.",
     "retail_resp_horario": "We take orders *every day from 9am to 8pm*.\n\n🚚 Caracas: *24 hours* · Nationwide: *3-5 days*\n\nNeed something for this weekend?",
     "retail_resp_gracias": "Thanks for writing! Any questions about sizes or availability, we're here 🙌"
+  },
+  "careers": {
+    "title": "Join Our Team",
+    "subtitle": "Join nexdevp and let's build the future of intelligent operations.",
+    "noPositions": "We do not have any open positions at the moment. However, we are always looking for talent. Write to us!",
+    "applyNow": "View full position & apply",
+    "closePosition": "Close details",
+    "location": "Location",
+    "type": "Type",
+    "department": "Department",
+    "requirements": "Requirements",
+    "responsibilities": "Responsibilities",
+    "formTitle": "Apply for this position",
+    "nameLabel": "Full Name *",
+    "emailLabel": "Email *",
+    "phoneLabel": "Phone",
+    "messageLabel": "Message / Cover Letter",
+    "cvLabel": "Upload CV (PDF or Word) *",
+    "cvDragActive": "Drop the file here...",
+    "cvDragInactive": "Drag your CV here or click to browse",
+    "submitting": "Submitting application...",
+    "submitSuccess": "Application sent successfully! We will review your CV and get in touch soon.",
+    "submitError": "An error occurred while submitting your application. Please try again.",
+    "submit": "Submit application",
+    "fileSelected": "Selected file: {name}"
   }
 }

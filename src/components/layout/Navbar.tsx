@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { BookingDialog } from '@/components/cta/BookingDialog'
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher'
 import type { Locale } from '@/content/types'
@@ -23,6 +23,8 @@ export function Navbar({ locale }: NavbarProps) {
     { href: '#portfolio',  label: t('portfolio') },
     { href: '#contacto',   label: t('contacto') },
   ]
+  const pathname = usePathname()
+  const isHome = pathname === '/'
   const [active, setActive] = useState('hero')
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -43,8 +45,12 @@ export function Navbar({ locale }: NavbarProps) {
 
   const scrollTo = (id: string) => {
     setMenuOpen(false)
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    if (isHome) {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      window.location.href = `/${locale}#${id}`
+    }
   }
 
   return (

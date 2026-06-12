@@ -271,7 +271,21 @@
     "casos": "Cases",
     "portfolio": "Projects",
     "contacto": "Contact",
+    "trabaja": "Join Our Team",
     "cta": "Book a Demo"
+  },
+  "joinUs": {
+    "eyebrow": "JOIN THE TEAM",
+    "heading": "Sell solutions that",
+    "heading_accent": "sell themselves.",
+    "sub": "We're building a network of sales reps to offer our AI automation services. No fixed salary: you earn a commission every time you close a client. You bring the drive, we bring the product.",
+    "benefit1_title": "Commission per closed client",
+    "benefit1_body": "No ceiling. Every client you close is money straight to your pocket. The more you sell, the more you earn.",
+    "benefit2_title": "100% remote and flexible",
+    "benefit2_body": "Work from wherever you want and manage your own schedule. You set your own pace.",
+    "benefit3_title": "A product that sells itself",
+    "benefit3_body": "You offer AI automation that companies need today. The product speaks for itself.",
+    "cta": "View open positions"
   },
   "demo": {
     "eyebrow": "INTERACTIVE DEMO",

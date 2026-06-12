@@ -10,6 +10,7 @@ import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
 import { BeforeAfter } from '@/components/sections/BeforeAfter'
 import { Portfolio } from '@/components/sections/Portfolio'
+import { JoinUs } from '@/components/sections/JoinUs'
 import { Footer } from '@/components/sections/Footer'
 
 type Props = {
@@ -31,6 +32,7 @@ export default async function HomePage({ params }: Props) {
       <Portfolio />
       <Stats />
       <CtaFinal />
+      <JoinUs locale={locale as Locale} />
       <Footer locale={locale as Locale} />
     </main>
   )

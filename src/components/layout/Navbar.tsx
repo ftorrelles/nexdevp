@@ -7,7 +7,7 @@ import { BookingDialog } from '@/components/cta/BookingDialog'
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher'
 import type { Locale } from '@/content/types'
 
-const sectionIds = ['hero', 'servicios', 'demo', 'casos', 'portfolio', 'contacto']
+const sectionIds = ['hero', 'servicios', 'demo', 'casos', 'portfolio', 'contacto', 'trabaja']
 
 interface NavbarProps {
   locale: Locale
@@ -22,6 +22,7 @@ export function Navbar({ locale }: NavbarProps) {
     { href: '#casos',      label: t('casos') },
     { href: '#portfolio',  label: t('portfolio') },
     { href: '#contacto',   label: t('contacto') },
+    { href: '#trabaja',    label: t('trabaja') },
   ]
   const pathname = usePathname()
   const isHome = pathname === '/'

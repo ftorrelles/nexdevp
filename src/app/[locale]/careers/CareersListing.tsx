@@ -2,23 +2,25 @@
 
 import React, { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import type { Career } from '@/lib/supabase'
 
 interface Props {
   careers: Career[]
   locale: Locale
+  currentUser: { email: string; name: string } | null
 }
 
-export function CareersListing({ careers, locale }: Props): React.JSX.Element {
+export function CareersListing({ careers, locale, currentUser }: Props): React.JSX.Element {
   const t = useTranslations('careers')
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  
-  // Form state
+
+  // Form state — prefilled from the logged-in applicant's account
   const [submittingId, setSubmittingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
+    nombre: currentUser?.name ?? '',
+    email: currentUser?.email ?? '',
     telefono: '',
     mensaje: '',
   })
@@ -239,7 +241,29 @@ export function CareersListing({ careers, locale }: Props): React.JSX.Element {
                         {t('formTitle')}
                       </h3>
 
-                      {successMsg ? (
+                      {!currentUser ? (
+                        <div className="text-center space-y-4 py-2">
+                          <p className="text-sm text-nex-grey">
+                            {locale === 'es'
+                              ? 'Necesitás una cuenta para postularte a esta posición.'
+                              : 'You need an account to apply for this position.'}
+                          </p>
+                          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                            <Link
+                              href="/careers/registro"
+                              className="w-full sm:w-auto bg-nex-green text-nex-black font-bold text-sm py-2.5 px-5 rounded-lg hover:bg-nex-green/90 transition-colors"
+                            >
+                              {locale === 'es' ? 'Crear cuenta' : 'Create account'}
+                            </Link>
+                            <Link
+                              href="/admin/login"
+                              className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
+                            >
+                              {locale === 'es' ? 'Ya tengo cuenta · Ingresar' : 'I have an account · Log in'}
+                            </Link>
+                          </div>
+                        </div>
+                      ) : successMsg ? (
                         <div className="bg-nex-green/10 border border-nex-green/30 text-nex-green text-sm rounded-lg p-4 text-center">
                           {successMsg}
                         </div>
@@ -264,9 +288,9 @@ export function CareersListing({ careers, locale }: Props): React.JSX.Element {
                                 type="email"
                                 name="email"
                                 required
+                                readOnly
                                 value={formData.email}
-                                onChange={handleInputChange}
-                                className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                                className="w-full bg-nex-black/60 border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-grey cursor-not-allowed focus:outline-none"
                               />
                             </div>
                             <div>

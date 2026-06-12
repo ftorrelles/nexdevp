@@ -33,7 +33,7 @@ export function RegisterForm() {
         password,
         options: {
           data: { full_name: nombre },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/careers`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/careers/portal`,
         },
       })
 
@@ -44,7 +44,7 @@ export function RegisterForm() {
 
       // If email confirmation is disabled, a session is returned immediately.
       if (data.session) {
-        window.location.href = '/careers'
+        window.location.href = '/careers/portal'
         return
       }
 

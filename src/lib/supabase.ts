@@ -64,6 +64,7 @@ export interface Career {
 export interface CareerApplication {
   id?: string
   career_id: string
+  user_id?: string | null
   nombre: string
   email: string
   telefono?: string

@@ -36,17 +36,25 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    // Applying requires an account. The applicant's email comes from their
+    // session (authoritative), not the form, so it can't be spoofed.
+    const supabase = await createAuthServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Debés iniciar sesión para postularte.' }, { status: 401 })
+    }
+
     const formData = await req.formData()
     const career_id = formData.get('career_id') as string
     const nombre = formData.get('nombre') as string
-    const email = formData.get('email') as string
     const telefono = formData.get('telefono') as string
     const mensaje = formData.get('mensaje') as string
     const cvFile = formData.get('cv') as File | null
+    const email = user.email ?? ''
 
-    if (!career_id || !nombre || !email || !cvFile) {
+    if (!career_id || !nombre || !cvFile) {
       return NextResponse.json(
-        { error: 'Missing required fields (career_id, nombre, email, cv)' },
+        { error: 'Missing required fields (career_id, nombre, cv)' },
         { status: 400 }
       )
     }
@@ -67,14 +75,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 })
     }
 
+    const client = createServiceClient()
+
+    // One application per position per user.
+    const { data: existing } = await client
+      .from('career_applications')
+      .select('id')
+      .eq('career_id', career_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Ya te postulaste a esta posición.' },
+        { status: 409 }
+      )
+    }
+
     const arrayBuffer = await cvFile.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
     const safeExt = ALLOWED_CV_EXTENSIONS.includes(fileExt) ? fileExt : 'pdf'
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${safeExt}`
     const filePath = fileName
-
-    const client = createServiceClient()
 
     const { error: uploadError } = await client.storage
       .from('cvs')
@@ -91,6 +114,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .from('career_applications')
       .insert({
         career_id,
+        user_id: user.id,
         nombre,
         email,
         telefono: telefono || null,

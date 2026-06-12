@@ -10,7 +10,7 @@ interface Props {
   locale: Locale
 }
 
-export function CareersListing({ careers, locale }: Props) {
+export function CareersListing({ careers, locale }: Props): React.JSX.Element {
   const t = useTranslations('careers')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   

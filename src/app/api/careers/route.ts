@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   const role = user?.user_metadata?.role ?? 'vendor'
@@ -24,7 +24,7 @@ export async function GET() {
   return NextResponse.json({ careers: data })
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   const role = user?.user_metadata?.role ?? 'vendor'

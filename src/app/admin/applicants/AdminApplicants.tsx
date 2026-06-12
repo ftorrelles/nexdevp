@@ -44,7 +44,7 @@ const inputClass =
 const labelClass =
   'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1.5'
 
-export function AdminApplicants({ careers: initialCareers, applications: initialApplications, role }: Props) {
+export function AdminApplicants({ careers: initialCareers, applications: initialApplications, role }: Props): React.JSX.Element {
   const [careers, setCareers] = useState<Career[]>(initialCareers)
   const [applications, setApplications] = useState<CareerApplication[]>(initialApplications)
   const [activeTab, setActiveTab] = useState<TabType>('applicants')

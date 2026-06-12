@@ -5,7 +5,7 @@ import { createServiceClient } from '@/lib/supabase'
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   const role = user?.user_metadata?.role ?? 'vendor'
@@ -42,7 +42,7 @@ export async function PATCH(
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   const role = user?.user_metadata?.role ?? 'vendor'

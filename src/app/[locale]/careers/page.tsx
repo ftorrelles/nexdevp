@@ -9,7 +9,7 @@ type Props = {
   params: Promise<{ locale: string }>
 }
 
-export default async function PublicCareersPage({ params }: Props) {
+export default async function PublicCareersPage({ params }: Props): Promise<React.JSX.Element> {
   const { locale } = await params
   setRequestLocale(locale as Locale)
 

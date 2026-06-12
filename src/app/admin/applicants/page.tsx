@@ -3,7 +3,7 @@ import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, type Career, type CareerApplication, type UserRole } from '@/lib/supabase'
 import { AdminApplicants } from './AdminApplicants'
 
-export default async function ApplicantsPage() {
+export default async function ApplicantsPage(): Promise<React.JSX.Element> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 

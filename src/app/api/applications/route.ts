@@ -13,7 +13,7 @@ const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 export async function GET(): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const role = user?.user_metadata?.role ?? 'vendor'
+  const role = user?.app_metadata?.role ?? 'vendor'
 
   if (!user || (role !== 'owner' && role !== 'supervisor')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

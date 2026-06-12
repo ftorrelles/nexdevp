@@ -10,7 +10,7 @@ export default async function UsersPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/admin/login')
-  if (user.user_metadata?.role !== 'owner') redirect('/admin')
+  if (user.app_metadata?.role !== 'owner') redirect('/admin')
 
   const adminClient = createServiceClient()
   const { data: { users } } = await adminClient.auth.admin.listUsers()
@@ -18,7 +18,7 @@ export default async function UsersPage() {
   const adminUsers: AdminUser[] = users.map((u) => ({
     id: u.id,
     email: u.email ?? '',
-    role: (u.user_metadata?.role ?? 'vendor') as UserRole,
+    role: (u.app_metadata?.role ?? 'vendor') as UserRole,
   }))
 
   return (

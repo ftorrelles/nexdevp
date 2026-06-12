@@ -8,7 +8,7 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const role = user?.user_metadata?.role ?? 'vendor'
+  const role = user?.app_metadata?.role ?? 'vendor'
 
   if (!user || (role !== 'owner' && role !== 'supervisor')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -64,7 +64,7 @@ export async function DELETE(
 ): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const role = user?.user_metadata?.role ?? 'vendor'
+  const role = user?.app_metadata?.role ?? 'vendor'
 
   if (!user || (role !== 'owner' && role !== 'supervisor')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

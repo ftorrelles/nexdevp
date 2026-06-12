@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Credenciales incorrectas' }, { status: 401 })
     }
 
-    const role = data.user.user_metadata?.role ?? 'vendor'
+    const role = data.user.app_metadata?.role ?? 'vendor'
     return NextResponse.json({ success: true, role })
   } catch (err) {
     console.error('Admin auth error:', err)

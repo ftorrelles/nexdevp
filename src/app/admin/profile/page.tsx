@@ -10,7 +10,7 @@ export default async function ProfilePage() {
 
   if (!user) redirect('/admin/login')
 
-  const role = (user.user_metadata?.role ?? 'vendor') as UserRole
+  const role = (user.app_metadata?.role ?? 'vendor') as UserRole
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">

@@ -6,7 +6,7 @@ import type { UserRole } from '@/lib/supabase'
 async function requireOwner() {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.user_metadata?.role !== 'owner') return null
+  if (!user || user.app_metadata?.role !== 'owner') return null
   return user
 }
 
@@ -27,7 +27,7 @@ export async function PATCH(
 
   const adminClient = createServiceClient()
   const { error } = await adminClient.auth.admin.updateUserById(id, {
-    user_metadata: { role },
+    app_metadata: { role },
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
@@ -50,7 +50,7 @@ export async function DELETE(
   const adminClient = createServiceClient()
 
   const { data: { user: targetUser } } = await adminClient.auth.admin.getUserById(id)
-  if (targetUser?.user_metadata?.is_protected) {
+  if (targetUser?.app_metadata?.is_protected) {
     return NextResponse.json({ error: 'Este usuario está protegido y no puede ser eliminado' }, { status: 403 })
   }
 

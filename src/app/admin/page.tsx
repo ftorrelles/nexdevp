@@ -11,7 +11,7 @@ export default async function AdminPage() {
     redirect('/admin/login')
   }
 
-  const role = (user.user_metadata?.role ?? 'vendor') as UserRole
+  const role = (user.app_metadata?.role ?? 'vendor') as UserRole
   const client = createServiceClient()
 
   const query = client.from('leads').select('*').order('created_at', { ascending: false })
@@ -26,7 +26,7 @@ export default async function AdminPage() {
     vendorUsers = users.map((u) => ({
       id: u.id,
       email: u.email ?? '',
-      role: (u.user_metadata?.role ?? 'vendor') as AdminUser['role'],
+      role: (u.app_metadata?.role ?? 'vendor') as AdminUser['role'],
     }))
   }
 

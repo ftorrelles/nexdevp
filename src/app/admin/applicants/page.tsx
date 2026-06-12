@@ -11,7 +11,7 @@ export default async function ApplicantsPage(): Promise<React.JSX.Element> {
     redirect('/admin/login')
   }
 
-  const role = (user.user_metadata?.role ?? 'vendor') as UserRole
+  const role = (user.app_metadata?.role ?? 'vendor') as UserRole
 
   // Only owners and supervisors have access to Applicants section
   if (role !== 'owner' && role !== 'supervisor') {

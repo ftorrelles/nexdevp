@@ -13,7 +13,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const role = user.user_metadata?.role ?? 'vendor'
+  const role = user.app_metadata?.role ?? 'vendor'
 
   try {
     const { id } = await params

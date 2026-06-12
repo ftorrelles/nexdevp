@@ -6,7 +6,7 @@ import type { AdminUser, UserRole } from '@/lib/supabase'
 async function requireOwner() {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.user_metadata?.role !== 'owner') return null
+  if (!user || user.app_metadata?.role !== 'owner') return null
   return user
 }
 
@@ -21,7 +21,7 @@ export async function GET() {
   const adminUsers: AdminUser[] = users.map((u) => ({
     id: u.id,
     email: u.email ?? '',
-    role: (u.user_metadata?.role ?? 'vendor') as UserRole,
+    role: (u.app_metadata?.role ?? 'vendor') as UserRole,
   }))
 
   return NextResponse.json({ users: adminUsers })
@@ -45,12 +45,21 @@ export async function POST(req: NextRequest) {
 
   const adminClient = createServiceClient()
   const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    data: { role },
     redirectTo: `${siteUrl}/auth/callback?next=/admin/profile`,
   })
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 })
+  }
+
+  // Role lives in app_metadata (admin-only, not user-editable). The invite API
+  // can't set app_metadata directly, so apply it right after creating the user.
+  const { error: roleError } = await adminClient.auth.admin.updateUserById(data.user.id, {
+    app_metadata: { role },
+  })
+
+  if (roleError) {
+    return NextResponse.json({ error: roleError.message }, { status: 400 })
   }
 
   return NextResponse.json({

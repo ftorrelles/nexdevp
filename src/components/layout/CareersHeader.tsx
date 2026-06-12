@@ -14,6 +14,7 @@ export function CareersHeader({ locale, isLoggedIn }: Props) {
   const backToSite = locale === 'es' ? 'Volver al sitio' : 'Back to site'
   const myPortal = locale === 'es' ? 'Mi portal' : 'My portal'
   const logIn = locale === 'es' ? 'Iniciar sesión' : 'Log in'
+  const createAccount = locale === 'es' ? 'Crear cuenta' : 'Create account'
   const logOut = locale === 'es' ? 'Cerrar sesión' : 'Log out'
 
   return (
@@ -48,12 +49,20 @@ export function CareersHeader({ locale, isLoggedIn }: Props) {
               <ApplicantLogout label={logOut} />
             </>
           ) : (
-            <Link
-              href="/careers/login"
-              className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2 px-5 rounded-lg hover:bg-nex-green/90 transition-colors"
-            >
-              {logIn}
-            </Link>
+            <>
+              <Link
+                href="/careers/login"
+                className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
+              >
+                {logIn}
+              </Link>
+              <Link
+                href="/careers/registro"
+                className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2 px-5 rounded-lg hover:bg-nex-green/90 transition-colors"
+              >
+                {createAccount}
+              </Link>
+            </>
           )}
         </div>
       </div>

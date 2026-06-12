@@ -3,52 +3,32 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { supabase } from '@/lib/supabase'
 
-export function RegisterForm() {
-  const t = useTranslations('register')
-  const [nombre, setNombre] = useState('')
+export function LoginForm() {
+  const t = useTranslations('careersLogin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
-
-    if (password.length < 8) {
-      setError(t('errorShortPassword'))
-      return
-    }
-
     setLoading(true)
+    setError('')
     try {
-      // Role is NOT set here on purpose — a DB trigger assigns 'applicant' in
-      // app_metadata (admin-only), so a self-registering user cannot escalate.
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: nombre },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/careers/portal`,
-        },
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       })
-
-      if (signUpError) {
-        setError(signUpError.message)
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? t('errorGeneric'))
         return
       }
-
-      // If email confirmation is disabled, a session is returned immediately.
-      if (data.session) {
-        window.location.href = '/careers/portal'
-        return
-      }
-
-      setDone(true)
+      // Applicants go to their portal; staff fall back to the CRM.
+      window.location.href = data.role === 'applicant' ? '/careers/portal' : '/admin'
     } catch {
       setError(t('errorGeneric'))
     } finally {
@@ -61,44 +41,12 @@ export function RegisterForm() {
   const labelClass =
     'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-2'
 
-  if (done) {
-    return (
-      <div className="bg-nex-dark border border-white/10 rounded-2xl p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-nex-green/10 text-nex-green flex items-center justify-center mx-auto mb-5 text-2xl">
-          ✓
-        </div>
-        <h2 className="font-jost font-bold text-xl text-nex-white mb-2">
-          {t('checkEmailTitle')}
-        </h2>
-        <p className="font-jost text-sm text-nex-grey">
-          {t('checkEmailBody', { email })}
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="bg-nex-dark border border-white/10 rounded-2xl p-8">
-      <h1 className="font-jost font-bold text-2xl text-nex-white mb-2">
-        {t('title')}
-      </h1>
+      <h1 className="font-jost font-bold text-2xl text-nex-white mb-2">{t('title')}</h1>
       <p className="font-jost text-nex-grey text-sm mb-8">{t('subtitle')}</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="nombre" className={labelClass}>{t('nameLabel')}</label>
-          <input
-            id="nombre"
-            type="text"
-            required
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className={inputClass}
-            placeholder={t('namePlaceholder')}
-            autoComplete="name"
-          />
-        </div>
-
         <div>
           <label htmlFor="email" className={labelClass}>{t('emailLabel')}</label>
           <input
@@ -120,12 +68,11 @@ export function RegisterForm() {
               id="password"
               type={showPassword ? 'text' : 'password'}
               required
-              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={`${inputClass} pr-12`}
-              placeholder={t('passwordPlaceholder')}
-              autoComplete="new-password"
+              placeholder="••••••••"
+              autoComplete="current-password"
             />
             <button
               type="button"
@@ -159,9 +106,9 @@ export function RegisterForm() {
         </button>
 
         <p className="font-jost text-sm text-nex-grey text-center">
-          {t('haveAccount')}{' '}
-          <Link href="/careers/login" className="text-nex-green hover:underline">
-            {t('login')}
+          {t('noAccount')}{' '}
+          <Link href="/careers/registro" className="text-nex-green hover:underline">
+            {t('register')}
           </Link>
         </p>
       </form>

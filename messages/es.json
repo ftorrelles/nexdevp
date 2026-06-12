@@ -410,5 +410,18 @@
     "checkEmailBody": "Te enviamos un link de confirmación a {email}. Hacé clic para activar tu cuenta y empezar a postularte.",
     "errorShortPassword": "La contraseña debe tener al menos 8 caracteres.",
     "errorGeneric": "Ocurrió un error. Intentá de nuevo."
+  },
+  "careersLogin": {
+    "title": "Ingresá a tu cuenta",
+    "subtitle": "Accedé para ver el estado de tus postulaciones.",
+    "emailLabel": "Email *",
+    "passwordLabel": "Contraseña *",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "submit": "Ingresar",
+    "submitting": "Verificando...",
+    "noAccount": "¿No tenés cuenta?",
+    "register": "Registrate",
+    "errorGeneric": "Credenciales incorrectas"
   }
 }

@@ -1,12 +1,10 @@
 import { redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import type { Locale } from '@/content/types'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/sections/Footer'
+import { CareersHeader } from '@/components/layout/CareersHeader'
 import { Link } from '@/i18n/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, type CareerApplication } from '@/lib/supabase'
-import { ApplicantLogout } from './ApplicantLogout'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -50,19 +48,16 @@ export default async function ApplicantPortalPage({ params }: Props): Promise<Re
 
   return (
     <main className="min-h-screen bg-nex-black text-nex-white">
-      <Navbar locale={loc} />
+      <CareersHeader locale={loc} isLoggedIn={true} />
 
       <section className="px-6 lg:px-12 py-16 max-w-3xl mx-auto">
-        <div className="flex items-start justify-between gap-4 mb-10">
-          <div>
-            <h1 className="font-jost font-bold text-3xl text-nex-white mb-1">
-              {loc === 'es' ? `Hola, ${displayName}` : `Hi, ${displayName}`}
-            </h1>
-            <p className="font-jost text-sm text-nex-grey">
-              {loc === 'es' ? 'El estado de tus postulaciones.' : 'The status of your applications.'}
-            </p>
-          </div>
-          <ApplicantLogout label={loc === 'es' ? 'Cerrar sesión' : 'Log out'} />
+        <div className="mb-10">
+          <h1 className="font-jost font-bold text-3xl text-nex-white mb-1">
+            {loc === 'es' ? `Hola, ${displayName}` : `Hi, ${displayName}`}
+          </h1>
+          <p className="font-jost text-sm text-nex-grey">
+            {loc === 'es' ? 'El estado de tus postulaciones.' : 'The status of your applications.'}
+          </p>
         </div>
 
         {applications.length === 0 ? (
@@ -116,8 +111,6 @@ export default async function ApplicantPortalPage({ params }: Props): Promise<Re
           </div>
         )}
       </section>
-
-      <Footer locale={loc} />
     </main>
   )
 }

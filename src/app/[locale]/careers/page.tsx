@@ -1,7 +1,6 @@
 import { setRequestLocale } from 'next-intl/server'
 import type { Locale } from '@/content/types'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/sections/Footer'
+import { CareersHeader } from '@/components/layout/CareersHeader'
 import { Link } from '@/i18n/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, type Career } from '@/lib/supabase'
@@ -36,7 +35,7 @@ export default async function PublicCareersPage({ params }: Props): Promise<Reac
 
   return (
     <main className="min-h-screen bg-nex-black text-nex-white">
-      <Navbar locale={locale as Locale} />
+      <CareersHeader locale={locale as Locale} isLoggedIn={!!currentUser} />
 
       {/* Account banner — applying requires an account */}
       <div className="px-6 lg:px-12 pt-8">
@@ -70,7 +69,7 @@ export default async function PublicCareersPage({ params }: Props): Promise<Reac
                   {locale === 'es' ? 'Crear cuenta' : 'Create account'}
                 </Link>
                 <Link
-                  href="/admin/login"
+                  href="/careers/login"
                   className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
                 >
                   {locale === 'es' ? 'Ingresar' : 'Log in'}
@@ -82,7 +81,6 @@ export default async function PublicCareersPage({ params }: Props): Promise<Reac
       </div>
 
       <CareersListing careers={activeCareers} locale={locale as Locale} currentUser={currentUser} />
-      <Footer locale={locale as Locale} />
     </main>
   )
 }

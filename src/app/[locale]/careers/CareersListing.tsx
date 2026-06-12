@@ -256,7 +256,7 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
                               {locale === 'es' ? 'Crear cuenta' : 'Create account'}
                             </Link>
                             <Link
-                              href="/admin/login"
+                              href="/careers/login"
                               className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
                             >
                               {locale === 'es' ? 'Ya tengo cuenta · Ingresar' : 'I have an account · Log in'}

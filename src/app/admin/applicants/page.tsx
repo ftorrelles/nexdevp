@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
-import { createServiceClient, type Career, type CareerApplication, type UserRole } from '@/lib/supabase'
+import { createServiceClient, withSignedCvUrls, type Career, type CareerApplication, type UserRole } from '@/lib/supabase'
 import { AdminApplicants } from './AdminApplicants'
 
 export default async function ApplicantsPage(): Promise<React.JSX.Element> {
@@ -34,7 +34,10 @@ export default async function ApplicantsPage(): Promise<React.JSX.Element> {
   }
 
   const careers = (careersResult.data as Career[]) ?? []
-  const applications = (applicationsResult.data as CareerApplication[]) ?? []
+  const applications = await withSignedCvUrls(
+    client,
+    (applicationsResult.data as CareerApplication[]) ?? []
+  )
 
   return (
     <AdminApplicants

@@ -61,12 +61,9 @@ export async function DELETE(
       .eq('id', id)
       .single()
 
-    if (application && application.cv_url) {
-      const parts = application.cv_url.split('/')
-      const fileName = parts[parts.length - 1]
-      if (fileName) {
-        await client.storage.from('cvs').remove([fileName])
-      }
+    // cv_url stores the storage object path; remove it directly.
+    if (application?.cv_url) {
+      await client.storage.from('cvs').remove([application.cv_url])
     }
 
     const { error } = await client.from('career_applications').delete().eq('id', id)

@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,12 +62,46 @@ export interface CareerApplication {
   email: string
   telefono?: string
   mensaje?: string
-  cv_url: string
+  cv_url: string // storage object path (resolved to a signed URL for reads)
   estado?: 'nuevo' | 'revisado' | 'aceptado' | 'rechazado'
   created_at?: string
   careers?: {
     title_es: string
     title_en: string
   }
+}
+
+const CV_SIGNED_URL_TTL_SECONDS = 60 * 60 // 1 hour
+
+// CVs live in a private bucket; `cv_url` stores the storage object path.
+// This swaps each path for a short-lived signed URL for admin viewing,
+// falling back to the stored value if signing fails.
+export async function withSignedCvUrls(
+  client: SupabaseClient,
+  applications: CareerApplication[]
+): Promise<CareerApplication[]> {
+  const paths = applications
+    .map((a) => a.cv_url)
+    .filter((p): p is string => Boolean(p))
+  if (paths.length === 0) return applications
+
+  const { data, error } = await client.storage
+    .from('cvs')
+    .createSignedUrls(paths, CV_SIGNED_URL_TTL_SECONDS)
+
+  if (error || !data) {
+    console.error('Failed to sign CV urls:', error)
+    return applications
+  }
+
+  const signedByPath = new Map<string, string>()
+  for (const item of data) {
+    if (item.path && item.signedUrl) signedByPath.set(item.path, item.signedUrl)
+  }
+
+  return applications.map((a) => ({
+    ...a,
+    cv_url: signedByPath.get(a.cv_url) ?? a.cv_url,
+  }))
 }
 

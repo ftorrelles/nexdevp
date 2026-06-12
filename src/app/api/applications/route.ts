@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
-import { createServiceClient } from '@/lib/supabase'
+import { createServiceClient, withSignedCvUrls, type CareerApplication } from '@/lib/supabase'
+
+const ALLOWED_CV_EXTENSIONS = ['pdf', 'doc', 'docx']
+const ALLOWED_CV_MIME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 
 export async function GET(): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
@@ -22,7 +30,8 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json({ error: 'Failed to fetch applications' }, { status: 500 })
   }
 
-  return NextResponse.json({ applications: data })
+  const applications = await withSignedCvUrls(client, (data as CareerApplication[]) ?? [])
+  return NextResponse.json({ applications })
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -42,13 +51,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       )
     }
 
+    const fileExt = (cvFile.name.split('.').pop() ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')
+
+    if (
+      !ALLOWED_CV_EXTENSIONS.includes(fileExt) &&
+      !ALLOWED_CV_MIME_TYPES.includes(cvFile.type)
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only PDF or Word documents are allowed.' },
+        { status: 400 }
+      )
+    }
+
+    if (cvFile.size > MAX_CV_SIZE_BYTES) {
+      return NextResponse.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 })
+    }
+
     const arrayBuffer = await cvFile.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    const fileExt = cvFile.name.split('.').pop()
-    const safeExt = fileExt ? fileExt.replace(/[^a-zA-Z0-9]/g, '') : 'pdf'
+    const safeExt = ALLOWED_CV_EXTENSIONS.includes(fileExt) ? fileExt : 'pdf'
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${safeExt}`
-    const filePath = `${fileName}`
+    const filePath = fileName
 
     const client = createServiceClient()
 
@@ -63,8 +87,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to upload CV file' }, { status: 500 })
     }
 
-    const { data: { publicUrl } } = client.storage.from('cvs').getPublicUrl(filePath)
-
     const { data: appData, error: insertError } = await client
       .from('career_applications')
       .insert({
@@ -73,7 +95,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         email,
         telefono: telefono || null,
         mensaje: mensaje || null,
-        cv_url: publicUrl,
+        cv_url: filePath,
         estado: 'nuevo',
       })
       .select()

@@ -49,6 +49,12 @@ create index if not exists career_applications_created_at_idx
 alter table public.careers enable row level security;
 alter table public.career_applications enable row level security;
 
+-- The app reads/writes these tables with the service-role key (which bypasses
+-- RLS). Grant it the table privileges explicitly so server routes and Server
+-- Components are not blocked by "permission denied" (error 42501).
+grant all privileges on public.careers to service_role;
+grant all privileges on public.career_applications to service_role;
+
 -- 4) Private storage bucket for CVs -----------------------------------------
 -- Private on purpose: the app serves CVs via short-lived signed URLs.
 insert into storage.buckets (id, name, public)

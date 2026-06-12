@@ -22,7 +22,7 @@ export async function JoinUs({ locale }: JoinUsProps) {
           {/* Subtle green glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-px bg-gradient-to-r from-transparent via-nex-green/60 to-transparent" />
 
-          <div className="max-w-2xl">
+          <div className="max-w-3xl mx-auto text-center">
             <p className="font-mono text-nex-green text-xs tracking-[0.25em] uppercase mb-4">
               {t('eyebrow')}
             </p>
@@ -30,7 +30,7 @@ export async function JoinUs({ locale }: JoinUsProps) {
               {t('heading')}{' '}
               <span className="text-nex-green">{t('heading_accent')}</span>
             </h2>
-            <p className="font-jost text-nex-grey text-lg mb-12 max-w-xl">
+            <p className="font-jost text-nex-grey text-lg mb-12 max-w-2xl mx-auto">
               {t('sub')}
             </p>
           </div>
@@ -55,13 +55,15 @@ export async function JoinUs({ locale }: JoinUsProps) {
             ))}
           </div>
 
-          <Link
-            href="/careers"
-            className="inline-flex items-center gap-2 bg-nex-green text-nex-black font-jost font-bold py-3 px-7 rounded-lg hover:bg-nex-green/90 transition-colors"
-          >
-            {t('cta')}
-            <span aria-hidden="true">→</span>
-          </Link>
+          <div className="text-center">
+            <Link
+              href="/careers"
+              className="inline-flex items-center gap-2 bg-nex-green text-nex-black font-jost font-bold py-3 px-7 rounded-lg hover:bg-nex-green/90 transition-colors"
+            >
+              {t('cta')}
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

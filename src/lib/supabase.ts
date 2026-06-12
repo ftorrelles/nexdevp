@@ -65,6 +65,8 @@ export interface CareerApplication {
   id?: string
   career_id: string
   user_id?: string | null
+  handled_by?: string | null // staff member (owner/supervisor) handling it
+  handled_by_email?: string | null // resolved for display only (not a column)
   nombre: string
   email: string
   telefono?: string

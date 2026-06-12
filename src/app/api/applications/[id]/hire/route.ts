@@ -3,17 +3,17 @@ import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { sendApplicantDecisionEmail } from '@/lib/email'
 
-// Hiring promotes a candidate to staff, so it is owner-only (same boundary as
-// user management). It flips the applicant's account role to 'vendor' and marks
-// the application as accepted.
+// Accepting a candidate promotes their account to 'vendor' (CRM access) and
+// marks the application accepted. Owners and supervisors can do this.
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.app_metadata?.role !== 'owner') {
-    return NextResponse.json({ error: 'Solo el owner puede contratar.' }, { status: 403 })
+  const role = user?.app_metadata?.role
+  if (!user || (role !== 'owner' && role !== 'supervisor')) {
+    return NextResponse.json({ error: 'No autorizado.' }, { status: 403 })
   }
 
   try {
@@ -48,7 +48,7 @@ export async function POST(
 
     const { error: estadoError } = await client
       .from('career_applications')
-      .update({ estado: 'aceptado' })
+      .update({ estado: 'aceptado', handled_by: user.id })
       .eq('id', id)
 
     if (estadoError) {

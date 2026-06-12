@@ -9,16 +9,18 @@ interface Props {
   applications: CareerApplication[]
   role: UserRole
   currentUserId: string
+  currentUserEmail: string
 }
 
 type TabType = 'applicants' | 'positions'
 type ApplicationStatus = 'nuevo' | 'revisado' | 'aceptado' | 'rechazado'
+type StatusFilter = ApplicationStatus
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  nuevo: 'Nuevo',
-  revisado: 'Revisado',
-  aceptado: 'Aceptado',
-  rechazado: 'Rechazado',
+  nuevo: 'Nuevos',
+  revisado: 'En revisión',
+  aceptado: 'Aceptados',
+  rechazado: 'Rechazados',
 }
 
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
@@ -27,6 +29,8 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
   aceptado: 'text-nex-green bg-nex-green/10',
   rechazado: 'text-nex-grey bg-white/5',
 }
+
+const STATUS_ORDER: ApplicationStatus[] = ['nuevo', 'revisado', 'aceptado', 'rechazado']
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return '—'
@@ -44,10 +48,11 @@ const inputClass =
 const labelClass =
   'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1.5'
 
-export function AdminApplicants({ careers: initialCareers, applications: initialApplications, role }: Props): React.JSX.Element {
+export function AdminApplicants({ careers: initialCareers, applications: initialApplications, role, currentUserEmail }: Props): React.JSX.Element {
   const [careers, setCareers] = useState<Career[]>(initialCareers)
   const [applications, setApplications] = useState<CareerApplication[]>(initialApplications)
   const [activeTab, setActiveTab] = useState<TabType>('applicants')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('nuevo')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   // Modals state
@@ -72,6 +77,15 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
   const totalApplicants = applications.length
   const newApplicants = applications.filter(a => a.estado === 'nuevo').length
   const activePositions = careers.filter(c => c.active).length
+
+  // Counts per status + the list filtered to the active status sub-tab.
+  const statusCounts = STATUS_ORDER.reduce((acc, s) => {
+    acc[s] = applications.filter(a => (a.estado ?? 'nuevo') === s).length
+    return acc
+  }, {} as Record<ApplicationStatus, number>)
+  const filteredApplications = applications.filter(
+    a => (a.estado ?? 'nuevo') === statusFilter
+  )
 
   // Reset form helper
   function resetForm() {
@@ -184,8 +198,8 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
     }
   }
 
-  // Update Application Status
-  async function handleStatusChange(id: string, estado: ApplicationStatus) {
+  // Move an application to 'revisado' or 'rechazado' (assigns it to me).
+  async function patchStatus(id: string, estado: 'revisado' | 'rechazado') {
     setUpdatingId(id)
     try {
       const res = await fetch(`/api/applications/${id}`, {
@@ -194,25 +208,32 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
         body: JSON.stringify({ estado }),
       })
       if (res.ok) {
-        setApplications(prev => prev.map(a => a.id === id ? { ...a, estado } : a))
+        setApplications(prev =>
+          prev.map(a => (a.id === id ? { ...a, estado, handled_by_email: currentUserEmail } : a))
+        )
+      } else {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'No se pudo actualizar')
       }
     } finally {
       setUpdatingId(null)
     }
   }
 
-  // Hire applicant — promotes their account to vendor (owner only)
-  async function handleHire(app: CareerApplication) {
-    if (!confirm(`¿Contratar a ${app.nombre}? Su cuenta pasará a vendedor con acceso al CRM.`)) return
+  // Accept = promote the candidate's account to vendor + mark accepted.
+  async function handleAccept(app: CareerApplication) {
+    if (!confirm(`¿Aceptar a ${app.nombre}? Su cuenta pasará a vendedor con acceso al CRM.`)) return
     setUpdatingId(app.id!)
     try {
       const res = await fetch(`/api/applications/${app.id}/hire`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) {
-        alert(data.error || 'No se pudo contratar')
+        alert(data.error || 'No se pudo aceptar')
         return
       }
-      setApplications(prev => prev.map(a => (a.id === app.id ? { ...a, estado: 'aceptado' } : a)))
+      setApplications(prev =>
+        prev.map(a => (a.id === app.id ? { ...a, estado: 'aceptado', handled_by_email: currentUserEmail } : a))
+      )
     } finally {
       setUpdatingId(null)
     }
@@ -515,6 +536,35 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
           </div>
         )}
 
+        {/* Status filter sub-tabs (applicants only) */}
+        {activeTab === 'applicants' && (
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {STATUS_ORDER.map(s => {
+              const isActive = statusFilter === s
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={[
+                    'flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-colors',
+                    isActive
+                      ? 'bg-white/10 text-nex-white border-white/20 font-bold'
+                      : 'bg-nex-dark text-nex-grey border-white/10 hover:border-white/30',
+                  ].join(' ')}
+                >
+                  {STATUS_LABELS[s]}
+                  <span className={[
+                    'font-dm-mono text-[10px] rounded-full px-2 py-0.5',
+                    STATUS_COLORS[s],
+                  ].join(' ')}>
+                    {statusCounts[s]}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         {/* Data Tables */}
         <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
@@ -522,7 +572,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
-                    {['Fecha', 'Nombre', 'Posición', 'Contacto', 'Mensaje', 'CV', 'Estado', 'Acciones'].map(col => (
+                    {['Fecha', 'Nombre', 'Posición', 'Contacto', 'Mensaje', 'CV', 'Gestionado por', 'Acciones'].map(col => (
                       <th
                         key={col}
                         className="text-left font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-grey px-5 py-3"
@@ -533,14 +583,14 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                   </tr>
                 </thead>
                 <tbody>
-                  {applications.length === 0 ? (
+                  {filteredApplications.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-5 py-8 text-center text-nex-grey">
-                        No hay postulantes registrados todavía.
+                        No hay postulantes en «{STATUS_LABELS[statusFilter]}».
                       </td>
                     </tr>
                   ) : (
-                    applications.map(app => (
+                    filteredApplications.map(app => (
                       <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                         <td className="px-5 py-4 text-xs text-nex-grey whitespace-nowrap">
                           {formatDate(app.created_at)}
@@ -566,32 +616,46 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                             Ver CV ↗
                           </a>
                         </td>
-                        <td className="px-5 py-4">
-                          <select
-                            value={app.estado ?? 'nuevo'}
-                            disabled={updatingId === app.id}
-                            onChange={e => handleStatusChange(app.id!, e.target.value as ApplicationStatus)}
-                            className={[
-                              'font-dm-mono text-[10px] tracking-[0.1em] uppercase rounded px-2.5 py-1 border-0 outline-none cursor-pointer disabled:opacity-50',
-                              STATUS_COLORS[app.estado ?? 'nuevo'],
-                            ].join(' ')}
-                          >
-                            {Object.entries(STATUS_LABELS).map(([val, label]) => (
-                              <option key={val} value={val} className="bg-nex-dark text-nex-white">
-                                {label}
-                              </option>
-                            ))}
-                          </select>
+                        <td className="px-5 py-4 text-xs text-nex-grey whitespace-nowrap">
+                          {app.handled_by_email ?? '—'}
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-4 whitespace-nowrap">
-                            {role === 'owner' && app.user_id && app.estado !== 'aceptado' && (
+                            {app.estado === 'nuevo' && (
                               <button
-                                onClick={() => handleHire(app)}
+                                onClick={() => patchStatus(app.id!, 'revisado')}
                                 disabled={updatingId === app.id}
-                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-nex-green hover:text-nex-green/80 transition-colors disabled:opacity-40"
+                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-yellow-400 hover:text-yellow-300 transition-colors disabled:opacity-40"
                               >
-                                Contratar
+                                Revisar
+                              </button>
+                            )}
+                            {app.estado === 'revisado' && (
+                              <>
+                                <button
+                                  onClick={() => handleAccept(app)}
+                                  disabled={updatingId === app.id || !app.user_id}
+                                  title={!app.user_id ? 'Sin cuenta vinculada' : undefined}
+                                  className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-nex-green hover:text-nex-green/80 transition-colors disabled:opacity-40"
+                                >
+                                  Aceptar
+                                </button>
+                                <button
+                                  onClick={() => patchStatus(app.id!, 'rechazado')}
+                                  disabled={updatingId === app.id}
+                                  className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-nex-grey hover:text-nex-white transition-colors disabled:opacity-40"
+                                >
+                                  Rechazar
+                                </button>
+                              </>
+                            )}
+                            {app.estado === 'rechazado' && (
+                              <button
+                                onClick={() => patchStatus(app.id!, 'revisado')}
+                                disabled={updatingId === app.id}
+                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-nex-grey hover:text-nex-white transition-colors disabled:opacity-40"
+                              >
+                                Reconsiderar
                               </button>
                             )}
                             <button

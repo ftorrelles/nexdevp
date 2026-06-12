@@ -20,10 +20,11 @@ export default async function ApplicantsPage(): Promise<React.JSX.Element> {
 
   const client = createServiceClient()
 
-  // Fetch careers and applications in parallel
-  const [careersResult, applicationsResult] = await Promise.all([
+  // Fetch careers, applications, and staff users in parallel
+  const [careersResult, applicationsResult, usersResult] = await Promise.all([
     client.from('careers').select('*').order('created_at', { ascending: false }),
-    client.from('career_applications').select('*, careers(title_es, title_en)').order('created_at', { ascending: false })
+    client.from('career_applications').select('*, careers(title_es, title_en)').order('created_at', { ascending: false }),
+    client.auth.admin.listUsers(),
   ])
 
   if (careersResult.error) {
@@ -34,10 +35,21 @@ export default async function ApplicantsPage(): Promise<React.JSX.Element> {
   }
 
   const careers = (careersResult.data as Career[]) ?? []
-  const applications = await withSignedCvUrls(
+
+  // Map staff user ids to emails so the UI can show who handled each application.
+  const emailById = new Map<string, string>()
+  for (const u of usersResult.data?.users ?? []) {
+    if (u.email) emailById.set(u.id, u.email)
+  }
+
+  const signed = await withSignedCvUrls(
     client,
     (applicationsResult.data as CareerApplication[]) ?? []
   )
+  const applications: CareerApplication[] = signed.map((a) => ({
+    ...a,
+    handled_by_email: a.handled_by ? emailById.get(a.handled_by) ?? null : null,
+  }))
 
   return (
     <AdminApplicants
@@ -45,6 +57,7 @@ export default async function ApplicantsPage(): Promise<React.JSX.Element> {
       applications={applications}
       role={role}
       currentUserId={user.id}
+      currentUserEmail={user.email ?? ''}
     />
   )
 }

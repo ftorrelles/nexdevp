@@ -20,15 +20,19 @@ export async function PATCH(
     const body = await req.json()
     const { estado } = body
 
-    const validEstados = ['nuevo', 'revisado', 'aceptado', 'rechazado']
+    // 'aceptado' is intentionally excluded: accepting promotes the candidate to
+    // vendor, which only the dedicated accept endpoint does. This prevents a
+    // status that says "accepted" without the account ever being promoted.
+    const validEstados = ['nuevo', 'revisado', 'rechazado']
     if (!estado || !validEstados.includes(estado)) {
-      return NextResponse.json({ error: 'Invalid or missing estado' }, { status: 400 })
+      return NextResponse.json({ error: 'Estado inválido' }, { status: 400 })
     }
 
     const client = createServiceClient()
+    // Record who is handling this application (assignment on review, etc.).
     const { data: updated, error } = await client
       .from('career_applications')
-      .update({ estado })
+      .update({ estado, handled_by: user.id })
       .eq('id', id)
       .select('nombre, email')
       .single()

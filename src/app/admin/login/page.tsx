@@ -33,7 +33,8 @@ export default function AdminLoginPage() {
         return
       }
 
-      router.push('/admin')
+      // Applicants are not staff — send them to the public careers area.
+      router.push(data.role === 'applicant' ? '/careers' : '/admin')
       router.refresh()
     } catch {
       setError('Error de conexión')

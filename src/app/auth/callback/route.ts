@@ -13,9 +13,9 @@ export async function GET(req: NextRequest) {
     if (!error) return NextResponse.redirect(`${origin}${next}`)
   }
 
-  // Token hash flow (invite emails)
+  // Token hash flow (invite / signup confirmation / recovery emails)
   const tokenHash = searchParams.get('token_hash')
-  const type = searchParams.get('type') as 'invite' | 'recovery' | 'email' | null
+  const type = searchParams.get('type') as 'invite' | 'recovery' | 'email' | 'signup' | null
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type })
     if (!error) return NextResponse.redirect(`${origin}${next}`)

@@ -391,5 +391,24 @@
     "submitError": "Ocurrió un error al enviar tu postulación. Por favor, intentalo de nuevo.",
     "submit": "Enviar postulación",
     "fileSelected": "Archivo seleccionado: {name}"
+  },
+  "register": {
+    "title": "Creá tu cuenta",
+    "subtitle": "Registrate para postularte a nuestras posiciones y seguir el estado de tu aplicación.",
+    "nameLabel": "Nombre completo *",
+    "namePlaceholder": "Tu nombre",
+    "emailLabel": "Email *",
+    "passwordLabel": "Contraseña *",
+    "passwordPlaceholder": "Mínimo 8 caracteres",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "submit": "Crear cuenta",
+    "submitting": "Creando cuenta...",
+    "haveAccount": "¿Ya tenés cuenta?",
+    "login": "Ingresá",
+    "checkEmailTitle": "Revisá tu email",
+    "checkEmailBody": "Te enviamos un link de confirmación a {email}. Hacé clic para activar tu cuenta y empezar a postularte.",
+    "errorShortPassword": "La contraseña debe tener al menos 8 caracteres.",
+    "errorGeneric": "Ocurrió un error. Intentá de nuevo."
   }
 }

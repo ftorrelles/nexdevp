@@ -15,11 +15,14 @@ export default async function UsersPage() {
   const adminClient = createServiceClient()
   const { data: { users } } = await adminClient.auth.admin.listUsers()
 
-  const adminUsers: AdminUser[] = users.map((u) => ({
-    id: u.id,
-    email: u.email ?? '',
-    role: (u.app_metadata?.role ?? 'vendor') as UserRole,
-  }))
+  // The staff user manager only lists staff; applicants live in /admin/applicants.
+  const adminUsers: AdminUser[] = users
+    .filter((u) => (u.app_metadata?.role ?? 'vendor') !== 'applicant')
+    .map((u) => ({
+      id: u.id,
+      email: u.email ?? '',
+      role: (u.app_metadata?.role ?? 'vendor') as UserRole,
+    }))
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">

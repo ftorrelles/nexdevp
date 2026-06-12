@@ -1,21 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import type { AdminUser, UserRole } from '@/lib/supabase'
+import { STAFF_ROLES, type AdminUser, type UserRole } from '@/lib/supabase'
 
 const ROLE_LABELS: Record<UserRole, string> = {
   owner: 'Owner',
   supervisor: 'Supervisor',
   vendor: 'Vendedor',
+  applicant: 'Postulante',
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
   owner: 'text-nex-green bg-nex-green/10',
   supervisor: 'text-yellow-400 bg-yellow-400/10',
   vendor: 'text-blue-400 bg-blue-400/10',
+  applicant: 'text-nex-grey bg-white/10',
 }
 
-const ROLES: UserRole[] = ['owner', 'supervisor', 'vendor']
+// Only staff roles can be assigned manually; applicants come from self-registration.
+const ROLES: UserRole[] = STAFF_ROLES
 
 const inputClass =
   'bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors'

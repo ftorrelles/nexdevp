@@ -27,7 +27,13 @@ export interface Lead {
   created_at?: string
 }
 
-export type UserRole = 'owner' | 'supervisor' | 'vendor'
+// 'applicant' is the self-registered job candidate role. Staff roles
+// (owner/supervisor/vendor) are assigned only by an owner. An applicant
+// becomes a vendor when hired (see the "Contratar" action).
+export type UserRole = 'owner' | 'supervisor' | 'vendor' | 'applicant'
+
+// Roles an owner can assign manually from the CRM user manager.
+export const STAFF_ROLES: UserRole[] = ['owner', 'supervisor', 'vendor']
 
 export interface AdminUser {
   id: string

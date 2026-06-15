@@ -49,7 +49,7 @@ export default async function CotizadorListPage(): Promise<React.JSX.Element> {
             </Link>
           </div>
         </div>
-        <QuotesList quotes={data ?? []} />
+        <QuotesList quotes={data as unknown as Parameters<typeof QuotesList>[0]['quotes'] ?? []} />
       </main>
     </div>
   )

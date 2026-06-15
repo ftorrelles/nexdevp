@@ -8,7 +8,7 @@ import { QuotePDF } from './QuotePDF'
 const REGION_CURRENCY: Record<string, string> = { españa: 'EUR', eeuu: 'USD', latam: 'USD' }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await createAuthServerClient()
@@ -16,8 +16,11 @@ export async function GET(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
-  const client = createServiceClient()
+  const url = new URL(req.url)
+  const showHours = url.searchParams.get('show_hours') !== '0'
+  const showRate  = url.searchParams.get('show_rate')  !== '0'
 
+  const client = createServiceClient()
   const [quoteRes, itemsRes, settingsRes] = await Promise.all([
     client.from('quotes').select('*').eq('id', id).single(),
     client.from('quote_items').select('*').eq('quote_id', id).order('sort_order'),
@@ -54,11 +57,13 @@ export async function GET(
     overhead_pm: ps?.overhead_pm ?? 0.12,
     overhead_qa: ps?.overhead_qa ?? 0.15,
     overhead_cx: ps?.overhead_cx ?? 0.10,
+    showHours,
+    showRate,
   })
 
   const buffer = await renderToBuffer(element)
+  const slug   = quote.title.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
 
-  const slug = quote.title.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
   return new NextResponse(buffer as unknown as BodyInit, {
     status: 200,
     headers: {

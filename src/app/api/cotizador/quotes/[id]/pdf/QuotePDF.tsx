@@ -70,16 +70,20 @@ export interface QuotePDFProps {
   maint_month: number
   notes:       string | null
   created_at:  string | null
-  items: Array<{ name: string; size?: string | null; hours?: number | null }>
+  items:       Array<{ name: string; size?: string | null; hours?: number | null }>
   currency:    string
   overhead_pm: number
   overhead_qa: number
   overhead_cx: number
+  // Display options
+  showHours:   boolean
+  showRate:    boolean
 }
 
 export function QuotePDF({
   id, title, tipo, product, region, total_price, maint_month, hourly_rate,
   notes, created_at, items, currency, overhead_pm, overhead_qa, overhead_cx,
+  showHours, showRate,
 }: QuotePDFProps) {
   const baseHours  = items.reduce((a, i) => a + (i.hours ?? 0), 0)
   const pmHours    = Math.round(baseHours * overhead_pm)
@@ -124,36 +128,38 @@ export function QuotePDF({
           <View style={s.tableHdRow}>
             <Text style={s.colNameHd}>DESCRIPCIÓN</Text>
             <Text style={s.colSizeHd}>TALLA</Text>
-            <Text style={s.colHrsHd}>HORAS</Text>
+            {showHours && <Text style={s.colHrsHd}>HORAS</Text>}
           </View>
           {items.map((item, idx) => (
             <View key={idx} style={s.tableRow}>
               <Text style={s.colName}>{item.name}</Text>
               <Text style={s.colSize}>{item.size ?? ''}</Text>
-              <Text style={s.colHrs}>{item.hours ?? 0}h</Text>
+              {showHours && <Text style={s.colHrs}>{item.hours ?? 0}h</Text>}
             </View>
           ))}
         </View>
 
-        {/* Overhead */}
-        <View style={s.section}>
-          <Text style={s.sectionHd}>DESGLOSE DE HORAS</Text>
-          {[
-            { label: 'Subtotal funcionalidades',                               val: `${baseHours}h` },
-            { label: `Gestión de proyecto (${Math.round(overhead_pm * 100)}%)`, val: `${pmHours}h`  },
-            { label: `Testing / QA (${Math.round(overhead_qa * 100)}%)`,        val: `${qaHours}h`  },
-            { label: `Contingencia (${Math.round(overhead_cx * 100)}%)`,        val: `${cxHours}h`  },
-          ].map(row => (
-            <View key={row.label} style={s.ohRow}>
-              <Text style={s.ohLabel}>{row.label}</Text>
-              <Text style={s.ohValue}>{row.val}</Text>
+        {/* Overhead — only when showHours is true */}
+        {showHours && (
+          <View style={s.section}>
+            <Text style={s.sectionHd}>DESGLOSE DE HORAS</Text>
+            {[
+              { label: 'Subtotal funcionalidades',                                val: `${baseHours}h` },
+              { label: `Gestión de proyecto (${Math.round(overhead_pm * 100)}%)`, val: `${pmHours}h`  },
+              { label: `Testing / QA (${Math.round(overhead_qa * 100)}%)`,        val: `${qaHours}h`  },
+              { label: `Contingencia (${Math.round(overhead_cx * 100)}%)`,        val: `${cxHours}h`  },
+            ].map(row => (
+              <View key={row.label} style={s.ohRow}>
+                <Text style={s.ohLabel}>{row.label}</Text>
+                <Text style={s.ohValue}>{row.val}</Text>
+              </View>
+            ))}
+            <View style={s.totalRow}>
+              <Text style={s.totalLabel}>Total horas estimadas</Text>
+              <Text style={s.totalValue}>{totalHours}h</Text>
             </View>
-          ))}
-          <View style={s.totalRow}>
-            <Text style={s.totalLabel}>Total horas estimadas</Text>
-            <Text style={s.totalValue}>{totalHours}h</Text>
           </View>
-        </View>
+        )}
 
         {/* Price cards */}
         <View style={s.cards}>
@@ -165,10 +171,12 @@ export function QuotePDF({
             <Text style={s.cardLabel}>MANTENIMIENTO / MES</Text>
             <Text style={s.cardSecV}>{fmt(maint_month)}</Text>
           </View>
-          <View style={s.cardSec}>
-            <Text style={s.cardLabel}>TARIFA HORA</Text>
-            <Text style={s.cardSecV}>{fmt(hourly_rate)}/h</Text>
-          </View>
+          {showRate && (
+            <View style={s.cardSec}>
+              <Text style={s.cardLabel}>TARIFA HORA</Text>
+              <Text style={s.cardSecV}>{fmt(hourly_rate)}/h</Text>
+            </View>
+          )}
         </View>
 
         {/* Notes */}

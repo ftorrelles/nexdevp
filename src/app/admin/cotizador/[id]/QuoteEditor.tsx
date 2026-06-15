@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { PricingSettings, QuoteItem, QuoteSize, QuoteStatus } from '@/lib/supabase'
 
 interface LeadOption { id: string; nombre: string; email: string; estado: string }
+
+type CommissionType = 'pool' | 'vendor_own' | null
 
 const SIZE_COLORS: Record<QuoteSize, string> = {
   S:  'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
@@ -16,25 +18,26 @@ const SIZE_COLORS: Record<QuoteSize, string> = {
 
 const STATUS_OPTIONS: { value: QuoteStatus; label: string }[] = [
   { value: 'draft',    label: 'Borrador' },
-  { value: 'sent',     label: 'Enviado' },
+  { value: 'sent',     label: 'Enviado'  },
   { value: 'accepted', label: 'Aceptado' },
-  { value: 'rejected', label: 'Rechazado' },
+  { value: 'rejected', label: 'Rechazado'},
 ]
 
 interface QuoteRow {
-  id:          string
-  lead_id:     string | null
-  title:       string
-  tipo:        string
-  product:     string
-  region:      string
-  hourly_rate: number
-  status:      QuoteStatus
-  total_hours: number
-  total_price: number
-  maint_month: number
-  addons:      string[]
-  notes:       string | null
+  id:              string
+  lead_id:         string | null
+  title:           string
+  tipo:            string
+  product:         string
+  region:          string
+  hourly_rate:     number
+  status:          QuoteStatus
+  total_hours:     number
+  total_price:     number
+  maint_month:     number
+  addons:          string[]
+  notes:           string | null
+  commission_type: CommissionType
 }
 
 interface Props {
@@ -43,16 +46,33 @@ interface Props {
   settings: PricingSettings[]
 }
 
+const COMMISSION_RATES: Record<NonNullable<CommissionType>, number> = {
+  pool:       0.15,
+  vendor_own: 0.20,
+}
+
+const COMMISSION_LABELS: Record<NonNullable<CommissionType>, string> = {
+  pool:       'Lead de nexdevp (15%)',
+  vendor_own: 'Lead propio del vendedor (20%)',
+}
+
 export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const router = useRouter()
-  const [title,   setTitle]   = useState(quote.title)
-  const [status,  setStatus]  = useState<QuoteStatus>(quote.status)
-  const [notes,   setNotes]   = useState(quote.notes ?? '')
-  const [items,   setItems]   = useState<QuoteItem[]>(initialItems)
-  const [rate,    setRate]    = useState(quote.hourly_rate)
-  const [leadId,  setLeadId]  = useState<string>(quote.lead_id ?? '')
-  const [leads,   setLeads]   = useState<LeadOption[]>([])
-  const [saving,  setSaving]  = useState(false)
+  const [title,          setTitle]          = useState(quote.title)
+  const [status,         setStatus]         = useState<QuoteStatus>(quote.status)
+  const [notes,          setNotes]          = useState(quote.notes ?? '')
+  const [items,          setItems]          = useState<QuoteItem[]>(initialItems)
+  const [rate,           setRate]           = useState(quote.hourly_rate)
+  const [leadId,         setLeadId]         = useState<string>(quote.lead_id ?? '')
+  const [leads,          setLeads]          = useState<LeadOption[]>([])
+  const [commissionType, setCommissionType] = useState<CommissionType>(quote.commission_type)
+  const [saving,         setSaving]         = useState(false)
+
+  // PDF options panel
+  const [pdfOpen,     setPdfOpen]     = useState(false)
+  const [pdfShowHrs,  setPdfShowHrs]  = useState(true)
+  const [pdfShowRate, setPdfShowRate] = useState(false)
+  const pdfRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetch('/api/cotizador/leads')
@@ -61,7 +81,19 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       .catch(() => {})
   }, [])
 
-  const ps = settings.find(s => s.region === quote.region)
+  // Close PDF panel on outside click
+  useEffect(() => {
+    if (!pdfOpen) return
+    function handler(e: MouseEvent) {
+      if (pdfRef.current && !pdfRef.current.contains(e.target as Node)) {
+        setPdfOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [pdfOpen])
+
+  const ps       = settings.find(s => s.region === quote.region)
   const currency = ps?.currency ?? 'EUR'
 
   const baseHours  = items.reduce((acc, i) => acc + (i.hours ?? 0), 0)
@@ -72,8 +104,20 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const totalPrice = totalHours * rate
   const maintMonth = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
 
+  const commissionAmount = commissionType
+    ? totalPrice * COMMISSION_RATES[commissionType]
+    : null
+
   const fmt = (n: number) =>
     n.toLocaleString('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 })
+
+  function pdfUrl() {
+    const params = new URLSearchParams()
+    if (!pdfShowHrs)  params.set('show_hours', '0')
+    if (!pdfShowRate) params.set('show_rate',  '0')
+    const qs = params.toString()
+    return `/api/cotizador/quotes/${quote.id}/pdf${qs ? `?${qs}` : ''}`
+  }
 
   function updateHours(idx: number, hours: number) {
     setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours } : it))
@@ -97,12 +141,13 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         body: JSON.stringify({
           title,
           status,
-          notes:       notes || null,
-          lead_id:     leadId || null,
-          hourly_rate: rate,
-          total_hours: totalHours,
-          total_price: totalPrice,
-          maint_month: maintMonth,
+          notes:           notes || null,
+          lead_id:         leadId || null,
+          hourly_rate:     rate,
+          total_hours:     totalHours,
+          total_price:     totalPrice,
+          maint_month:     maintMonth,
+          commission_type: commissionType,
           items,
         }),
       })
@@ -120,6 +165,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
 
   return (
     <div className="space-y-8">
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
@@ -242,7 +288,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       {/* Price summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Precio del proyecto', value: fmt(totalPrice), big: true },
+          { label: 'Precio del proyecto', value: fmt(totalPrice), big: true  },
           { label: 'Mantenimiento / mes', value: fmt(maintMonth), big: false },
           { label: 'Total horas',          value: `${totalHours}h`, big: false },
         ].map(card => (
@@ -252,6 +298,59 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Commission — visible when status is accepted */}
+      {status === 'accepted' && (
+        <div className="bg-nex-dark border border-nex-green/20 rounded-xl p-5 space-y-4">
+          <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Comisión del vendedor</h3>
+
+          <div className="space-y-2">
+            {(['pool', 'vendor_own'] as const).map(type => (
+              <label
+                key={type}
+                className={[
+                  'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
+                  commissionType === type
+                    ? 'border-nex-green/50 bg-nex-green/5'
+                    : 'border-white/10 hover:border-white/20',
+                ].join(' ')}
+              >
+                <input
+                  type="radio"
+                  name="commission_type"
+                  value={type}
+                  checked={commissionType === type}
+                  onChange={() => setCommissionType(type)}
+                  className="accent-nex-green"
+                />
+                <div className="flex-1">
+                  <p className="font-jost text-sm text-nex-white">{COMMISSION_LABELS[type]}</p>
+                  <p className="font-dm-mono text-xs text-nex-grey mt-0.5">
+                    {fmt(totalPrice * COMMISSION_RATES[type])}
+                  </p>
+                </div>
+                <span className="font-dm-mono text-xs font-bold text-nex-green">
+                  {Math.round(COMMISSION_RATES[type] * 100)}%
+                </span>
+              </label>
+            ))}
+
+            <button
+              onClick={() => setCommissionType(null)}
+              className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors pt-1"
+            >
+              Limpiar selección
+            </button>
+          </div>
+
+          {commissionAmount !== null && (
+            <div className="border-t border-white/10 pt-4 flex items-center justify-between">
+              <span className="font-jost text-sm text-nex-grey">Comisión a pagar</span>
+              <span className="font-jost font-bold text-xl text-nex-green">{fmt(commissionAmount)}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Notes */}
       <div>
@@ -271,14 +370,56 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           ← Cancelar
         </Link>
         <div className="flex items-center gap-3">
-          <a
-            href={`/api/cotizador/quotes/${quote.id}/pdf`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border border-white/20 text-nex-white font-jost text-sm py-2.5 px-5 rounded-lg hover:border-nex-green/50 hover:text-nex-green transition-colors"
-          >
-            Exportar PDF
-          </a>
+
+          {/* PDF export with options */}
+          <div className="relative" ref={pdfRef}>
+            <button
+              onClick={() => setPdfOpen(v => !v)}
+              className="border border-white/20 text-nex-white font-jost text-sm py-2.5 px-5 rounded-lg hover:border-nex-green/50 hover:text-nex-green transition-colors"
+            >
+              Exportar PDF ▾
+            </button>
+
+            {pdfOpen && (
+              <div className="absolute bottom-full right-0 mb-2 w-64 bg-nex-dark border border-white/15 rounded-xl shadow-xl p-4 space-y-3 z-10">
+                <p className="font-dm-mono text-[10px] text-nex-grey uppercase tracking-[0.15em]">Opciones del PDF</p>
+
+                {[
+                  { label: 'Mostrar horas por fase',  state: pdfShowHrs,  set: setPdfShowHrs  },
+                  { label: 'Mostrar tarifa por hora', state: pdfShowRate, set: setPdfShowRate },
+                ].map(({ label, state, set }) => (
+                  <label key={label} className="flex items-center gap-3 cursor-pointer group">
+                    <div
+                      onClick={() => set(v => !v)}
+                      className={[
+                        'w-9 h-5 rounded-full transition-colors shrink-0',
+                        state ? 'bg-nex-green' : 'bg-white/20',
+                      ].join(' ')}
+                    >
+                      <div className={[
+                        'w-4 h-4 bg-white rounded-full mt-0.5 transition-transform',
+                        state ? 'translate-x-4' : 'translate-x-0.5',
+                      ].join(' ')} />
+                    </div>
+                    <span className="font-jost text-xs text-nex-grey group-hover:text-nex-white transition-colors">
+                      {label}
+                    </span>
+                  </label>
+                ))}
+
+                <a
+                  href={pdfUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setPdfOpen(false)}
+                  className="block w-full text-center bg-nex-green text-nex-black font-jost font-bold text-sm py-2 rounded-lg hover:bg-nex-green/90 transition-colors mt-1"
+                >
+                  Descargar PDF
+                </a>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleSave}
             disabled={saving}
@@ -288,6 +429,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           </button>
         </div>
       </div>
+
     </div>
   )
 }

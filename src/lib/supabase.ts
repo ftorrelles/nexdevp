@@ -80,6 +80,67 @@ export interface CareerApplication {
   }
 }
 
+// ── Cotizador ────────────────────────────────────────────────────────────────
+
+export type QuoteRegion = 'españa' | 'eeuu' | 'latam'
+export type QuoteTipo   = 'desarrollo' | 'marketing' | 'chatbot'
+export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected'
+export type QuoteSize   = 'S' | 'M' | 'L' | 'XL'
+
+export interface PricingSettings {
+  region:      QuoteRegion
+  currency:    string
+  hourly_rate: number
+  overhead_pm: number
+  overhead_qa: number
+  overhead_cx: number
+  maint_rate:  number
+}
+
+export interface QuoteSizeMap {
+  size:        QuoteSize
+  hours:       number
+  description: string
+}
+
+export interface QuoteCatalogItem {
+  id:         string
+  category:   string
+  size:       QuoteSize
+  name:       string
+  sort_order: number
+}
+
+export interface QuoteItem {
+  id?:        string
+  catalog_id: string | null
+  name:       string
+  size:       QuoteSize | null
+  hours:      number
+  sort_order: number
+}
+
+export interface Quote {
+  id?:         string
+  lead_id?:    string | null
+  title:       string
+  region:      QuoteRegion
+  hourly_rate: number
+  tipo:        QuoteTipo
+  product:     string
+  addons:      string[]
+  status:      QuoteStatus
+  total_hours: number
+  total_price: number
+  maint_month: number
+  notes?:      string
+  created_by?: string
+  created_at?: string
+  items?:      QuoteItem[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const CV_SIGNED_URL_TTL_SECONDS = 60 * 60 // 1 hour
 
 // CVs live in a private bucket; `cv_url` stores the storage object path.

@@ -1,0 +1,253 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import type { PricingSettings, QuoteItem, QuoteSize, QuoteStatus } from '@/lib/supabase'
+
+const SIZE_COLORS: Record<QuoteSize, string> = {
+  S:  'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
+  M:  'text-blue-400   bg-blue-400/10   border-blue-400/30',
+  L:  'text-orange-400 bg-orange-400/10 border-orange-400/30',
+  XL: 'text-purple-400 bg-purple-400/10 border-purple-400/30',
+}
+
+const STATUS_OPTIONS: { value: QuoteStatus; label: string }[] = [
+  { value: 'draft',    label: 'Borrador' },
+  { value: 'sent',     label: 'Enviado' },
+  { value: 'accepted', label: 'Aceptado' },
+  { value: 'rejected', label: 'Rechazado' },
+]
+
+interface QuoteRow {
+  id:          string
+  title:       string
+  tipo:        string
+  product:     string
+  region:      string
+  hourly_rate: number
+  status:      QuoteStatus
+  total_hours: number
+  total_price: number
+  maint_month: number
+  addons:      string[]
+  notes:       string | null
+}
+
+interface Props {
+  quote:    QuoteRow
+  items:    QuoteItem[]
+  settings: PricingSettings[]
+}
+
+export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
+  const router = useRouter()
+  const [title,  setTitle]  = useState(quote.title)
+  const [status, setStatus] = useState<QuoteStatus>(quote.status)
+  const [notes,  setNotes]  = useState(quote.notes ?? '')
+  const [items,  setItems]  = useState<QuoteItem[]>(initialItems)
+  const [rate,   setRate]   = useState(quote.hourly_rate)
+  const [saving, setSaving] = useState(false)
+
+  const ps = settings.find(s => s.region === quote.region)
+  const currency = ps?.currency ?? 'EUR'
+
+  const baseHours  = items.reduce((acc, i) => acc + (i.hours ?? 0), 0)
+  const pmHours    = Math.round(baseHours * (ps?.overhead_pm ?? 0.12))
+  const qaHours    = Math.round(baseHours * (ps?.overhead_qa ?? 0.15))
+  const cxHours    = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
+  const totalHours = baseHours + pmHours + qaHours + cxHours
+  const totalPrice = totalHours * rate
+  const maintMonth = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
+
+  const fmt = (n: number) =>
+    n.toLocaleString('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 })
+
+  function updateHours(idx: number, hours: number) {
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours } : it))
+  }
+  function updateName(idx: number, name: string) {
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, name } : it))
+  }
+  function removeItem(idx: number) {
+    setItems(prev => prev.filter((_, i) => i !== idx))
+  }
+  function addItem() {
+    setItems(prev => [...prev, { catalog_id: null, name: 'Nueva funcionalidad', size: 'M', hours: 20, sort_order: prev.length }])
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/cotizador/quotes/${quote.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          status,
+          notes:       notes || null,
+          hourly_rate: rate,
+          total_hours: totalHours,
+          total_price: totalPrice,
+          maint_month: maintMonth,
+          items,
+        }),
+      })
+      if (res.ok) {
+        router.push('/admin/cotizador')
+        router.refresh()
+      } else {
+        const j = await res.json()
+        alert(j.error ?? 'Error al guardar.')
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <Link href="/admin/cotizador" className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors mb-3 inline-block">
+            ← Presupuestos
+          </Link>
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            className="w-full bg-transparent font-jost font-bold text-2xl text-nex-white outline-none border-b border-white/10 focus:border-nex-green/50 pb-1 transition-colors"
+          />
+          <p className="font-jost text-xs text-nex-grey mt-1">
+            {quote.tipo} · {quote.product} · {quote.region.charAt(0).toUpperCase() + quote.region.slice(1)}
+          </p>
+        </div>
+        <select
+          value={status}
+          onChange={e => setStatus(e.target.value as QuoteStatus)}
+          className="bg-nex-dark border border-white/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 shrink-0"
+        >
+          {STATUS_OPTIONS.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Rate */}
+      <div className="flex items-center gap-3">
+        <span className="font-jost text-sm text-nex-grey">Tarifa/hora:</span>
+        <div className="flex items-center gap-1 bg-nex-black border border-white/10 rounded-lg px-3 py-1.5">
+          <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+          <input
+            type="number"
+            min={1}
+            value={rate}
+            onChange={e => setRate(Number(e.target.value))}
+            className="w-16 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
+          />
+          <span className="font-dm-mono text-xs text-nex-grey">/h</span>
+        </div>
+      </div>
+
+      {/* Line items */}
+      <div className="bg-nex-dark border border-white/10 rounded-xl p-5 space-y-3">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Fases / funcionalidades</h3>
+          <button onClick={addItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
+            + Agregar
+          </button>
+        </div>
+        {items.map((item, idx) => (
+          <div key={idx} className="flex items-center gap-3 bg-nex-black border border-white/5 rounded-lg px-4 py-3">
+            {item.size && (
+              <span className={[
+                'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
+                SIZE_COLORS[item.size as QuoteSize],
+              ].join(' ')}>
+                {item.size}
+              </span>
+            )}
+            <input
+              type="text"
+              value={item.name}
+              onChange={e => updateName(idx, e.target.value)}
+              className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none"
+            />
+            <div className="flex items-center gap-1 shrink-0">
+              <input
+                type="number"
+                min={1}
+                value={item.hours}
+                onChange={e => updateHours(idx, Number(e.target.value))}
+                className="w-14 bg-nex-dark border border-white/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
+              />
+              <span className="font-dm-mono text-xs text-nex-grey">h</span>
+            </div>
+            <button onClick={() => removeItem(idx)} className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0" aria-label="Eliminar">×</button>
+          </div>
+        ))}
+      </div>
+
+      {/* Overhead breakdown */}
+      <div className="bg-nex-black/40 border border-white/5 rounded-xl p-4 space-y-2">
+        <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-3">Desglose</h3>
+        {[
+          { label: 'Subtotal funcionalidades', val: baseHours },
+          { label: `Gestión de proyecto (${Math.round((ps?.overhead_pm ?? 0.12) * 100)}%)`, val: pmHours },
+          { label: `Testing / QA (${Math.round((ps?.overhead_qa ?? 0.15) * 100)}%)`, val: qaHours },
+          { label: `Contingencia (${Math.round((ps?.overhead_cx ?? 0.10) * 100)}%)`, val: cxHours },
+        ].map(r => (
+          <div key={r.label} className="flex justify-between font-jost text-sm">
+            <span className="text-nex-grey">{r.label}</span>
+            <span className="text-nex-white font-dm-mono">{r.val}h</span>
+          </div>
+        ))}
+        <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
+          <span className="text-nex-white">Total horas</span>
+          <span className="text-nex-green font-dm-mono">{totalHours}h</span>
+        </div>
+      </div>
+
+      {/* Price summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { label: 'Precio del proyecto', value: fmt(totalPrice), big: true },
+          { label: 'Mantenimiento / mes', value: fmt(maintMonth), big: false },
+          { label: 'Total horas',          value: `${totalHours}h`, big: false },
+        ].map(card => (
+          <div key={card.label} className={['rounded-xl border p-4', card.big ? 'border-nex-green/40 bg-nex-green/5' : 'border-white/10 bg-nex-black/40'].join(' ')}>
+            <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">{card.label}</p>
+            <p className={['font-jost font-bold', card.big ? 'text-2xl text-nex-green' : 'text-xl text-nex-white'].join(' ')}>{card.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Notes */}
+      <div>
+        <label className="block font-jost text-xs text-nex-grey mb-1.5">Notas internas</label>
+        <textarea
+          rows={3}
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          placeholder="Observaciones, acuerdos, contexto del cliente…"
+          className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+        />
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-between pt-2">
+        <Link href="/admin/cotizador" className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">
+          ← Cancelar
+        </Link>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2.5 px-6 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors"
+        >
+          {saving ? 'Guardando…' : 'Guardar cambios'}
+        </button>
+      </div>
+    </div>
+  )
+}

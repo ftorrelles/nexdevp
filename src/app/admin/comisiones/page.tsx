@@ -36,84 +36,136 @@ type QuoteRow = {
   leads:           { nombre: string; email: string; canal: string; assigned_to: string | null } | null
 }
 
-export default async function ComisionesPage(): Promise<React.JSX.Element> {
+interface PageProps {
+  searchParams: Promise<{ vendor?: string }>
+}
+
+export default async function ComisionesPage({ searchParams }: PageProps): Promise<React.JSX.Element> {
   const auth = await createAuthServerClient()
   const { data: { user } } = await auth.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const role     = (user.app_metadata?.role ?? 'vendor') as UserRole
-  const isVendor = role === 'vendor'
+  const role      = (user.app_metadata?.role ?? 'vendor') as UserRole
+  const isVendor  = role === 'vendor'
   const canSeeAll = role === 'owner' || role === 'supervisor'
 
   if (!['owner', 'supervisor', 'vendor'].includes(role)) redirect('/admin')
 
+  const params       = await searchParams
+  const vendorFilter = canSeeAll ? (params.vendor ?? '') : ''
+
   const client = createServiceClient()
 
-  // Build query — vendors only see quotes linked to leads assigned to them
-  let query = client
+  const { data: allQuotes } = await client
     .from('quotes')
     .select('id, title, total_price, commission_type, created_at, region, leads(nombre, email, canal, assigned_to)')
     .eq('status', 'accepted')
     .not('commission_type', 'is', null)
     .order('created_at', { ascending: false })
 
-  // For vendors: filter by leads assigned to them
-  // Supabase doesn't support filtering on joined tables in select directly,
-  // so we fetch all and filter in JS for vendor role
-  const { data: allQuotes } = await query
-
   let rows = (allQuotes ?? []) as unknown as QuoteRow[]
 
   if (isVendor) {
     rows = rows.filter(q => q.leads?.assigned_to === user.id)
+  } else if (vendorFilter) {
+    rows = rows.filter(q => q.leads?.assigned_to === vendorFilter)
   }
 
   // Vendor user list for supervisor/owner breakdowns
   let vendorMap: Record<string, string> = {}
+  let allVendors: { id: string; email: string }[] = []
   if (canSeeAll) {
     const { data: { users } } = await client.auth.admin.listUsers()
-    vendorMap = Object.fromEntries((users ?? []).map(u => [u.id, u.email ?? u.id]))
+    const staff = (users ?? []).filter(u =>
+      ['owner', 'supervisor', 'vendor'].includes(u.app_metadata?.role ?? '')
+    )
+    vendorMap  = Object.fromEntries(staff.map(u => [u.id, u.email ?? u.id]))
+    allVendors = staff.map(u => ({ id: u.id, email: u.email ?? u.id })).sort((a, b) => a.email.localeCompare(b.email))
   }
 
-  // Summary by vendor (only for owner/supervisor)
+  // Summary by vendor (only for owner/supervisor, only when no filter active)
   const byVendor: Record<string, { email: string; total: number; count: number; currency: string }> = {}
-  if (canSeeAll) {
-    for (const q of rows) {
+  if (canSeeAll && !vendorFilter) {
+    const allRows = (allQuotes ?? []) as unknown as QuoteRow[]
+    for (const q of allRows) {
       const vendorId = q.leads?.assigned_to ?? 'sin-asignar'
       const email    = vendorId === 'sin-asignar' ? 'Sin asignar' : (vendorMap[vendorId] ?? vendorId)
       const currency = REGION_CURRENCY[q.region] ?? 'EUR'
       const amount   = q.total_price * (COMMISSION_RATES[q.commission_type] ?? 0)
       if (!byVendor[vendorId]) byVendor[vendorId] = { email, total: 0, count: 0, currency }
-      byVendor[vendorId].total  += amount
-      byVendor[vendorId].count  += 1
+      byVendor[vendorId].total += amount
+      byVendor[vendorId].count += 1
     }
   }
 
   const totalCommission = rows.reduce((acc, q) =>
     acc + q.total_price * (COMMISSION_RATES[q.commission_type] ?? 0), 0)
 
+  const selectedVendorEmail = vendorFilter ? (vendorMap[vendorFilter] ?? vendorFilter) : null
+
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
       <AdminNav role={role} currentPath="/admin/comisiones" />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto space-y-10">
 
-        <div>
-          <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-2">CRM</p>
-          <h1 className="font-jost font-bold text-3xl text-nex-white">
-            {isVendor ? 'Mis comisiones' : 'Comisiones'}
-          </h1>
-          <p className="font-jost text-sm text-nex-grey mt-1">
-            {isVendor
-              ? 'Ventas cerradas asignadas a vos.'
-              : 'Ventas cerradas y comisiones por vendedor.'}
-          </p>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-2">CRM</p>
+            <h1 className="font-jost font-bold text-3xl text-nex-white">
+              {isVendor
+                ? 'Mis comisiones'
+                : selectedVendorEmail
+                  ? `Comisiones · ${selectedVendorEmail}`
+                  : 'Comisiones'}
+            </h1>
+            <p className="font-jost text-sm text-nex-grey mt-1">
+              {isVendor
+                ? 'Ventas cerradas asignadas a vos.'
+                : 'Ventas cerradas y comisiones por vendedor.'}
+            </p>
+          </div>
+
+          {/* Vendor filter — owner/supervisor only */}
+          {canSeeAll && (
+            <form method="GET" className="flex items-center gap-2">
+              <select
+                name="vendor"
+                defaultValue={vendorFilter}
+                onChange={(e) => {
+                  // handled by form submission — no-op for TS
+                  void e
+                }}
+                className="font-jost text-sm bg-nex-dark border border-white/10 text-nex-white rounded-lg px-3 py-2 focus:outline-none focus:border-nex-green/50 appearance-none cursor-pointer"
+              >
+                <option value="">Todos los vendedores</option>
+                {allVendors.map(v => (
+                  <option key={v.id} value={v.id}>{v.email}</option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                className="font-jost text-sm bg-nex-dark border border-white/10 text-nex-grey hover:text-nex-white hover:border-white/20 rounded-lg px-4 py-2 transition-colors"
+              >
+                Filtrar
+              </button>
+              {vendorFilter && (
+                <a
+                  href="/admin/comisiones"
+                  className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors underline"
+                >
+                  Limpiar
+                </a>
+              )}
+            </form>
+          )}
         </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-nex-dark border border-nex-green/30 rounded-xl p-5">
             <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">
-              {isVendor ? 'Mis comisiones' : 'Total comisiones'}
+              {isVendor ? 'Mis comisiones' : vendorFilter ? 'Comisiones filtradas' : 'Total comisiones'}
             </p>
             <p className="font-jost font-bold text-2xl text-nex-green">{fmt(totalCommission)}</p>
           </div>
@@ -121,7 +173,7 @@ export default async function ComisionesPage(): Promise<React.JSX.Element> {
             <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">Ventas cerradas</p>
             <p className="font-jost font-bold text-2xl text-nex-white">{rows.length}</p>
           </div>
-          {canSeeAll ? (
+          {canSeeAll && !vendorFilter ? (
             <div className="bg-nex-dark border border-white/10 rounded-xl p-5">
               <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">Vendedores activos</p>
               <p className="font-jost font-bold text-2xl text-nex-white">{Object.keys(byVendor).length}</p>
@@ -136,22 +188,28 @@ export default async function ComisionesPage(): Promise<React.JSX.Element> {
           )}
         </div>
 
-        {/* By vendor — owner/supervisor only */}
-        {canSeeAll && Object.keys(byVendor).length > 0 && (
+        {/* By vendor — owner/supervisor only, no filter active */}
+        {canSeeAll && !vendorFilter && Object.keys(byVendor).length > 0 && (
           <section>
             <h2 className="font-jost font-bold text-lg text-nex-white mb-4">Por vendedor</h2>
             <div className="space-y-3">
-              {Object.values(byVendor).sort((a, b) => b.total - a.total).map(v => (
-                <div key={v.email} className="bg-nex-dark border border-white/10 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-jost text-sm font-bold text-nex-white">{v.email}</p>
-                    <p className="font-jost text-xs text-nex-grey mt-0.5">
-                      {v.count} venta{v.count !== 1 ? 's' : ''} cerrada{v.count !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <p className="font-jost font-bold text-xl text-nex-green">{fmt(v.total, v.currency)}</p>
-                </div>
-              ))}
+              {Object.entries(byVendor)
+                .sort(([, a], [, b]) => b.total - a.total)
+                .map(([id, v]) => (
+                  <a
+                    key={id}
+                    href={id === 'sin-asignar' ? '/admin/comisiones' : `/admin/comisiones?vendor=${id}`}
+                    className="bg-nex-dark border border-white/10 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-white/20 transition-colors block"
+                  >
+                    <div>
+                      <p className="font-jost text-sm font-bold text-nex-white">{v.email}</p>
+                      <p className="font-jost text-xs text-nex-grey mt-0.5">
+                        {v.count} venta{v.count !== 1 ? 's' : ''} cerrada{v.count !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <p className="font-jost font-bold text-xl text-nex-green">{fmt(v.total, v.currency)}</p>
+                  </a>
+                ))}
             </div>
           </section>
         )}
@@ -178,13 +236,11 @@ export default async function ComisionesPage(): Promise<React.JSX.Element> {
                 <span className="px-4 text-right">Comisión</span>
               </div>
               {rows.map(q => {
-                const currency = REGION_CURRENCY[q.region] ?? 'EUR'
-                const rate     = COMMISSION_RATES[q.commission_type] ?? 0
-                const amount   = q.total_price * rate
-                const vendorId = q.leads?.assigned_to
-                const vendorEmail = vendorId
-                  ? (vendorMap[vendorId] ?? vendorId)
-                  : 'Sin asignar'
+                const currency    = REGION_CURRENCY[q.region] ?? 'EUR'
+                const rate        = COMMISSION_RATES[q.commission_type] ?? 0
+                const amount      = q.total_price * rate
+                const vendorId    = q.leads?.assigned_to
+                const vendorEmail = vendorId ? (vendorMap[vendorId] ?? vendorId) : 'Sin asignar'
                 return (
                   <div
                     key={q.id}

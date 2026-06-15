@@ -5,17 +5,18 @@ import { Lead, AdminUser, UserRole } from '@/lib/supabase'
 import { AdminNav } from './AdminNav'
 import { LeadQuotes } from './LeadQuotes'
 
-type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'calificado' | 'cerrado'
+type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'calificado' | 'cerrado' | 'perdido'
 
 const EMPTY_LEAD = { nombre: '', email: '', telefono: '', tipo_negocio: '', mensaje: '' }
 
-const ESTADO_OPTIONS: Lead['estado'][] = ['nuevo', 'contactado', 'calificado', 'cerrado']
+const ESTADO_OPTIONS: Lead['estado'][] = ['nuevo', 'contactado', 'calificado', 'cerrado', 'perdido']
 
 const ESTADO_COLORS: Record<string, string> = {
-  nuevo: 'text-nex-green bg-nex-green/10',
+  nuevo:      'text-nex-green bg-nex-green/10',
   contactado: 'text-blue-400 bg-blue-400/10',
   calificado: 'text-yellow-400 bg-yellow-400/10',
-  cerrado: 'text-nex-grey bg-white/5',
+  cerrado:    'text-nex-grey bg-white/5',
+  perdido:    'text-red-400 bg-red-400/10',
 }
 
 const NOTAS_MAX = 300
@@ -26,6 +27,7 @@ const FILTER_TABS: { label: string; value: EstadoFilter }[] = [
   { label: 'Contactados', value: 'contactado' },
   { label: 'Calificados', value: 'calificado' },
   { label: 'Cerrados', value: 'cerrado' },
+  { label: 'Perdidos', value: 'perdido' },
 ]
 
 function formatDate(dateStr?: string) {

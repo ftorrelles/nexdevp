@@ -21,7 +21,7 @@ export interface Lead {
   tipo_negocio?: string
   mensaje?: string
   canal?: 'form' | 'whatsapp' | 'cal' | 'chatbot' | 'maps' | 'vendedor'
-  estado?: 'nuevo' | 'contactado' | 'calificado' | 'cerrado'
+  estado?: 'nuevo' | 'contactado' | 'calificado' | 'cerrado' | 'perdido'
   notas?: string
   assigned_to?: string | null
   created_at?: string

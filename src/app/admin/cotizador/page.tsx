@@ -18,7 +18,7 @@ export default async function CotizadorListPage(): Promise<React.JSX.Element> {
   const client = createServiceClient()
   const { data } = await client
     .from('quotes')
-    .select('id, title, tipo, product, region, status, total_hours, total_price, maint_month, created_at')
+    .select('id, title, tipo, product, region, status, total_hours, total_price, maint_month, created_at, lead_id, leads(nombre, email)')
     .order('created_at', { ascending: false })
 
   return (

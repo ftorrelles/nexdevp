@@ -203,19 +203,47 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
 
       {/* Lead link */}
       <div>
-        <label className="block font-jost text-xs text-nex-grey mb-1.5">Lead vinculado (opcional)</label>
-        <select
-          value={leadId}
-          onChange={e => setLeadId(e.target.value)}
-          className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
-        >
-          <option value="">— Sin vincular —</option>
-          {leads.map(l => (
-            <option key={l.id} value={l.id}>
-              {l.nombre} · {l.email} ({l.estado})
-            </option>
-          ))}
-        </select>
+        <label className="block font-jost text-xs text-nex-grey mb-1.5">Lead vinculado</label>
+        {leadId ? (
+          <div className="flex items-center justify-between gap-3 bg-nex-dark border border-nex-green/30 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green shrink-0">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span className="font-jost text-sm text-nex-white truncate">
+                {leads.find(l => l.id === leadId)?.nombre ?? leadId}
+              </span>
+              <span className="font-jost text-xs text-nex-grey truncate hidden sm:block">
+                · {leads.find(l => l.id === leadId)?.email}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm('¿Quitar el lead asignado a este presupuesto? Esta acción no se puede deshacer fácilmente.')) {
+                  setLeadId('')
+                  setCommissionType(null)
+                }
+              }}
+              className="font-jost text-xs text-nex-grey hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-md px-2.5 py-1 transition-colors shrink-0"
+            >
+              Quitar lead
+            </button>
+          </div>
+        ) : (
+          <select
+            value={leadId}
+            onChange={e => setLeadId(e.target.value)}
+            className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          >
+            <option value="">— Sin vincular —</option>
+            {leads.map(l => (
+              <option key={l.id} value={l.id}>
+                {l.nombre} · {l.email} ({l.estado})
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Rate */}

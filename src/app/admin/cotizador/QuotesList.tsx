@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 interface QuoteRow {
   id:          string
@@ -15,6 +14,8 @@ interface QuoteRow {
   total_price: number
   maint_month: number
   created_at:  string
+  lead_id:     string | null
+  leads:       { nombre: string; email: string } | null
 }
 
 const STATUS_STYLES: Record<QuoteRow['status'], string> = {
@@ -31,12 +32,6 @@ const STATUS_LABELS: Record<QuoteRow['status'], string> = {
   rejected: 'Rechazado',
 }
 
-const REGION_SYMBOL: Record<string, string> = {
-  españa: '€',
-  eeuu:   '$',
-  latam:  '$',
-}
-
 function fmt(n: number, region: string) {
   const currency = region === 'españa' ? 'EUR' : 'USD'
   return n.toLocaleString('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 })
@@ -45,7 +40,6 @@ function fmt(n: number, region: string) {
 interface Props { quotes: QuoteRow[] }
 
 export function QuotesList({ quotes: initial }: Props) {
-  const router = useRouter()
   const [quotes, setQuotes] = useState(initial)
   const [deleting, setDeleting] = useState<string | null>(null)
 
@@ -53,9 +47,7 @@ export function QuotesList({ quotes: initial }: Props) {
     if (!confirm('¿Eliminar este presupuesto?')) return
     setDeleting(id)
     const res = await fetch(`/api/cotizador/quotes/${id}`, { method: 'DELETE' })
-    if (res.ok) {
-      setQuotes(prev => prev.filter(q => q.id !== id))
-    }
+    if (res.ok) setQuotes(prev => prev.filter(q => q.id !== id))
     setDeleting(null)
   }
 
@@ -97,6 +89,21 @@ export function QuotesList({ quotes: initial }: Props) {
               {q.tipo} · {q.product} · {q.region.charAt(0).toUpperCase() + q.region.slice(1)} ·{' '}
               {new Date(q.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
             </p>
+            {/* Lead badge */}
+            <div className="mt-1.5">
+              {q.leads ? (
+                <span className="inline-flex items-center gap-1 font-jost text-[11px] text-nex-green bg-nex-green/10 border border-nex-green/20 rounded-full px-2 py-0.5">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  {q.leads.nombre}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 font-jost text-[11px] text-nex-grey bg-white/5 border border-white/10 rounded-full px-2 py-0.5">
+                  Sin lead asignado
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Price summary */}

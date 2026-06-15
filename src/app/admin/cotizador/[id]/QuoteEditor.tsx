@@ -270,13 +270,23 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         <Link href="/admin/cotizador" className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">
           ← Cancelar
         </Link>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2.5 px-6 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors"
-        >
-          {saving ? 'Guardando…' : 'Guardar cambios'}
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href={`/api/cotizador/quotes/${quote.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-white/20 text-nex-white font-jost text-sm py-2.5 px-5 rounded-lg hover:border-nex-green/50 hover:text-nex-green transition-colors"
+          >
+            Exportar PDF
+          </a>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2.5 px-6 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors"
+          >
+            {saving ? 'Guardando…' : 'Guardar cambios'}
+          </button>
+        </div>
       </div>
     </div>
   )

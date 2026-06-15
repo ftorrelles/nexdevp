@@ -53,18 +53,18 @@ async function handleEvent(payload: Record<string, unknown>) {
     return NextResponse.json({ ok: true, duplicate: true, lead_id: existing.id })
   }
 
-  const eventTitle = typeof booking.title === 'string' ? booking.title : 'Llamada Cal.com'
-  const notes      = typeof booking.description === 'string' ? booking.description : null
+  const eventTitle = typeof booking.title === 'string' ? booking.title : null
+  const notes      = typeof booking.description === 'string' && booking.description ? booking.description : null
+  const mensaje    = [eventTitle, notes].filter(Boolean).join('\n') || null
 
   const { data, error } = await client
     .from('leads')
     .insert({
-      nombre:       attendee.name,
-      email:        attendee.email,
-      canal:        'cal',
-      estado:       'nuevo',
-      tipo_negocio: eventTitle,
-      mensaje:      notes,
+      nombre:  attendee.name,
+      email:   attendee.email,
+      canal:   'cal',
+      estado:  'nuevo',
+      mensaje,
     })
     .select('id')
     .single()

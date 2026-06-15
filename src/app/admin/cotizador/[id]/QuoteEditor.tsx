@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { PricingSettings, QuoteItem, QuoteSize, QuoteStatus } from '@/lib/supabase'
+
+interface LeadOption { id: string; nombre: string; email: string; estado: string }
 
 const SIZE_COLORS: Record<QuoteSize, string> = {
   S:  'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
@@ -21,6 +23,7 @@ const STATUS_OPTIONS: { value: QuoteStatus; label: string }[] = [
 
 interface QuoteRow {
   id:          string
+  lead_id:     string | null
   title:       string
   tipo:        string
   product:     string
@@ -42,12 +45,21 @@ interface Props {
 
 export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const router = useRouter()
-  const [title,  setTitle]  = useState(quote.title)
-  const [status, setStatus] = useState<QuoteStatus>(quote.status)
-  const [notes,  setNotes]  = useState(quote.notes ?? '')
-  const [items,  setItems]  = useState<QuoteItem[]>(initialItems)
-  const [rate,   setRate]   = useState(quote.hourly_rate)
-  const [saving, setSaving] = useState(false)
+  const [title,   setTitle]   = useState(quote.title)
+  const [status,  setStatus]  = useState<QuoteStatus>(quote.status)
+  const [notes,   setNotes]   = useState(quote.notes ?? '')
+  const [items,   setItems]   = useState<QuoteItem[]>(initialItems)
+  const [rate,    setRate]    = useState(quote.hourly_rate)
+  const [leadId,  setLeadId]  = useState<string>(quote.lead_id ?? '')
+  const [leads,   setLeads]   = useState<LeadOption[]>([])
+  const [saving,  setSaving]  = useState(false)
+
+  useEffect(() => {
+    fetch('/api/cotizador/leads')
+      .then(r => r.json())
+      .then(d => setLeads(d.leads ?? []))
+      .catch(() => {})
+  }, [])
 
   const ps = settings.find(s => s.region === quote.region)
   const currency = ps?.currency ?? 'EUR'
@@ -86,6 +98,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           title,
           status,
           notes:       notes || null,
+          lead_id:     leadId || null,
           hourly_rate: rate,
           total_hours: totalHours,
           total_price: totalPrice,
@@ -130,6 +143,23 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         >
           {STATUS_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Lead link */}
+      <div>
+        <label className="block font-jost text-xs text-nex-grey mb-1.5">Lead vinculado (opcional)</label>
+        <select
+          value={leadId}
+          onChange={e => setLeadId(e.target.value)}
+          className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+        >
+          <option value="">— Sin vincular —</option>
+          {leads.map(l => (
+            <option key={l.id} value={l.id}>
+              {l.nombre} · {l.email} ({l.estado})
+            </option>
           ))}
         </select>
       </div>

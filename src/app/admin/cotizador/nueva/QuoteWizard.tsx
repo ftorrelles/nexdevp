@@ -67,7 +67,9 @@ interface TemplateResponse {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function QuoteWizard() {
+interface WizardProps { initialLeadId?: string | null }
+
+export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const router = useRouter()
   const [step, setStep] = useState<Step>(1)
   const [saving, setSaving] = useState(false)
@@ -181,6 +183,7 @@ export function QuoteWizard() {
           product,
           addons,
           status:      'draft',
+          lead_id:     initialLeadId ?? null,
           total_hours: totalHours,
           total_price: totalPrice,
           maint_month: maintMonth,

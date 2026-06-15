@@ -4,7 +4,11 @@ import type { UserRole } from '@/lib/supabase'
 import { AdminNav } from '@/app/admin/AdminNav'
 import { QuoteWizard } from './QuoteWizard'
 
-export default async function CotizadorPage(): Promise<React.JSX.Element> {
+type Props = {
+  searchParams: Promise<{ lead_id?: string }>
+}
+
+export default async function CotizadorNuevaPage({ searchParams }: Props): Promise<React.JSX.Element> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -12,6 +16,8 @@ export default async function CotizadorPage(): Promise<React.JSX.Element> {
 
   const role = (user.app_metadata?.role ?? 'vendor') as UserRole
   if (!['owner', 'supervisor', 'vendor'].includes(role)) redirect('/admin')
+
+  const { lead_id } = await searchParams
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
@@ -28,7 +34,7 @@ export default async function CotizadorPage(): Promise<React.JSX.Element> {
             Respondé las preguntas y el estimado se arma solo.
           </p>
         </div>
-        <QuoteWizard />
+        <QuoteWizard initialLeadId={lead_id ?? null} />
       </main>
     </div>
   )

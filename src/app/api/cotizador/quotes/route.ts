@@ -7,19 +7,25 @@ function isStaff(role: string | undefined) {
   return ['owner', 'supervisor', 'vendor'].includes(role ?? '')
 }
 
-// GET /api/cotizador/quotes — list all quotes
-export async function GET(): Promise<NextResponse> {
+// GET /api/cotizador/quotes?lead_id=xxx — list quotes (optionally filtered by lead)
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isStaff(user.app_metadata?.role)) {
     return NextResponse.json({ error: 'No autorizado.' }, { status: 403 })
   }
 
+  const leadId = new URL(req.url).searchParams.get('lead_id')
   const client = createServiceClient()
-  const { data, error } = await client
+
+  let query = client
     .from('quotes')
     .select('id, title, tipo, product, region, status, total_hours, total_price, maint_month, created_at, created_by')
     .order('created_at', { ascending: false })
+
+  if (leadId) query = query.eq('lead_id', leadId)
+
+  const { data, error } = await query
 
   if (error) {
     console.error('quotes list error:', error)

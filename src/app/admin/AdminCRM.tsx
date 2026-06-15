@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Lead, AdminUser, UserRole } from '@/lib/supabase'
 import { AdminNav } from './AdminNav'
+import { LeadQuotes } from './LeadQuotes'
 
 type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'calificado' | 'cerrado'
 
@@ -333,6 +334,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
                             <p className="text-sm text-nex-grey leading-relaxed whitespace-pre-wrap">
                               {lead.mensaje || <span className="italic opacity-50">Sin mensaje</span>}
                             </p>
+                            <LeadQuotes leadId={lead.id!} />
                           </td>
                         </tr>
                       )}

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { PricingSettings, QuoteItem, QuoteSize, QuoteStatus } from '@/lib/supabase'
 
-interface LeadOption { id: string; nombre: string; email: string; estado: string }
+interface LeadOption { id: string; nombre: string; email: string; estado: string; canal?: string }
 
 type CommissionType = 'pool' | 'vendor_own' | null
 
@@ -80,6 +80,14 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       .then(d => setLeads(d.leads ?? []))
       .catch(() => {})
   }, [])
+
+  // Auto-derive commission type from lead canal
+  useEffect(() => {
+    if (!leadId) { setCommissionType(null); return }
+    const lead = leads.find(l => l.id === leadId)
+    if (!lead) return
+    setCommissionType(lead.canal === 'vendedor' ? 'vendor_own' : 'pool')
+  }, [leadId, leads])
 
   // Close PDF panel on outside click
   useEffect(() => {
@@ -299,54 +307,28 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         ))}
       </div>
 
-      {/* Commission — visible when status is accepted */}
+      {/* Commission — auto-derived from lead canal, shown when accepted */}
       {status === 'accepted' && (
-        <div className="bg-nex-dark border border-nex-green/20 rounded-xl p-5 space-y-4">
-          <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Comisión del vendedor</h3>
-
-          <div className="space-y-2">
-            {(['pool', 'vendor_own'] as const).map(type => (
-              <label
-                key={type}
-                className={[
-                  'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
-                  commissionType === type
-                    ? 'border-nex-green/50 bg-nex-green/5'
-                    : 'border-white/10 hover:border-white/20',
-                ].join(' ')}
-              >
-                <input
-                  type="radio"
-                  name="commission_type"
-                  value={type}
-                  checked={commissionType === type}
-                  onChange={() => setCommissionType(type)}
-                  className="accent-nex-green"
-                />
-                <div className="flex-1">
-                  <p className="font-jost text-sm text-nex-white">{COMMISSION_LABELS[type]}</p>
-                  <p className="font-dm-mono text-xs text-nex-grey mt-0.5">
-                    {fmt(totalPrice * COMMISSION_RATES[type])}
-                  </p>
-                </div>
-                <span className="font-dm-mono text-xs font-bold text-nex-green">
-                  {Math.round(COMMISSION_RATES[type] * 100)}%
-                </span>
-              </label>
-            ))}
-
-            <button
-              onClick={() => setCommissionType(null)}
-              className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors pt-1"
-            >
-              Limpiar selección
-            </button>
-          </div>
-
-          {commissionAmount !== null && (
-            <div className="border-t border-white/10 pt-4 flex items-center justify-between">
-              <span className="font-jost text-sm text-nex-grey">Comisión a pagar</span>
-              <span className="font-jost font-bold text-xl text-nex-green">{fmt(commissionAmount)}</span>
+        <div className="bg-nex-dark border border-nex-green/20 rounded-xl p-5">
+          <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-4">Comisión del vendedor</h3>
+          {!leadId ? (
+            <p className="font-jost text-sm text-nex-grey">
+              Vinculá un lead para calcular la comisión automáticamente.
+            </p>
+          ) : !commissionType ? (
+            <p className="font-jost text-sm text-nex-grey animate-pulse">Calculando…</p>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-jost text-sm text-nex-white">{COMMISSION_LABELS[commissionType]}</p>
+                <p className="font-jost text-xs text-nex-grey mt-0.5">
+                  Canal del lead: <span className="text-nex-white">{leads.find(l => l.id === leadId)?.canal ?? '—'}</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-dm-mono text-xs text-nex-grey mb-0.5">{Math.round(COMMISSION_RATES[commissionType] * 100)}%</p>
+                <p className="font-jost font-bold text-2xl text-nex-green">{fmt(commissionAmount!)}</p>
+              </div>
             </div>
           )}
         </div>

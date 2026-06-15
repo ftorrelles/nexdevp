@@ -4,7 +4,7 @@ import { createServiceClient } from '@/lib/supabase'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { nombre, email, telefono, tipo_negocio, mensaje } = body
+    const { nombre, email, telefono, tipo_negocio, mensaje, canal } = body
 
     if (!nombre || !email) {
       return NextResponse.json({ error: 'nombre and email are required' }, { status: 400 })
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         telefono: telefono || null,
         tipo_negocio: tipo_negocio || null,
         mensaje: mensaje || null,
-        canal: 'form',
+        canal: canal || 'form',
         estado: 'nuevo',
       })
       .select('id')

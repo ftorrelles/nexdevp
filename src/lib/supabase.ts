@@ -20,7 +20,7 @@ export interface Lead {
   telefono?: string
   tipo_negocio?: string
   mensaje?: string
-  canal?: 'form' | 'whatsapp'
+  canal?: 'form' | 'whatsapp' | 'cal' | 'chatbot' | 'maps' | 'vendedor'
   estado?: 'nuevo' | 'contactado' | 'calificado' | 'cerrado'
   notas?: string
   assigned_to?: string | null

@@ -7,6 +7,8 @@ import { LeadQuotes } from './LeadQuotes'
 
 type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'calificado' | 'cerrado'
 
+const EMPTY_LEAD = { nombre: '', email: '', telefono: '', tipo_negocio: '', mensaje: '' }
+
 const ESTADO_OPTIONS: Lead['estado'][] = ['nuevo', 'contactado', 'calificado', 'cerrado']
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -50,7 +52,10 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
   const [updating, setUpdating] = useState<string | null>(null)
   const [editingNota, setEditingNota] = useState<string | null>(null)
   const [notaValue, setNotaValue] = useState('')
-  const [expanded, setExpanded] = useState<string | null>(null)
+  const [expanded,    setExpanded]    = useState<string | null>(null)
+  const [addingLead,  setAddingLead]  = useState(false)
+  const [newLead,     setNewLead]     = useState(EMPTY_LEAD)
+  const [savingLead,  setSavingLead]  = useState(false)
 
   const isOwner = role === 'owner'
   const canSeeAll = role === 'owner' || role === 'supervisor'
@@ -92,6 +97,36 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
       }
     } finally {
       setUpdating(null)
+    }
+  }
+
+  async function handleAddLead() {
+    if (!newLead.nombre || !newLead.email) return
+    setSavingLead(true)
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newLead, canal: 'vendedor' }),
+      })
+      if (res.ok) {
+        const { id } = await res.json()
+        const created: Lead = {
+          id,
+          ...newLead,
+          canal: 'vendedor',
+          estado: 'nuevo',
+          created_at: new Date().toISOString(),
+          assigned_to: undefined,
+          notas: undefined,
+          mensaje: newLead.mensaje || undefined,
+        }
+        setLeads(prev => [created, ...prev])
+        setNewLead(EMPTY_LEAD)
+        setAddingLead(false)
+      }
+    } finally {
+      setSavingLead(false)
     }
   }
 
@@ -148,22 +183,80 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
           </div>
         )}
 
-        <div className="flex gap-2 mb-6 flex-wrap">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setFilter(tab.value)}
-              className={[
-                'font-jost text-sm px-4 py-2 rounded-lg border transition-colors',
-                filter === tab.value
-                  ? 'bg-nex-green text-nex-black border-nex-green font-bold'
-                  : 'bg-nex-dark text-nex-grey border-white/10 hover:border-white/30',
-              ].join(' ')}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Add lead manually */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex gap-2 flex-wrap">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setFilter(tab.value)}
+                className={[
+                  'font-jost text-sm px-4 py-2 rounded-lg border transition-colors',
+                  filter === tab.value
+                    ? 'bg-nex-green text-nex-black border-nex-green font-bold'
+                    : 'bg-nex-dark text-nex-grey border-white/10 hover:border-white/30',
+                ].join(' ')}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setAddingLead(v => !v)}
+            className="font-jost text-sm font-bold bg-nex-green text-nex-black px-4 py-2 rounded-lg hover:bg-nex-green/90 transition-colors shrink-0"
+          >
+            + Agregar lead
+          </button>
         </div>
+
+        {addingLead && (
+          <div className="bg-nex-dark border border-nex-green/30 rounded-xl p-5 mb-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Nuevo lead manual</p>
+              <span className="font-dm-mono text-[10px] text-nex-grey border border-white/10 rounded-full px-2 py-0.5">canal: vendedor · 20% comisión</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { key: 'nombre',       label: 'Nombre *',      type: 'text'  },
+                { key: 'email',        label: 'Email *',       type: 'email' },
+                { key: 'telefono',     label: 'Teléfono',      type: 'text'  },
+                { key: 'tipo_negocio', label: 'Tipo de negocio', type: 'text' },
+              ].map(({ key, label, type }) => (
+                <div key={key}>
+                  <label className="block font-jost text-xs text-nex-grey mb-1">{label}</label>
+                  <input
+                    type={type}
+                    value={newLead[key as keyof typeof newLead] ?? ''}
+                    onChange={e => setNewLead(prev => ({ ...prev, [key]: e.target.value }))}
+                    className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                  />
+                </div>
+              ))}
+              <div className="sm:col-span-2">
+                <label className="block font-jost text-xs text-nex-grey mb-1">Mensaje / contexto</label>
+                <textarea
+                  rows={2}
+                  value={newLead.mensaje}
+                  onChange={e => setNewLead(prev => ({ ...prev, mensaje: e.target.value }))}
+                  className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setAddingLead(false); setNewLead(EMPTY_LEAD) }} className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">
+                Cancelar
+              </button>
+              <button
+                onClick={handleAddLead}
+                disabled={savingLead || !newLead.nombre || !newLead.email}
+                className="font-jost text-sm font-bold bg-nex-green text-nex-black px-5 py-2 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors"
+              >
+                {savingLead ? 'Guardando…' : 'Guardar lead'}
+              </button>
+            </div>
+          </div>
+        )}
+
 
         <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">

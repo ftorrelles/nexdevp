@@ -14,7 +14,7 @@ export async function GET(): Promise<NextResponse> {
   const client = createServiceClient()
   const { data, error } = await client
     .from('leads')
-    .select('id, nombre, email, estado')
+    .select('id, nombre, email, estado, canal')
     .order('created_at', { ascending: false })
     .limit(200)
 

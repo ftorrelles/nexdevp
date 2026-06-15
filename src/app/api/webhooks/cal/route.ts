@@ -12,7 +12,9 @@ export async function POST(req: NextRequest) {
     }
     const body = await req.text()
     const expected = createHmac('sha256', secret).update(body).digest('hex')
-    if (signature !== expected) {
+    const received = signature.replace(/^sha256=/, '')
+    if (received !== expected) {
+      console.error('Cal webhook signature mismatch', { received, expected })
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
     const payload = JSON.parse(body)

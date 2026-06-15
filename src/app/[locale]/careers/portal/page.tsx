@@ -20,8 +20,8 @@ const ESTADO_STYLES: Record<Estado, string> = {
 }
 
 const ESTADO_LABELS: Record<Locale, Record<Estado, string>> = {
-  es: { nuevo: 'En revisión', revisado: 'Revisado', aceptado: 'Aceptado', rechazado: 'No seleccionado' },
-  en: { nuevo: 'Under review', revisado: 'Reviewed', aceptado: 'Accepted', rechazado: 'Not selected' },
+  es: { nuevo: 'Aplicado', revisado: 'En revisión', aceptado: 'Aceptado', rechazado: 'No seleccionado' },
+  en: { nuevo: 'Applied', revisado: 'Under review', aceptado: 'Accepted', rechazado: 'Not selected' },
 }
 
 export default async function ApplicantPortalPage({ params }: Props): Promise<React.JSX.Element> {

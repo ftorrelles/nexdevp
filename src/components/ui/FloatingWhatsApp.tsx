@@ -1,8 +1,11 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import { WHATSAPP_NUMBER } from '@/lib/constants'
 
 export function FloatingWhatsApp() {
+  const pathname = usePathname()
+  if (pathname.includes('/careers')) return null
   const text = encodeURIComponent(
     'Hola, vengo de nexdevp.com y me gustaría obtener más información.'
   )

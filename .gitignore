@@ -33,4 +33,4 @@ tsconfig.tsbuildinfo
 .engram/
 
 # Sales material (not part of the site)
-catalog/
+/catalog/

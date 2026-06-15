@@ -32,12 +32,22 @@ export default async function CotizadorListPage(): Promise<React.JSX.Element> {
             </p>
             <h1 className="font-jost font-bold text-3xl text-nex-white">Presupuestos</h1>
           </div>
-          <Link
-            href="/admin/cotizador/nueva"
-            className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2.5 px-5 rounded-lg hover:bg-nex-green/90 transition-colors"
-          >
-            + Nueva cotización
-          </Link>
+          <div className="flex items-center gap-3">
+            {['owner', 'supervisor'].includes(role) && (
+              <Link
+                href="/admin/cotizador/settings"
+                className="border border-white/20 text-nex-grey font-jost text-sm py-2.5 px-4 rounded-lg hover:border-white/40 hover:text-nex-white transition-colors"
+              >
+                Configuración
+              </Link>
+            )}
+            <Link
+              href="/admin/cotizador/nueva"
+              className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2.5 px-5 rounded-lg hover:bg-nex-green/90 transition-colors"
+            >
+              + Nueva cotización
+            </Link>
+          </div>
         </div>
         <QuotesList quotes={data ?? []} />
       </main>

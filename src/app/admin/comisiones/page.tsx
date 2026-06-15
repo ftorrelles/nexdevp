@@ -132,10 +132,6 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
               <select
                 name="vendor"
                 defaultValue={vendorFilter}
-                onChange={(e) => {
-                  // handled by form submission — no-op for TS
-                  void e
-                }}
                 className="font-jost text-sm bg-nex-dark border border-white/10 text-nex-white rounded-lg px-3 py-2 focus:outline-none focus:border-nex-green/50 appearance-none cursor-pointer"
               >
                 <option value="">Todos los vendedores</option>

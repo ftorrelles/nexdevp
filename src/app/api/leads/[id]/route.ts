@@ -20,7 +20,7 @@ export async function PATCH(
     const body = await req.json()
     const { estado, notas, assigned_to } = body
 
-    const validEstados = ['nuevo', 'contactado', 'calificado', 'cerrado']
+    const validEstados = ['nuevo', 'contactado', 'calificado', 'cerrado', 'perdido']
     if (estado && !validEstados.includes(estado)) {
       return NextResponse.json({ error: 'Invalid estado value' }, { status: 400 })
     }

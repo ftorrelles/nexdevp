@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import { renderToBuffer } from '@react-pdf/renderer'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import React from 'react'
 import { QuotePDF } from './QuotePDF'
 
@@ -37,10 +39,11 @@ export async function GET(
   const ps       = settings.find((s: { region: string }) => s.region === quote.region)
   const currency = REGION_CURRENCY[quote.region] ?? 'EUR'
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${req.headers.get('host')}`
+  const logoPath   = join(process.cwd(), 'public', 'brand', 'Logo.png')
+  const logoBase64 = `data:image/png;base64,${readFileSync(logoPath).toString('base64')}`
 
   const element = React.createElement(QuotePDF, {
-    logoUrl: `${baseUrl}/brand/Logo.png`,
+    logoUrl: logoBase64,
     id:          quote.id,
     title:       quote.title,
     tipo:        quote.tipo,

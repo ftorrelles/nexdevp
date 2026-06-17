@@ -34,7 +34,7 @@ const s = StyleSheet.create({
   totalLabel:{ fontSize: 10, color: WHITE, fontFamily: 'Helvetica-Bold' },
   totalValue:{ fontSize: 10, color: BRAND, fontFamily: 'Helvetica-Bold' },
   cards:     { flexDirection: 'row', gap: 12, marginBottom: 24 },
-  cardMain:  { flex: 1, backgroundColor: '#001A0D', borderWidth: 1, borderColor: '#00E47244', borderRadius: 8, padding: 14 },
+  cardMain:  { flex: 1, backgroundColor: '#1E1E1E', borderWidth: 1, borderColor: '#333333', borderRadius: 8, padding: 14 },
   cardSec:   { flex: 1, backgroundColor: MID, borderWidth: 1, borderColor: '#333333', borderRadius: 8, padding: 14 },
   cardLabel: { fontSize: 7, color: GREY, letterSpacing: 1.5, marginBottom: 6 },
   cardMainV: { fontSize: 20, color: BRAND, fontFamily: 'Helvetica-Bold' },

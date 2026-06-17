@@ -16,6 +16,13 @@ const SIZE_COLORS: Record<QuoteSize, string> = {
   XL: 'text-purple-400 bg-purple-400/10 border-purple-400/30',
 }
 
+function sizeFromHours(hours: number): QuoteSize {
+  if (hours <= 12)  return 'S'
+  if (hours <= 30)  return 'M'
+  if (hours <= 60)  return 'L'
+  return 'XL'
+}
+
 const STATUS_OPTIONS: { value: QuoteStatus; label: string }[] = [
   { value: 'draft',    label: 'Borrador' },
   { value: 'sent',     label: 'Enviado'  },
@@ -128,7 +135,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   }
 
   function updateHours(idx: number, hours: number) {
-    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours } : it))
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours, size: sizeFromHours(hours) } : it))
   }
   function updateName(idx: number, name: string) {
     setItems(prev => prev.map((it, i) => i === idx ? { ...it, name } : it))
@@ -137,7 +144,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
     setItems(prev => prev.filter((_, i) => i !== idx))
   }
   function addItem() {
-    setItems(prev => [...prev, { catalog_id: null, name: 'Nueva funcionalidad', size: 'M', hours: 20, sort_order: prev.length }])
+    setItems(prev => [...prev, { catalog_id: null, name: 'Nueva funcionalidad', size: sizeFromHours(20), hours: 20, sort_order: prev.length }])
   }
 
   async function handleSave() {
@@ -328,7 +335,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           { label: 'Mantenimiento / mes', value: fmt(maintMonth), big: false },
           { label: 'Total horas',          value: `${totalHours}h`, big: false },
         ].map(card => (
-          <div key={card.label} className={['rounded-xl border p-4', card.big ? 'border-white/10 bg-nex-black/40' : 'border-white/10 bg-nex-black/40'].join(' ')}>
+          <div key={card.label} className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
             <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">{card.label}</p>
             <p className={['font-jost font-bold', card.big ? 'text-2xl text-nex-green' : 'text-xl text-nex-white'].join(' ')}>{card.value}</p>
           </div>

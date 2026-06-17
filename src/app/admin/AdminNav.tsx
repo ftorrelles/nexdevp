@@ -44,7 +44,7 @@ export function AdminNav({ role, currentPath }: Props) {
       <div className="px-4 sm:px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <Image src="/brand/logo-light.png" alt="nexdevp" width={96} height={24} className="h-6 w-auto" priority />
+            <Image src="/brand/logo-dark.png" alt="nexdevp" width={96} height={24} className="h-6 w-auto" priority />
             <span className="font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-green border border-nex-green/30 rounded px-2 py-0.5">
               CRM
             </span>

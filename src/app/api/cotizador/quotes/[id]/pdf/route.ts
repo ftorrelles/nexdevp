@@ -40,7 +40,7 @@ export async function GET(
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${req.headers.get('host')}`
 
   const element = React.createElement(QuotePDF, {
-    logoUrl: `${baseUrl}/brand/logo-light.png`,
+    logoUrl: `${baseUrl}/brand/logo-dark.png`,
     id:          quote.id,
     title:       quote.title,
     tipo:        quote.tipo,

@@ -68,7 +68,9 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const [title,          setTitle]          = useState(quote.title)
   const [status,         setStatus]         = useState<QuoteStatus>(quote.status)
   const [notes,          setNotes]          = useState(quote.notes ?? '')
-  const [items,          setItems]          = useState<QuoteItem[]>(initialItems)
+  const [items,          setItems]          = useState<QuoteItem[]>(
+    initialItems.map(it => ({ ...it, size: it.hours != null ? sizeFromHours(it.hours) : it.size }))
+  )
   const [rate,           setRate]           = useState(quote.hourly_rate)
   const [leadId,         setLeadId]         = useState<string>(quote.lead_id ?? '')
   const [leads,          setLeads]          = useState<LeadOption[]>([])

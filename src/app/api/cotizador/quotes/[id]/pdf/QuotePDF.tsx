@@ -1,5 +1,5 @@
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
 
 const BRAND = '#00E472'
 const DARK  = '#1A1A1A'
@@ -24,6 +24,7 @@ const s = StyleSheet.create({
   tableRow:  { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#2D2D2D', paddingVertical: 7 },
   colName:   { flex: 1, fontSize: 9, color: WHITE },
   colNameHd: { flex: 1, fontSize: 7, color: GREY, letterSpacing: 1 },
+  logo:      { width: 120, height: 32, objectFit: 'contain' },
   colHrs:    { width: 40, fontSize: 9, color: WHITE, textAlign: 'right', fontFamily: 'Helvetica-Bold' },
   colHrsHd:  { width: 40, fontSize: 7, color: GREY, letterSpacing: 1, textAlign: 'right' },
   ohRow:     { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: '#222222' },
@@ -73,6 +74,7 @@ export interface QuotePDFProps {
   overhead_pm: number
   overhead_qa: number
   overhead_cx: number
+  logoUrl:     string
   // Display options
   showHours:   boolean
   showRate:    boolean
@@ -81,7 +83,7 @@ export interface QuotePDFProps {
 export function QuotePDF({
   id, title, tipo, product, region, total_price, maint_month, hourly_rate,
   notes, created_at, items, currency, overhead_pm, overhead_qa, overhead_cx,
-  showHours, showRate,
+  logoUrl, showHours, showRate,
 }: QuotePDFProps) {
   const baseHours  = items.reduce((a, i) => a + (i.hours ?? 0), 0)
   const pmHours    = Math.round(baseHours * overhead_pm)
@@ -102,7 +104,7 @@ export function QuotePDF({
         {/* Header */}
         <View style={s.header}>
           <View>
-            <Text style={s.brand}>nexdevp</Text>
+            <Image style={s.logo} src={logoUrl} />
             <Text style={s.tagline}>INGENIERÍA DE SOFTWARE &amp; IA</Text>
           </View>
           <View>

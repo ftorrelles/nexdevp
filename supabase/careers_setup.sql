@@ -31,6 +31,8 @@ create table if not exists public.career_applications (
   email text not null,
   telefono text,
   mensaje text,
+  red_ventas text
+    check (red_ventas in ('red', 'experiencia', 'principiante')),
   cv_url text not null, -- storage object path inside the "cvs" bucket
   estado text not null default 'nuevo'
     check (estado in ('nuevo', 'revisado', 'aceptado', 'rechazado')),

@@ -390,7 +390,16 @@
     "submitSuccess": "¡Postulación enviada con éxito! Revisaremos tu CV y nos pondremos en contacto pronto.",
     "submitError": "Ocurrió un error al enviar tu postulación. Por favor, intentalo de nuevo.",
     "submit": "Enviar postulación",
-    "fileSelected": "Archivo seleccionado: {name}"
+    "fileSelected": "Archivo seleccionado: {name}",
+    "messagePlaceholder": "Contanos por qué encajás y si ya vendés o tenés contactos.",
+    "redLabel": "¿Tenés contactos/red propia o experiencia vendiendo? *",
+    "redPlaceholder": "Seleccioná una opción",
+    "redOptionNetwork": "Tengo mi propia red de contactos para vender",
+    "redOptionExperience": "He vendido antes (formal o informal)",
+    "redOptionBeginner": "Estoy empezando, sin experiencia aún",
+    "cvHint": "PDF o Word · máx 5MB",
+    "fileInvalidType": "Solo se permiten archivos PDF o Word.",
+    "fileTooLarge": "El archivo supera el tamaño máximo de 5MB."
   },
   "register": {
     "title": "Creá tu cuenta",

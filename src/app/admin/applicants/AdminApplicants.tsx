@@ -32,6 +32,13 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
 
 const STATUS_ORDER: ApplicationStatus[] = ['nuevo', 'revisado', 'aceptado', 'rechazado']
 
+// Self-reported sales background captured at application time.
+const RED_VENTAS_LABELS: Record<string, string> = {
+  red: 'Red propia',
+  experiencia: 'Con experiencia',
+  principiante: 'Principiante',
+}
+
 function formatDate(dateStr?: string) {
   if (!dateStr) return '—'
   return new Date(dateStr).toLocaleDateString('es-AR', {
@@ -595,7 +602,14 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                         <td className="px-5 py-4 text-xs text-nex-grey whitespace-nowrap">
                           {formatDate(app.created_at)}
                         </td>
-                        <td className="px-5 py-4 font-medium text-nex-white">{app.nombre}</td>
+                        <td className="px-5 py-4 font-medium text-nex-white">
+                          {app.nombre}
+                          {app.red_ventas && (
+                            <span className="block mt-1 font-dm-mono text-[9px] tracking-[0.1em] uppercase text-nex-green/80">
+                              {RED_VENTAS_LABELS[app.red_ventas] ?? app.red_ventas}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-5 py-4 text-nex-white">
                           {app.careers ? app.careers.title_es : 'Posición Eliminada'}
                         </td>

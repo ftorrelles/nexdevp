@@ -71,6 +71,7 @@ export interface CareerApplication {
   email: string
   telefono?: string
   mensaje?: string
+  red_ventas?: 'red' | 'experiencia' | 'principiante' | null
   cv_url: string // storage object path (resolved to a signed URL for reads)
   estado?: 'nuevo' | 'revisado' | 'aceptado' | 'rechazado'
   created_at?: string

@@ -9,6 +9,7 @@ const ALLOWED_CV_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]
 const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+const ALLOWED_RED_VENTAS = ['red', 'experiencia', 'principiante']
 
 export async function GET(): Promise<NextResponse> {
   const supabase = await createAuthServerClient()
@@ -49,12 +50,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const nombre = formData.get('nombre') as string
     const telefono = formData.get('telefono') as string
     const mensaje = formData.get('mensaje') as string
+    const red_ventas = formData.get('red_ventas') as string
     const cvFile = formData.get('cv') as File | null
     const email = user.email ?? ''
 
     if (!career_id || !nombre || !cvFile) {
       return NextResponse.json(
         { error: 'Missing required fields (career_id, nombre, cv)' },
+        { status: 400 }
+      )
+    }
+
+    if (!red_ventas || !ALLOWED_RED_VENTAS.includes(red_ventas)) {
+      return NextResponse.json(
+        { error: 'Seleccioná una opción válida en la pregunta de contactos/experiencia.' },
         { status: 400 }
       )
     }
@@ -119,6 +128,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         email,
         telefono: telefono || null,
         mensaje: mensaje || null,
+        red_ventas,
         cv_url: filePath,
         estado: 'nuevo',
       })

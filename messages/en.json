@@ -390,7 +390,16 @@
     "submitSuccess": "Application sent successfully! We will review your CV and get in touch soon.",
     "submitError": "An error occurred while submitting your application. Please try again.",
     "submit": "Submit application",
-    "fileSelected": "Selected file: {name}"
+    "fileSelected": "Selected file: {name}",
+    "messagePlaceholder": "Tell us why you're a fit and whether you already sell or have contacts.",
+    "redLabel": "Do you have your own network or sales experience? *",
+    "redPlaceholder": "Select an option",
+    "redOptionNetwork": "I have my own network of contacts to sell to",
+    "redOptionExperience": "I've sold before (formally or informally)",
+    "redOptionBeginner": "Just starting, no experience yet",
+    "cvHint": "PDF or Word · max 5MB",
+    "fileInvalidType": "Only PDF or Word files are allowed.",
+    "fileTooLarge": "File exceeds the 5MB maximum size."
   },
   "register": {
     "title": "Create your account",

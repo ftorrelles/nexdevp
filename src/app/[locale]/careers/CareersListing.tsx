@@ -6,6 +6,9 @@ import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import type { Career } from '@/lib/supabase'
 
+const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+const ALLOWED_CV_EXT = ['pdf', 'doc', 'docx']
+
 interface Props {
   careers: Career[]
   locale: Locale
@@ -23,6 +26,7 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
     email: currentUser?.email ?? '',
     telefono: '',
     mensaje: '',
+    red_ventas: '',
   })
   const [cvFile, setCvFile] = useState<File | null>(null)
   const [errorMsg, setErrorMsg] = useState('')
@@ -31,16 +35,32 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files[0]) {
-      setCvFile(e.target.files[0])
-      setErrorMsg('')
+  // Validates type + size; returns an error message or null when ok.
+  function validateCv(file: File): string | null {
+    const ext = (file.name.split('.').pop() ?? '').toLowerCase()
+    if (!ALLOWED_CV_EXT.includes(ext)) return t('fileInvalidType')
+    if (file.size > MAX_CV_SIZE_BYTES) return t('fileTooLarge')
+    return null
+  }
+
+  function selectFile(file: File) {
+    const err = validateCv(file)
+    if (err) {
+      setErrorMsg(err)
+      return
     }
+    setCvFile(file)
+    setErrorMsg('')
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) selectFile(file)
   }
 
   // Drag and drop handlers
@@ -58,16 +78,8 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
     e.preventDefault()
     e.stopPropagation()
     setIsDragActive(false)
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0]
-      const fileType = file.name.split('.').pop()?.toLowerCase()
-      if (fileType === 'pdf' || fileType === 'doc' || fileType === 'docx') {
-        setCvFile(file)
-        setErrorMsg('')
-      } else {
-        setErrorMsg(locale === 'es' ? 'Solo se permiten archivos PDF o Word.' : 'Only PDF or Word files are allowed.')
-      }
-    }
+    const file = e.dataTransfer.files?.[0]
+    if (file) selectFile(file)
   }
 
   async function handleApplySubmit(e: React.FormEvent, careerId: string) {
@@ -76,7 +88,7 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
     setErrorMsg('')
     setSuccessMsg('')
 
-    if (!formData.nombre || !formData.email || !cvFile) {
+    if (!formData.nombre || !formData.email || !formData.red_ventas || !cvFile) {
       setErrorMsg(locale === 'es' ? 'Por favor completa los campos obligatorios.' : 'Please fill in all required fields.')
       setSubmittingId(null)
       return
@@ -88,6 +100,7 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
     data.append('email', formData.email)
     data.append('telefono', formData.telefono)
     data.append('mensaje', formData.mensaje)
+    data.append('red_ventas', formData.red_ventas)
     data.append('cv', cvFile)
 
     try {
@@ -100,7 +113,13 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
 
       if (res.ok) {
         setSuccessMsg(t('submitSuccess'))
-        setFormData({ nombre: '', email: '', telefono: '', mensaje: '' })
+        setFormData({
+          nombre: currentUser?.name ?? '',
+          email: currentUser?.email ?? '',
+          telefono: '',
+          mensaje: '',
+          red_ventas: '',
+        })
         setCvFile(null)
       } else {
         setErrorMsg(json.error || t('submitError'))
@@ -296,7 +315,7 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
                             <div>
                               <label className="block text-xs text-nex-grey mb-1.5">{t('phoneLabel')}</label>
                               <input
-                                type="text"
+                                type="tel"
                                 name="telefono"
                                 value={formData.telefono}
                                 onChange={handleInputChange}
@@ -312,8 +331,25 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
                               rows={3}
                               value={formData.mensaje}
                               onChange={handleInputChange}
-                              className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+                              placeholder={t('messagePlaceholder')}
+                              className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none placeholder:text-nex-grey/40"
                             />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-nex-grey mb-1.5">{t('redLabel')}</label>
+                            <select
+                              name="red_ventas"
+                              required
+                              value={formData.red_ventas}
+                              onChange={handleInputChange}
+                              className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                            >
+                              <option value="" disabled className="bg-nex-dark text-nex-grey">{t('redPlaceholder')}</option>
+                              <option value="red" className="bg-nex-dark text-nex-white">{t('redOptionNetwork')}</option>
+                              <option value="experiencia" className="bg-nex-dark text-nex-white">{t('redOptionExperience')}</option>
+                              <option value="principiante" className="bg-nex-dark text-nex-white">{t('redOptionBeginner')}</option>
+                            </select>
                           </div>
 
                           {/* Drag and Drop CV File */}
@@ -352,6 +388,7 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
                                   : t('cvDragInactive')}
                               </span>
                             </div>
+                            <p className="text-[11px] text-nex-grey/50 mt-1.5">{t('cvHint')}</p>
                           </div>
 
                           {errorMsg && <p className="text-red-400 text-xs">{errorMsg}</p>}

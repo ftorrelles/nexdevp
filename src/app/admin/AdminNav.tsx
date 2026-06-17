@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import type { UserRole } from '@/lib/supabase'
 
@@ -43,7 +44,7 @@ export function AdminNav({ role, currentPath }: Props) {
       <div className="px-4 sm:px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <span className="font-jost font-bold text-xl text-nex-white">nexdevp</span>
+            <Image src="/brand/logo-light.png" alt="nexdevp" width={96} height={24} className="h-6 w-auto" priority />
             <span className="font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-green border border-nex-green/30 rounded px-2 py-0.5">
               CRM
             </span>

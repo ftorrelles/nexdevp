@@ -328,7 +328,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           { label: 'Mantenimiento / mes', value: fmt(maintMonth), big: false },
           { label: 'Total horas',          value: `${totalHours}h`, big: false },
         ].map(card => (
-          <div key={card.label} className={['rounded-xl border p-4', card.big ? 'border-nex-green/40 bg-nex-green/5' : 'border-white/10 bg-nex-black/40'].join(' ')}>
+          <div key={card.label} className={['rounded-xl border p-4', card.big ? 'border-white/10 bg-nex-black/40' : 'border-white/10 bg-nex-black/40'].join(' ')}>
             <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">{card.label}</p>
             <p className={['font-jost font-bold', card.big ? 'text-2xl text-nex-green' : 'text-xl text-nex-white'].join(' ')}>{card.value}</p>
           </div>

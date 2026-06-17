@@ -37,7 +37,10 @@ export async function GET(
   const ps       = settings.find((s: { region: string }) => s.region === quote.region)
   const currency = REGION_CURRENCY[quote.region] ?? 'EUR'
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${req.headers.get('host')}`
+
   const element = React.createElement(QuotePDF, {
+    logoUrl: `${baseUrl}/brand/logo-light.png`,
     id:          quote.id,
     title:       quote.title,
     tipo:        quote.tipo,

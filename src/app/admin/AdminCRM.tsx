@@ -316,7 +316,9 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
                         <td className="px-4 py-3 text-nex-white font-medium">{lead.nombre}</td>
                         <td className="px-4 py-3 text-nex-grey">{lead.email || '—'}</td>
                         <td className="px-4 py-3 text-nex-grey">{lead.telefono || '—'}</td>
-                        <td className="px-4 py-3 text-nex-grey">{lead.tipo_negocio || '—'}</td>
+                        <td className="px-4 py-3 text-nex-grey">
+                          {lead.canal === 'cal' ? 'Llamada de diagnóstico' : (lead.tipo_negocio || '—')}
+                        </td>
                         <td className="px-4 py-3">
                           <span className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-nex-grey">
                             {({ form: 'Form', whatsapp: 'WhatsApp', cal: 'Agenda', chatbot: 'Chatbot', maps: 'Maps', vendedor: 'Vendedor' } as Record<string, string>)[lead.canal ?? ''] ?? (lead.canal ?? '—')}

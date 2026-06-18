@@ -599,9 +599,22 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                     </tr>
                   ) : (
                     filteredApplications.map(app => (
-                      <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                      <React.Fragment key={app.id}>
+                      <tr
+                        className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                        onClick={() => setExpandedMsg(expandedMsg === app.id ? null : app.id!)}
+                      >
                         <td className="px-5 py-4 text-xs text-nex-grey whitespace-nowrap">
-                          {formatDate(app.created_at)}
+                          <span className="inline-flex items-center gap-2">
+                            <svg
+                              width="10" height="10" viewBox="0 0 10 10"
+                              className={`text-nex-grey transition-transform duration-200 ${expandedMsg === app.id ? 'rotate-90' : ''}`}
+                              fill="none" stroke="currentColor" strokeWidth="1.5"
+                            >
+                              <path d="M3 2l4 3-4 3" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {formatDate(app.created_at)}
+                          </span>
                         </td>
                         <td className="px-5 py-4 font-medium text-nex-white">
                           {app.nombre}
@@ -620,29 +633,12 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                         </td>
                         <td className="px-5 py-4 text-nex-grey text-xs max-w-[220px]">
                           {app.mensaje ? (
-                            <div>
-                              <p className={expandedMsg === app.id ? 'whitespace-pre-wrap' : 'line-clamp-2'}>
-                                {app.mensaje}
-                              </p>
-                              <button
-                                onClick={() => setExpandedMsg(expandedMsg === app.id ? null : app.id!)}
-                                className="mt-1 flex items-center gap-1 text-[10px] text-nex-green hover:text-nex-green/70 transition-colors"
-                              >
-                                <svg
-                                  width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                                  className={`transition-transform duration-200 ${expandedMsg === app.id ? 'rotate-180' : ''}`}
-                                >
-                                  <polyline points="6 9 12 15 18 9" />
-                                </svg>
-                                {expandedMsg === app.id ? 'Ver menos' : 'Ver más'}
-                              </button>
-                            </div>
+                            <span className="line-clamp-2">{app.mensaje}</span>
                           ) : (
                             <span className="italic opacity-50">Sin mensaje</span>
                           )}
                         </td>
-                        <td className="px-5 py-4 whitespace-nowrap">
+                        <td className="px-5 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                           <a
                             href={app.cv_url}
                             target="_blank"
@@ -655,7 +651,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                         <td className="px-5 py-4 text-xs text-nex-grey whitespace-nowrap">
                           {app.handled_by_email ?? '—'}
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-4 whitespace-nowrap">
                             {app.estado === 'nuevo' && (
                               <button
@@ -695,7 +691,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                               </button>
                             )}
                             <button
-                              onClick={() => handleDeleteApplication(app.id!, app.nombre)}
+                              onClick={(e) => { e.stopPropagation(); handleDeleteApplication(app.id!, app.nombre) }}
                               disabled={updatingId === app.id}
                               className="font-dm-mono text-[10px] tracking-[0.1em] uppercase text-red-400/60 hover:text-red-400 transition-colors disabled:opacity-40"
                             >
@@ -704,6 +700,19 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                           </div>
                         </td>
                       </tr>
+                      {expandedMsg === app.id && (
+                        <tr className="border-b border-white/5 bg-white/[0.015]">
+                          <td colSpan={8} className="px-6 py-4">
+                            <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-2">
+                              Mensaje
+                            </p>
+                            <p className="text-sm text-nex-grey leading-relaxed whitespace-pre-wrap">
+                              {app.mensaje || <span className="italic opacity-50">Sin mensaje</span>}
+                            </p>
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     ))
                   )}
                 </tbody>

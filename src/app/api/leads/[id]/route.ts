@@ -51,3 +51,26 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const supabase = await createAuthServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const role = user.app_metadata?.role ?? 'vendor'
+  if (role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const { id } = await params
+  const client = createServiceClient()
+  const { error } = await client.from('leads').delete().eq('id', id)
+
+  if (error) {
+    console.error('Lead DELETE error:', error)
+    return NextResponse.json({ error: 'Failed to delete lead' }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
+}

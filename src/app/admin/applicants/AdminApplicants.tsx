@@ -61,6 +61,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
   const [activeTab, setActiveTab] = useState<TabType>('applicants')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('nuevo')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [expandedMsg, setExpandedMsg] = useState<string | null>(null)
 
   // Modals state
   const [showForm, setShowForm] = useState(false)
@@ -617,8 +618,29 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                           <div>{app.email}</div>
                           {app.telefono && <div className="mt-0.5">{app.telefono}</div>}
                         </td>
-                        <td className="px-5 py-4 text-nex-grey text-xs max-w-[200px] truncate" title={app.mensaje ?? ''}>
-                          {app.mensaje || <span className="italic opacity-50">Sin mensaje</span>}
+                        <td className="px-5 py-4 text-nex-grey text-xs max-w-[220px]">
+                          {app.mensaje ? (
+                            <div>
+                              <p className={expandedMsg === app.id ? 'whitespace-pre-wrap' : 'line-clamp-2'}>
+                                {app.mensaje}
+                              </p>
+                              <button
+                                onClick={() => setExpandedMsg(expandedMsg === app.id ? null : app.id!)}
+                                className="mt-1 flex items-center gap-1 text-[10px] text-nex-green hover:text-nex-green/70 transition-colors"
+                              >
+                                <svg
+                                  width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                  className={`transition-transform duration-200 ${expandedMsg === app.id ? 'rotate-180' : ''}`}
+                                >
+                                  <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                                {expandedMsg === app.id ? 'Ver menos' : 'Ver más'}
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="italic opacity-50">Sin mensaje</span>
+                          )}
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap">
                           <a

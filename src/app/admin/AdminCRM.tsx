@@ -55,6 +55,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
   const [editingNota, setEditingNota] = useState<string | null>(null)
   const [notaValue, setNotaValue] = useState('')
   const [expanded,    setExpanded]    = useState<string | null>(null)
+  const [deletingLead, setDeletingLead] = useState<string | null>(null)
   const [addingLead,  setAddingLead]  = useState(false)
   const [newLead,     setNewLead]     = useState(EMPTY_LEAD)
   const [savingLead,  setSavingLead]  = useState(false)
@@ -99,6 +100,17 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
       }
     } finally {
       setUpdating(null)
+    }
+  }
+
+  async function handleDeleteLead(id: string) {
+    if (!confirm('¿Eliminar este lead? Esta acción no se puede deshacer.')) return
+    setDeletingLead(id)
+    try {
+      const res = await fetch(`/api/leads/${id}`, { method: 'DELETE' })
+      if (res.ok) setLeads(prev => prev.filter(l => l.id !== id))
+    } finally {
+      setDeletingLead(null)
     }
   }
 
@@ -156,7 +168,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
 
   const tableHeaders = [
     'Fecha', 'Nombre', 'Email', 'Teléfono', 'Tipo Negocio', 'Canal', 'Contactar', 'Estado', 'Notas',
-    ...(isOwner ? ['Asignado a'] : []),
+    ...(isOwner ? ['Asignado a', ''] : []),
   ]
 
   return (
@@ -403,21 +415,32 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
                           )}
                         </td>
                         {isOwner && (
-                          <td className="px-4 py-3 min-w-[160px]" onClick={(e) => e.stopPropagation()}>
-                            <select
-                              value={lead.assigned_to ?? ''}
-                              disabled={updating === lead.id}
-                              onChange={(e) => handleAssign(lead.id!, e.target.value || null)}
-                              className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-white/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-white/30 transition-colors disabled:opacity-50 w-full"
-                            >
-                              <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
-                              {vendorUsers.map((u) => (
-                                <option key={u.id} value={u.id} className="bg-nex-dark text-nex-white">
-                                  {u.email}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
+                          <>
+                            <td className="px-4 py-3 min-w-[160px]" onClick={(e) => e.stopPropagation()}>
+                              <select
+                                value={lead.assigned_to ?? ''}
+                                disabled={updating === lead.id}
+                                onChange={(e) => handleAssign(lead.id!, e.target.value || null)}
+                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-white/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-white/30 transition-colors disabled:opacity-50 w-full"
+                              >
+                                <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
+                                {vendorUsers.map((u) => (
+                                  <option key={u.id} value={u.id} className="bg-nex-dark text-nex-white">
+                                    {u.email}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => handleDeleteLead(lead.id!)}
+                                disabled={deletingLead === lead.id}
+                                className="font-jost text-xs text-nex-grey hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 whitespace-nowrap"
+                              >
+                                {deletingLead === lead.id ? '…' : 'Eliminar'}
+                              </button>
+                            </td>
+                          </>
                         )}
                       </tr>
                       {expanded === lead.id && (

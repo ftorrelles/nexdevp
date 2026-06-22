@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { pixelEvent } from '@/lib/pixel'
 
 const BUSINESS_TYPE_KEYS = [
   'business_clinic',
@@ -53,6 +54,7 @@ export function ContactForm() {
         throw new Error(data.error ?? t('error_generic'))
       }
 
+      pixelEvent('Lead')
       setStatus('success')
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : t('error_generic'))

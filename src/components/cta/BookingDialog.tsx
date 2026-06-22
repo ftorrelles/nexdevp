@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/editorial/Button'
 import { WHATSAPP_NUMBER, BOOKING_URL } from '@/lib/constants'
+import { pixelEvent } from '@/lib/pixel'
 
 interface BookingDialogProps {
   triggerLabel?: string
@@ -17,7 +18,7 @@ export function BookingDialog({ triggerLabel, variant = 'primary' }: BookingDial
 
   if (BOOKING_READY) {
     return (
-      <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+      <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" onClick={() => pixelEvent('Schedule')}>
         <Button variant={variant} aria-label={t('aria.bookingButton')}>
           {label}
         </Button>
@@ -32,7 +33,7 @@ export function BookingDialog({ triggerLabel, variant = 'primary' }: BookingDial
   const waUrl = `https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, '')}?text=${text}`
 
   return (
-    <a href={waUrl} target="_blank" rel="noopener noreferrer">
+    <a href={waUrl} target="_blank" rel="noopener noreferrer" onClick={() => pixelEvent('Schedule')}>
       <Button variant={variant} aria-label={t('aria.bookingButton')}>
         {label}
       </Button>

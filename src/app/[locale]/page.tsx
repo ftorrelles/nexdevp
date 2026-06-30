@@ -26,11 +26,11 @@ export default async function HomePage({ params }: Props) {
       <Hero />
       <BeforeAfter />
       <Pillars />
+      <Methodology />
+      <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
       <DemoSection />
       <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
       <CasosExito />
-      <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
-      <Methodology />
       <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
       <Portfolio />
       <Stats />

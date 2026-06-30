@@ -4,7 +4,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/sections/Hero'
 import { Pillars } from '@/components/sections/Pillars'
 import { DemoSection } from '@/components/sections/DemoSection'
-import { CaseHero } from '@/components/sections/CaseHero'
+import { CasosExito } from '@/components/sections/CasosExito'
 import { Methodology } from '@/components/sections/Methodology'
 import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
@@ -27,7 +27,7 @@ export default async function HomePage({ params }: Props) {
       <BeforeAfter />
       <Pillars />
       <DemoSection />
-      <CaseHero />
+      <CasosExito />
       <Methodology />
       <Portfolio />
       <Stats />

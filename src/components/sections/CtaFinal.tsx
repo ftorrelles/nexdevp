@@ -7,7 +7,7 @@ export async function CtaFinal() {
   return (
     <section id="contacto" className="bg-nex-dark py-24 px-6 lg:px-12">
       <div className="max-w-6xl mx-auto">
-        <div className="rounded-2xl border border-nex-green/30 bg-nex-black p-10 lg:p-16 relative overflow-hidden">
+        <div className="rounded-2xl border border-nex-green/30 bg-nex-black p-6 lg:p-16 relative overflow-hidden">
           {/* Subtle green glow top */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-px bg-gradient-to-r from-transparent via-nex-green/60 to-transparent" />
 

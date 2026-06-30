@@ -86,7 +86,7 @@ export function ContactForm() {
   }
 
   return (
-    <div className="bg-nex-dark border border-white/10 rounded-2xl p-8">
+    <div className="bg-nex-dark border border-white/10 rounded-2xl p-5 lg:p-8">
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         <div>
           <label htmlFor="nombre" className={labelClass}>

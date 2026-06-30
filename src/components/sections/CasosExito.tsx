@@ -352,7 +352,7 @@ export function CasosExito() {
   const theme = INNER_THEME[c]
 
   return (
-    <section id="casos" className="bg-nex-black py-24 px-6 lg:px-12">
+    <section id="casos" className="bg-nex-black py-24 px-6 lg:px-12" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
       <style>{`@media (prefers-reduced-motion: no-preference){.casos-tab-hint{animation:casosTabPulse 1.7s ease-in-out infinite}}@keyframes casosTabPulse{0%,100%{box-shadow:0 0 0 0 var(--tab-glow)}50%{box-shadow:0 0 0 4px var(--tab-glow)}}`}</style>
       <div className="max-w-6xl mx-auto">
         {/* Header */}

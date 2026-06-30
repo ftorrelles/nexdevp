@@ -230,7 +230,7 @@ export function DemoSection() {
       .replace(/\n/g, '<br />')
 
   return (
-    <section id="demo" className="bg-nex-dark py-24 px-6 lg:px-12">
+    <section id="demo" className="bg-nex-dark py-24 px-6 lg:px-12" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-4">

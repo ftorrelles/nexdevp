@@ -27,7 +27,7 @@ function ExternalIcon() {
   )
 }
 
-function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+function ProjectCard({ project, index, isSpotlit }: { project: typeof PROJECTS[0]; index: number; isSpotlit: boolean }) {
   const locale = useLocale() as 'es' | 'en'
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
@@ -55,7 +55,11 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
   return (
     <div
       ref={ref}
-      style={{ transitionDelay: `${(index % 5) * 50}ms` }}
+      style={{
+        transitionDelay: `${(index % 5) * 50}ms`,
+        boxShadow: isSpotlit ? `0 0 0 1px ${project.accent}55, 0 0 20px 2px ${project.accent}22` : 'none',
+        transition: 'box-shadow 0.6s ease, opacity 0.5s ease, transform 0.5s ease, border-color 0.5s ease',
+      }}
       className={[
         'group relative rounded-2xl border border-white/[0.08] overflow-hidden cursor-default',
         'transition-all duration-500 ease-out',
@@ -167,6 +171,12 @@ export function Portfolio() {
   const t = useTranslations('portfolio')
   const locale = useLocale() as 'es' | 'en'
   const [filter, setFilter] = useState<Filter>('all')
+  const [spotlit, setSpotlit] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => setSpotlit((s) => (s + 1) % PROJECTS.length), 2500)
+    return () => clearInterval(id)
+  }, [])
 
   const filtered = filter === 'all'
     ? PROJECTS
@@ -212,7 +222,7 @@ export function Portfolio() {
         {/* Bento grid — 1 col mobile, 2 cols tablet, 3 cols desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 [grid-auto-flow:dense]">
           {normalized.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
+            <ProjectCard key={project.id} project={project} index={i} isSpotlit={spotlit === i} />
           ))}
         </div>
       </div>

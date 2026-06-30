@@ -170,7 +170,7 @@ export function Portfolio() {
   )
 
   return (
-    <section id="portfolio" className="py-24 px-4" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+    <section id="portfolio" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">

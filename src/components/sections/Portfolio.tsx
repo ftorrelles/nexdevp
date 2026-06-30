@@ -55,7 +55,12 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
   return (
     <div
       ref={ref}
-      style={{ transitionDelay: `${(index % 5) * 50}ms` }}
+      style={{
+        transitionDelay: `${(index % 5) * 50}ms`,
+        boxShadow: `0 4px 24px 0 ${project.accent}22`,
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 32px 0 rgba(255,255,255,0.08)' }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 4px 24px 0 ${project.accent}22` }}
       className={[
         'group relative rounded-2xl border border-white/[0.08] overflow-hidden cursor-default',
         'transition-all duration-500 ease-out',

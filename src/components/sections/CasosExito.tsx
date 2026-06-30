@@ -5,13 +5,17 @@ import { useLocale } from 'next-intl'
 
 type Loc = 'es' | 'en'
 
-// ── Copy (section chrome only — product screens stay in their native language) ──
+// ── Section chrome copy ──
 const COPY = {
   eyebrow: { es: 'Casos de éxito', en: 'Success stories' },
   heading: { es: 'Productos reales, resultados reales', en: 'Real products, real results' },
   sub: {
-    es: 'Elegí un caso y recorré las pantallas del producto. Pasá el mouse para inclinarlo.',
-    en: 'Pick a case and explore the product screens. Hover to tilt it.',
+    es: 'Elegí un caso y recorré las pantallas reales del producto.',
+    en: 'Pick a case and explore the real product screens.',
+  },
+  hint: {
+    es: 'Tocá las pestañas para navegar la app · mové el mouse para inclinarla',
+    en: 'Tap the tabs to navigate the app · move your mouse to tilt it',
   },
 }
 
@@ -39,25 +43,25 @@ const INNER_TABS: { es: string; en: string }[][] = [
   ],
 ]
 
-const HIGHLIGHTS: { big: string; small: { es: string; en: string } }[][] = [
+const HIGHLIGHTS: { big: { es: string; en: string }; small: { es: string; en: string } }[][] = [
   [
-    { big: 'Tiempo real', small: { es: 'Costos y rentabilidad sin esperar cierres', en: 'Costs and profitability without waiting for close-out' } },
-    { big: 'Remoto', small: { es: 'El dueño controla la obra desde EE.UU.', en: 'The owner runs the site from the US' } },
-    { big: 'Sin WhatsApp', small: { es: 'Aprobaciones por rol, cero ida y vuelta', en: 'Role-based approvals, zero back-and-forth' } },
+    { big: { es: 'Tiempo real', en: 'Real time' }, small: { es: 'Costos y rentabilidad sin esperar cierres', en: 'Costs and profitability without waiting for close-out' } },
+    { big: { es: 'Remoto', en: 'Remote' }, small: { es: 'El dueño controla la obra desde EE.UU.', en: 'The owner runs the site from the US' } },
+    { big: { es: 'Sin WhatsApp', en: 'No WhatsApp' }, small: { es: 'Aprobaciones por rol, cero ida y vuelta', en: 'Role-based approvals, zero back-and-forth' } },
   ],
   [
-    { big: '−30%', small: { es: 'Menos desperdicio de comida', en: 'Less food wasted' } },
-    { big: '30→2 min', small: { es: 'Cálculo de producción diaria', en: 'Daily production calculation' } },
-    { big: '6 centros', small: { es: 'Operando en simultáneo', en: 'Running simultaneously' } },
+    { big: { es: '−30%', en: '−30%' }, small: { es: 'Menos desperdicio de comida', en: 'Less food wasted' } },
+    { big: { es: '30→2 min', en: '30→2 min' }, small: { es: 'Cálculo de producción diaria', en: 'Daily production calculation' } },
+    { big: { es: '6 centros', en: '6 centers' }, small: { es: 'Operando en simultáneo', en: 'Running simultaneously' } },
   ],
   [
-    { big: '−90%', small: { es: 'Errores de reserva eliminados', en: 'Booking errors eliminated' } },
-    { big: '15 h/mes', small: { es: 'Ahorradas en coordinación', en: 'Saved in coordination' } },
-    { big: '100%', small: { es: 'Visibilidad de ingresos y progreso', en: 'Revenue and progress visibility' } },
+    { big: { es: '−90%', en: '−90%' }, small: { es: 'Errores de reserva eliminados', en: 'Booking errors eliminated' } },
+    { big: { es: '15 h/mes', en: '15 h/mo' }, small: { es: 'Ahorradas en coordinación', en: 'Saved in coordination' } },
+    { big: { es: '100%', en: '100%' }, small: { es: 'Visibilidad de ingresos y progreso', en: 'Revenue and progress visibility' } },
   ],
 ]
 
-// ── Small animated primitives (remount on screen change re-fires the entry) ──
+// ── Animated primitives (remount on screen change re-fires the entry) ──
 function Grow({ pct, axis = 'x', color, radius, duration = 950 }: { pct: number; axis?: 'x' | 'y'; color: string; radius?: string; duration?: number }) {
   const [v, setV] = useState(0)
   useEffect(() => {
@@ -92,62 +96,50 @@ function Counter({ to, money = false }: { to: number; money?: boolean }) {
   return <>{Math.round(n).toLocaleString('es')}</>
 }
 
-function Hl({ big, small, delay }: { big: string; small: string; delay: number }) {
-  const [on, setOn] = useState(false)
-  useEffect(() => {
-    const t = setTimeout(() => setOn(true), delay)
-    return () => clearTimeout(t)
-  }, [delay])
-  return (
-    <div style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'translateX(8px)', transition: 'opacity .5s, transform .5s' }}>
-      <p className="font-jost font-extrabold text-nex-green leading-tight m-0" style={{ fontSize: big.length > 6 ? '21px' : '24px' }}>{big}</p>
-      <p className="font-jost text-nex-grey m-0 mt-1 leading-snug" style={{ fontSize: '10.5px' }}>{small}</p>
-    </div>
-  )
-}
+// ── Product screen renderer (bilingual; SpeakPath stays English by design) ──
+function Screen({ c, ip, loc }: { c: number; ip: number; loc: Loc }) {
+  const t = (es: string, en: string) => (loc === 'en' ? en : es)
 
-// ── Product screen renderer ──
-function Screen({ c, ip }: { c: number; ip: number }) {
   // CONSTRUCTION (anonymized, fictitious budget names)
   if (c === 0) {
     if (ip === 0) return (
       <>
         <div className="flex justify-between items-start">
-          <div><p className="text-[13px] font-semibold text-nex-white m-0 mb-0.5">Rentabilidad de la obra</p><p className="text-[11px] text-nex-grey m-0">Ganancia estimada al cerrar</p></div>
-          <span className="text-[10px] text-nex-grey border border-white/15 rounded-full px-2.5 py-0.5">En ejecución</span>
+          <div><p className="text-[13px] font-semibold text-nex-white m-0 mb-0.5">{t('Rentabilidad de la obra', 'Project profitability')}</p><p className="text-[11px] text-nex-grey m-0">{t('Ganancia estimada al cerrar', 'Estimated profit at close-out')}</p></div>
+          <span className="text-[10px] text-nex-grey border border-white/15 rounded-full px-2.5 py-0.5">{t('En ejecución', 'In progress')}</span>
         </div>
-        <div className="flex items-baseline justify-between my-1.5 mb-3"><p className="text-[32px] font-extrabold text-nex-white m-0"><Counter to={2550} money /></p><span className="text-[12px] text-nex-grey">margen <span className="text-nex-green">30%</span></span></div>
-        <p className="text-[10px] text-nex-grey m-0 mb-1.5">De lo que paga el cliente ($11,049.99)</p>
+        <div className="flex items-baseline justify-between my-1.5 mb-3"><p className="text-[32px] font-extrabold text-nex-white m-0"><Counter to={2550} money /></p><span className="text-[12px] text-nex-grey">{t('margen', 'margin')} <span className="text-nex-green">30%</span></span></div>
+        <p className="text-[10px] text-nex-grey m-0 mb-1.5">{t('De lo que paga el cliente', 'Of what the client pays')} ($11,049.99)</p>
         <div className="flex h-[9px] rounded-md overflow-hidden" style={{ background: 'rgba(255,255,255,.05)' }}>
           <Grow pct={71.6} color="#6b7280" /><Grow pct={5.3} color="#3a4250" /><Grow pct={23.1} color="#22b561" />
         </div>
         <div className="flex gap-3 my-2 mb-2.5 flex-wrap text-[10px] text-nex-grey">
-          <span><span style={{ color: '#6b7280' }}>●</span> Gastado <b className="text-nex-white font-semibold">$7,910</b></span>
-          <span><span style={{ color: '#3a4250' }}>●</span> Por gastar <b className="text-nex-white font-semibold">$589.99</b></span>
-          <span><span style={{ color: '#22b561' }}>●</span> Ganancia <b className="text-nex-green font-semibold">$2,550</b></span>
+          <span><span style={{ color: '#6b7280' }}>●</span> {t('Gastado', 'Spent')} <b className="text-nex-white font-semibold">$7,910</b></span>
+          <span><span style={{ color: '#3a4250' }}>●</span> {t('Por gastar', 'To spend')} <b className="text-nex-white font-semibold">$589.99</b></span>
+          <span><span style={{ color: '#22b561' }}>●</span> {t('Ganancia', 'Profit')} <b className="text-nex-green font-semibold">$2,550</b></span>
         </div>
         <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(34,181,97,.06)', border: '1px solid rgba(34,181,97,.15)' }}>
-          <p className="text-[10.5px] text-nex-grey m-0 leading-relaxed">Tu ganancia está protegida mientras el gasto no supere el costo presupuestado (<span className="text-nex-white">$8,499.99</span>).</p>
+          <p className="text-[10.5px] text-nex-grey m-0 leading-relaxed">{t('Tu ganancia está protegida mientras el gasto no supere el costo presupuestado', 'Your profit is protected as long as spending stays under the budgeted cost')} (<span className="text-nex-white">$8,499.99</span>).</p>
         </div>
       </>
     )
     if (ip === 1) return (
       <>
-        <p className="text-[13px] font-semibold text-nex-white m-0 mb-2.5">Presupuestado vs Real</p>
+        <p className="text-[13px] font-semibold text-nex-white m-0 mb-2.5">{t('Presupuestado vs Real', 'Budgeted vs actual')}</p>
         <div className="grid grid-cols-4 gap-1.5 mb-3">
-          {[['Presup.', '$8,500', '#f5f5f5'], ['Real', '$7,910', '#f5f5f5'], ['Desv.', '−$590', '#22b561'], ['Ejec.', '93%', '#f5f5f5']].map(([k, v, col]) => (
+          {[[t('Presup.', 'Budget'), '$8,500', '#f5f5f5'], [t('Real', 'Actual'), '$7,910', '#f5f5f5'], [t('Desv.', 'Dev.'), '−$590', '#22b561'], [t('Ejec.', 'Exec.'), '93%', '#f5f5f5']].map(([k, v, col]) => (
             <div key={k} className="rounded-lg px-2 py-1.5" style={{ border: '1px solid rgba(255,255,255,.06)' }}><p className="text-[9px] text-nex-grey m-0 mb-0.5">{k}</p><p className="text-[13px] font-bold m-0" style={{ color: col }}>{v}</p></div>
           ))}
         </div>
         <table className="w-full border-collapse text-[11px]">
           <tbody>
-            <tr className="text-nex-grey"><td className="py-1">Concepto</td><td className="text-right">Presup.</td><td className="text-right">Real</td><td className="text-right">Desv.</td></tr>
+            <tr className="text-nex-grey"><td className="py-1">{t('Concepto', 'Item')}</td><td className="text-right">{t('Presup.', 'Budget')}</td><td className="text-right">{t('Real', 'Actual')}</td><td className="text-right">{t('Desv.', 'Dev.')}</td></tr>
             {[
-              ['● Materiales', '$620', '$620', '0%', '#8a8c8b', true],
-              ['Piedra', '$20', '$30', '+50%', '#ef5350', false],
-              ['● Mano de obra', '$7,000', '$7,100', '+1%', '#fbc02d', true],
-              ['Maestro de obra', '$2,000', '$2,600', '+30%', '#ef5350', false],
-              ['● Equipos', '$380', '$190', '−50%', '#22b561', true],
+              ['● ' + t('Materiales', 'Materials'), '$620', '$620', '0%', '#8a8c8b', true],
+              [t('Piedra', 'Stone'), '$20', '$30', '+50%', '#ef5350', false],
+              ['● ' + t('Mano de obra', 'Labor'), '$7,000', '$7,100', '+1%', '#fbc02d', true],
+              [t('Maestro de obra', 'Foreman'), '$2,000', '$2,600', '+30%', '#ef5350', false],
+              ['● ' + t('Equipos', 'Equipment'), '$380', '$190', '−50%', '#22b561', true],
             ].map(([name, p, r, d, col, head], i) => (
               <tr key={i} style={head ? { borderTop: '1px solid rgba(255,255,255,.05)' } : undefined}>
                 <td className={head ? 'py-1.5 text-nex-white' : 'py-1.5 pl-3.5 text-nex-grey'}>{name as string}</td>
@@ -162,12 +154,12 @@ function Screen({ c, ip }: { c: number; ip: number }) {
     )
     return (
       <>
-        <div className="flex justify-between items-center mb-2.5"><p className="text-[13px] font-semibold text-nex-white m-0">Presupuestos</p><span className="text-[10px] text-nex-black bg-nex-green font-semibold px-2.5 py-1 rounded-md">+ Nuevo</span></div>
+        <div className="flex justify-between items-center mb-2.5"><p className="text-[13px] font-semibold text-nex-white m-0">{t('Presupuestos', 'Budgets')}</p><span className="text-[10px] text-nex-black bg-nex-green font-semibold px-2.5 py-1 rounded-md">{t('+ Nuevo', '+ New')}</span></div>
         <div className="flex flex-col gap-2">
           {[
-            ['PRE-2026-0006', 'Remodelación oficinas centrales', '$11,500', 'En ejecución', '#22b561'],
-            ['PRE-2026-0005', 'Ampliación de bodega norte', '$14,970', 'En revisión', '#3b82f6'],
-            ['PRE-2026-0004', 'Instalación eléctrica nave 2', '$8,500', 'En ejecución', '#22b561'],
+            ['PRE-2026-0006', t('Remodelación oficinas centrales', 'Head office remodel'), '$11,500', t('En ejecución', 'In progress'), '#22b561'],
+            ['PRE-2026-0005', t('Ampliación de bodega norte', 'North warehouse expansion'), '$14,970', t('En revisión', 'Under review'), '#3b82f6'],
+            ['PRE-2026-0004', t('Instalación eléctrica nave 2', 'Electrical install, bay 2'), '$8,500', t('En ejecución', 'In progress'), '#22b561'],
           ].map(([code, name, amt, st, col]) => (
             <div key={code} className="rounded-r-lg px-3 py-2.5" style={{ border: '1px solid rgba(255,255,255,.07)', borderLeft: `3px solid ${col}` }}>
               <div className="flex justify-between"><span className="font-dm-mono text-[9px] text-nex-grey">{code}</span><span className="text-[10px]" style={{ color: col }}>● {st}</span></div>
@@ -184,58 +176,58 @@ function Screen({ c, ip }: { c: number; ip: number }) {
     if (ip === 0) return (
       <>
         <div className="rounded-[10px] p-3 mb-2.5" style={{ background: '#15543a' }}>
-          <p className="text-[10px] m-0 mb-0.5" style={{ color: 'rgba(255,255,255,.8)', letterSpacing: '.05em' }}>ALMUERZO · Total pacientes</p>
+          <p className="text-[10px] m-0 mb-0.5" style={{ color: 'rgba(255,255,255,.8)', letterSpacing: '.05em' }}>{t('ALMUERZO · Total pacientes', 'LUNCH · Total patients')}</p>
           <p className="text-[26px] font-extrabold text-white m-0"><Counter to={414} /></p>
         </div>
-        <div className="flex gap-4 mb-2.5 text-[11px]"><span className="font-semibold" style={{ color: '#15543a' }}>Proteína</span><span style={{ color: '#9aa89f' }}>Guarnición</span></div>
+        <div className="flex gap-4 mb-2.5 text-[11px]"><span className="font-semibold" style={{ color: '#15543a' }}>{t('Proteína', 'Protein')}</span><span style={{ color: '#9aa89f' }}>{t('Guarnición', 'Side')}</span></div>
         <div className="rounded-lg p-2 mb-2" style={{ background: '#fff', border: '1px solid #e3e7e3' }}>
-          <div className="flex justify-between items-center"><span className="text-[12px] font-semibold" style={{ color: '#2c3a32' }}>Muslo pollo</span><span className="text-[11px]" style={{ color: '#9aa89f' }}>✕</span></div>
+          <div className="flex justify-between items-center"><span className="text-[12px] font-semibold" style={{ color: '#2c3a32' }}>{t('Muslo pollo', 'Chicken thigh')}</span><span className="text-[11px]" style={{ color: '#9aa89f' }}>✕</span></div>
         </div>
-        <p className="text-[10px] m-0 mb-1.5" style={{ color: '#7a8a80' }}>Proteína — selección rápida</p>
+        <p className="text-[10px] m-0 mb-1.5" style={{ color: '#7a8a80' }}>{t('Proteína — selección rápida', 'Protein — quick select')}</p>
         <div className="grid grid-cols-3 gap-1.5 mb-2.5">
-          {[['Muslo pollo', true], ['Contramuslo', false], ['Pescado', false], ['Albóndigas', false], ['Hamburguesa', false], ['+ Otro', false]].map(([n, act]) => (
+          {[[t('Muslo pollo', 'Chicken thigh'), true], [t('Contramuslo', 'Chicken leg'), false], [t('Pescado', 'Fish'), false], [t('Albóndigas', 'Meatballs'), false], [t('Hamburguesa', 'Burger'), false], [t('+ Otro', '+ Other'), false]].map(([n, act]) => (
             <div key={n as string} className="rounded-md text-center py-2 text-[10px]" style={act ? { background: '#15543a', color: '#fff', fontWeight: 600 } : { background: '#fff', border: '1px solid #e3e7e3', color: '#3a4a40' }}>{n as string}</div>
           ))}
         </div>
         <div className="grid grid-cols-3 gap-2 mb-2">
-          {[['Unid./caja', '20'], ['Unid./ración', '2'], ['Merma %', '30']].map(([k, v]) => (
-            <div key={k}><p className="text-[9px] m-0 mb-1" style={{ color: '#7a8a80' }}>{k}</p><div className="rounded-md px-2 py-1.5 text-[12px] flex justify-between items-center" style={{ background: '#fff', border: '1px solid #e3e7e3', color: '#2c3a32' }}>{v}{k === 'Merma %' && <span className="text-[8px] px-1 rounded" style={{ background: '#e3efe8', color: '#15543a' }}>auto</span>}</div></div>
+          {[[t('Unid./caja', 'Units/box'), '20'], [t('Unid./ración', 'Units/serving'), '2'], [t('Merma %', 'Waste %'), '30']].map(([k, v]) => (
+            <div key={k}><p className="text-[9px] m-0 mb-1" style={{ color: '#7a8a80' }}>{k}</p><div className="rounded-md px-2 py-1.5 text-[12px] flex justify-between items-center" style={{ background: '#fff', border: '1px solid #e3e7e3', color: '#2c3a32' }}>{v}{(k === 'Merma %' || k === 'Waste %') && <span className="text-[8px] px-1 rounded" style={{ background: '#e3efe8', color: '#15543a' }}>auto</span>}</div></div>
           ))}
         </div>
-        <div className="rounded-md text-center py-2.5 text-[12px] font-semibold text-white" style={{ background: '#15543a' }}>Calcular</div>
+        <div className="rounded-md text-center py-2.5 text-[12px] font-semibold text-white" style={{ background: '#15543a' }}>{t('Calcular', 'Calculate')}</div>
       </>
     )
     if (ip === 1) return (
       <>
         <div className="grid grid-cols-2 gap-2 mb-3">
-          {[['526', 'Barquetas este mes', '#15543a', '#e3efe8', '#cfe3d6', '#5a7065'], ['75', 'Media barquetas/día', '#b06f12', '#faecd0', '#f0dcb0', '#8a6a3a'], ['19', 'Elaboraciones', '#1e3a8a', '#e6ecf6', '#d2deef', '#46587f'], ['0', 'Barquetas hoy', '#15543a', '#e3efe8', '#cfe3d6', '#5a7065']].map(([n, l, col, bg, bd, sub]) => (
+          {[['526', t('Barquetas este mes', 'Trays this month'), '#15543a', '#e3efe8', '#cfe3d6', '#5a7065'], ['75', t('Media barquetas/día', 'Avg trays/day'), '#b06f12', '#faecd0', '#f0dcb0', '#8a6a3a'], ['19', t('Elaboraciones', 'Preparations'), '#1e3a8a', '#e6ecf6', '#d2deef', '#46587f'], ['0', t('Barquetas hoy', 'Trays today'), '#15543a', '#e3efe8', '#cfe3d6', '#5a7065']].map(([n, l, col, bg, bd, sub]) => (
             <div key={l} className="rounded-[9px] px-2.5 py-2" style={{ background: bg, border: `1px solid ${bd}` }}><p className="text-[21px] font-extrabold m-0 leading-none" style={{ color: col }}>{n}</p><p className="text-[9.5px] m-0 mt-0.5" style={{ color: sub }}>{l}</p></div>
           ))}
         </div>
         <div className="rounded-[10px] px-3 py-2.5" style={{ background: '#fff', border: '1px solid #e3e7e3' }}>
-          <p className="text-[11px] font-semibold text-center m-0 mb-2.5" style={{ color: '#2c3a32' }}>Semana — 8 a 14 jun</p>
+          <p className="text-[11px] font-semibold text-center m-0 mb-2.5" style={{ color: '#2c3a32' }}>{t('Semana — 8 a 14 jun', 'Week — Jun 8–14')}</p>
           <div className="flex items-end justify-between gap-1.5" style={{ height: '66px' }}>
             {[100, 87, 0, 85, 75, 0, 0].map((h, i) => (
               <div key={i} className="flex-1 flex items-end h-full">{h > 0 ? <Grow pct={h} axis="y" color="#9cc0a8" radius="4px 4px 0 0" /> : <div className="w-full rounded-[3px]" style={{ height: '3px', background: '#e0e5e0' }} />}</div>
             ))}
           </div>
-          <div className="flex justify-between mt-1.5">{['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((d, i) => <span key={i} className="flex-1 text-center text-[8.5px]" style={{ color: '#8a9a8f' }}>{d}</span>)}</div>
+          <div className="flex justify-between mt-1.5">{(loc === 'en' ? ['M', 'T', 'W', 'T', 'F', 'S', 'S'] : ['L', 'M', 'X', 'J', 'V', 'S', 'D']).map((d, i) => <span key={i} className="flex-1 text-center text-[8.5px]" style={{ color: '#8a9a8f' }}>{d}</span>)}</div>
         </div>
       </>
     )
     return (
       <>
-        <p className="text-[12px] font-bold m-0 mb-0.5" style={{ color: '#2c3a32' }}>🍲 Dietas Blandas</p>
-        <p className="text-[10px] m-0 mb-2.5" style={{ color: '#7a8a80' }}>Producción fija diaria — no depende del nº de pacientes</p>
-        <div className="rounded-[10px] p-3 text-center mb-2.5" style={{ background: '#15543a' }}><p className="text-[10px] m-0 mb-0.5" style={{ color: 'rgba(255,255,255,.8)', letterSpacing: '.05em' }}>TOTAL BOLSAS CONGELADAS / DÍA</p><p className="text-[26px] font-extrabold text-white m-0">47</p></div>
-        <div className="rounded-lg px-2.5 py-2 mb-2.5 text-center" style={{ background: '#fff', border: '1px solid #e3e7e3' }}><span className="text-[10.5px]" style={{ color: '#3a4a40' }}>Papas <b>41</b> · Zanahoria <b>2</b> · Calabaza <b>1</b> · Calabacín <b>3</b></span></div>
+        <p className="text-[12px] font-bold m-0 mb-0.5" style={{ color: '#2c3a32' }}>🍲 {t('Dietas Blandas', 'Soft diets')}</p>
+        <p className="text-[10px] m-0 mb-2.5" style={{ color: '#7a8a80' }}>{t('Producción fija diaria — no depende del nº de pacientes', 'Fixed daily production — independent of patient count')}</p>
+        <div className="rounded-[10px] p-3 text-center mb-2.5" style={{ background: '#15543a' }}><p className="text-[10px] m-0 mb-0.5" style={{ color: 'rgba(255,255,255,.8)', letterSpacing: '.05em' }}>{t('TOTAL BOLSAS CONGELADAS / DÍA', 'TOTAL FROZEN BAGS / DAY')}</p><p className="text-[26px] font-extrabold text-white m-0">47</p></div>
+        <div className="rounded-lg px-2.5 py-2 mb-2.5 text-center" style={{ background: '#fff', border: '1px solid #e3e7e3' }}><span className="text-[10.5px]" style={{ color: '#3a4a40' }}>{t('Papas', 'Potato')} <b>41</b> · {t('Zanahoria', 'Carrot')} <b>2</b> · {t('Calabaza', 'Squash')} <b>1</b> · {t('Calabacín', 'Zucchini')} <b>3</b></span></div>
         <div className="rounded-lg px-3 py-2.5" style={{ background: '#fff', border: '1px solid #e3e7e3' }}>
-          <p className="text-[11px] font-semibold m-0 mb-2" style={{ color: '#2c3a32' }}>🍲 Chinos — 22 barquetas × 3 kg = 66 kg/día</p>
+          <p className="text-[11px] font-semibold m-0 mb-2" style={{ color: '#2c3a32' }}>🍲 {t('Chinos — 22 barquetas × 3 kg = 66 kg/día', 'Purées — 22 trays × 3 kg = 66 kg/day')}</p>
           <table className="w-full text-[10.5px] border-collapse">
             <tbody>
-              <tr style={{ color: '#8a9a8f' }}><td className="py-0.5">Tipo</td><td className="text-right">Bolsas</td><td className="text-right">Bruto</td></tr>
-              {[['Zanahoria', '#fff'], ['Calabaza', '#f6f8f6'], ['Calabacín', '#fff']].map(([t, bg], i) => (
-                <tr key={i} style={{ background: bg, borderTop: i === 0 ? '1px solid #eef1ee' : undefined }}><td className="py-1" style={{ color: '#2c3a32' }}>{t}</td><td className="text-right" style={{ color: '#3a4a40' }}>4</td><td className="text-right" style={{ color: '#3a4a40' }}>10 kg</td></tr>
+              <tr style={{ color: '#8a9a8f' }}><td className="py-0.5">{t('Tipo', 'Type')}</td><td className="text-right">{t('Bolsas', 'Bags')}</td><td className="text-right">{t('Bruto', 'Gross')}</td></tr>
+              {[[t('Zanahoria', 'Carrot'), '#fff'], [t('Calabaza', 'Squash'), '#f6f8f6'], [t('Calabacín', 'Zucchini'), '#fff']].map(([ty, bg], i) => (
+                <tr key={i} style={{ background: bg, borderTop: i === 0 ? '1px solid #eef1ee' : undefined }}><td className="py-1" style={{ color: '#2c3a32' }}>{ty}</td><td className="text-right" style={{ color: '#3a4a40' }}>4</td><td className="text-right" style={{ color: '#3a4a40' }}>10 kg</td></tr>
               ))}
             </tbody>
           </table>
@@ -244,7 +236,7 @@ function Screen({ c, ip }: { c: number; ip: number }) {
     )
   }
 
-  // SPEAKPATH
+  // SPEAKPATH (English by design — it's an English academy)
   if (ip === 0) return (
     <>
       <p className="text-[20px] font-extrabold m-0 mb-0.5" style={{ color: '#0f1730' }}>Welcome back, Francisco!</p>
@@ -256,8 +248,8 @@ function Screen({ c, ip }: { c: number; ip: number }) {
         <p className="text-[10px] m-0 mt-1.5" style={{ color: '#8a90a0' }}>2 / 25 lessons · 8%</p>
       </div>
       <div className="grid grid-cols-2 gap-2 mt-2">
-        {[['📚', 'My Courses', 'Browse your curriculum'], ['📅', 'My Lessons', 'Upcoming classes']].map(([ic, t, d]) => (
-          <div key={t} className="rounded-[11px] p-3" style={{ background: '#fff', border: '1px solid #e6e9f2' }}><p className="text-[18px] m-0">{ic}</p><p className="text-[12px] font-semibold m-0 mt-1.5 mb-0.5" style={{ color: '#1a2238' }}>{t}</p><p className="text-[10px] m-0 leading-snug" style={{ color: '#8a90a0' }}>{d}</p></div>
+        {[['📚', 'My Courses', 'Browse your curriculum'], ['📅', 'My Lessons', 'Upcoming classes']].map(([ic, t2, d]) => (
+          <div key={t2} className="rounded-[11px] p-3" style={{ background: '#fff', border: '1px solid #e6e9f2' }}><p className="text-[18px] m-0">{ic}</p><p className="text-[12px] font-semibold m-0 mt-1.5 mb-0.5" style={{ color: '#1a2238' }}>{t2}</p><p className="text-[10px] m-0 leading-snug" style={{ color: '#8a90a0' }}>{d}</p></div>
         ))}
       </div>
     </>
@@ -271,9 +263,9 @@ function Screen({ c, ip }: { c: number; ip: number }) {
       </div>
       <p className="text-[11px] font-semibold m-0 mb-2" style={{ color: '#2c3550' }}>Course content</p>
       <div className="flex flex-col gap-1.5">
-        {[['1 · Meeting People', '5 lessons', '2 / 5 lessons', 40], ['2 · My World', '4 lessons', '0 / 4 lessons', 0], ['3 · Daily Life', '4 lessons', '0 / 4 lessons', 0]].map(([t, n, prog, pct], i) => (
+        {[['1 · Meeting People', '5 lessons', '2 / 5 lessons', 40], ['2 · My World', '4 lessons', '0 / 4 lessons', 0], ['3 · Daily Life', '4 lessons', '0 / 4 lessons', 0]].map(([title, n, prog, pct], i) => (
           <div key={i} className="rounded-r-[9px] px-3 py-2" style={{ background: '#fff', border: '1px solid #e6e9f2', borderLeft: `3px solid ${pct ? '#234fe0' : '#cdd4e6'}` }}>
-            <div className="flex justify-between items-center"><span className="text-[12px] font-semibold" style={{ color: '#1a2238' }}>{t}</span><span className="text-[9px] rounded-full px-1.5 py-0.5" style={{ color: '#5a6480', background: '#eef1f8' }}>{n}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[12px] font-semibold" style={{ color: '#1a2238' }}>{title}</span><span className="text-[9px] rounded-full px-1.5 py-0.5" style={{ color: '#5a6480', background: '#eef1f8' }}>{n}</span></div>
             {(pct as number) > 0 && <div className="h-[4px] rounded my-1.5 mb-0.5 overflow-hidden" style={{ background: '#e6e9f2' }}><Grow pct={pct as number} color="#234fe0" radius="3px" /></div>}
             <span className="text-[9px] block mt-1.5" style={{ color: '#8a90a0' }}>{prog}</span>
           </div>
@@ -296,26 +288,27 @@ function Screen({ c, ip }: { c: number; ip: number }) {
 }
 
 // ── Device chrome per case ──
-function DeviceHeader({ c }: { c: number }) {
+function DeviceHeader({ c, loc }: { c: number; loc: Loc }) {
   if (c === 0) return (
     <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,.06)', background: 'rgba(34,181,97,.03)' }}>
       <div className="flex gap-1.5">{['#ef5350', '#fbc02d', '#22b561'].map((col) => <span key={col} className="w-2 h-2 rounded-full" style={{ background: col }} />)}</div>
-      <span className="font-dm-mono text-[9px] uppercase" style={{ letterSpacing: '.15em', color: 'rgba(34,181,97,.55)' }}>gestión de obra</span>
+      <span className="font-dm-mono text-[9px] uppercase" style={{ letterSpacing: '.15em', color: 'rgba(34,181,97,.55)' }}>{loc === 'en' ? 'construction budgets' : 'gestión de obra'}</span>
       <span className="font-dm-mono text-[9px] animate-pulse" style={{ color: 'rgba(34,181,97,.5)' }}>● live</span>
     </div>
   )
   if (c === 1) return (
-    <div className="flex items-center justify-between px-3 py-2.5" style={{ background: '#15543a' }}><span className="text-[12px] font-semibold text-white">🏥 CocinerHosp</span><span className="font-dm-mono text-[9px]" style={{ color: 'rgba(255,255,255,.7)' }}>mar 30 jun</span></div>
+    <div className="flex items-center justify-between px-3 py-2.5" style={{ background: '#15543a' }}><span className="text-[12px] font-semibold text-white">🏥 CocinerHosp</span><span className="font-dm-mono text-[9px]" style={{ color: 'rgba(255,255,255,.7)' }}>{loc === 'en' ? 'Tue Jun 30' : 'mar 30 jun'}</span></div>
   )
   return (
     <div className="flex items-center justify-between px-3 py-2.5" style={{ background: '#fff', borderBottom: '1px solid #e6e9f2' }}><span className="text-[13px] font-extrabold" style={{ color: '#2546d6' }}>SpeakPath</span><span className="text-[14px]" style={{ color: '#8a90a0' }}>≡</span></div>
   )
 }
 
+// ac = active bg, fg = active text, idleBg/idleBorder/off = inactive look (per product theme)
 const INNER_THEME = [
-  { ac: '#22b561', fg: '#070809', off: '#8a8c8b', barBg: '#0a0c0d', bodyBg: '#0a0c0d' },
-  { ac: '#15543a', fg: '#ffffff', off: '#6f8478', barBg: '#fff', bodyBg: '#f3f5f3' },
-  { ac: '#234fe0', fg: '#ffffff', off: '#7480a0', barBg: '#fff', bodyBg: '#f6f7fb' },
+  { ac: '#22b561', fg: '#070809', off: '#9aa0a0', idleBg: 'rgba(255,255,255,.06)', idleBorder: 'rgba(255,255,255,.12)', barBg: '#111414', bodyBg: '#0a0c0d' },
+  { ac: '#15543a', fg: '#ffffff', off: '#5f7268', idleBg: '#e8ece8', idleBorder: '#d2dcd2', barBg: '#eef1ee', bodyBg: '#f3f5f3' },
+  { ac: '#234fe0', fg: '#ffffff', off: '#6a7596', idleBg: '#e9edf6', idleBorder: '#d6deec', barBg: '#eef1f6', bodyBg: '#f6f7fb' },
 ]
 
 export function CasosExito() {
@@ -326,7 +319,7 @@ export function CasosExito() {
 
   function selectCase(i: number) { setC(i); setIp(0) }
 
-  // 3D parallax tilt on the active device (pointer-fine only; flat on touch)
+  // 3D parallax tilt on the active device (pointer-fine only; flat on touch / reduced-motion)
   useEffect(() => {
     const scene = sceneRef.current
     if (!scene) return
@@ -365,7 +358,7 @@ export function CasosExito() {
         <p className="font-jost text-nex-grey mb-8 max-w-xl">{COPY.sub[locale]}</p>
 
         {/* Case tabs */}
-        <div className="flex gap-2 mb-6 flex-wrap">
+        <div className="flex gap-2 mb-4 flex-wrap">
           {CASE_TABS.map((tab, i) => (
             <button
               key={i}
@@ -380,23 +373,31 @@ export function CasosExito() {
           ))}
         </div>
 
+        {/* Interaction hint */}
+        <p className="font-jost text-[12px] text-nex-grey/70 mb-5 flex items-center gap-1.5">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green"><path d="M9 11V6a2 2 0 0 1 4 0v5" /><path d="M13 9a2 2 0 0 1 4 0v2" /><path d="M17 11a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-2a7 7 0 0 1-6-3l-2.5-4a1.7 1.7 0 0 1 3-1.7l1.5 2" /></svg>
+          {COPY.hint[locale]}
+        </p>
+
         {/* Scene: device + highlights */}
-        <div ref={sceneRef} className="grid lg:grid-cols-[1fr_150px] gap-5 items-center" style={{ perspective: '1500px' }}>
+        <div ref={sceneRef} className="grid lg:grid-cols-[1fr_180px] gap-5 lg:gap-6 items-center" style={{ perspective: '1500px' }}>
           <div>
             <div
               data-dev
               className="rounded-[13px] overflow-hidden"
               style={{ background: '#0d0f10', border: '1px solid rgba(34,181,97,.22)', boxShadow: '0 26px 54px rgba(0,0,0,.6), 0 0 70px rgba(34,181,97,.07)', transformStyle: 'preserve-3d', transition: 'transform .25s cubic-bezier(.2,.7,.3,1)', willChange: 'transform' }}
             >
-              <DeviceHeader c={c} />
-              {/* Inner tabs */}
-              <div className="flex gap-1.5 px-2.5 pt-2" style={{ background: theme.barBg }}>
+              <DeviceHeader c={c} loc={locale} />
+              {/* Inner tabs — styled as a real segmented control so they read as clickable */}
+              <div className="flex gap-1.5 px-2.5 py-2 flex-wrap" style={{ background: theme.barBg }}>
                 {INNER_TABS[c].map((t, i) => (
                   <button
                     key={i}
                     onClick={() => setIp(i)}
-                    className="text-[10.5px] px-2.5 py-1.5 rounded-md transition-colors"
-                    style={ip === i ? { background: theme.ac, color: theme.fg, fontWeight: 600 } : { color: theme.off }}
+                    className="text-[10.5px] px-2.5 py-1.5 rounded-md transition-all cursor-pointer"
+                    style={ip === i
+                      ? { background: theme.ac, color: theme.fg, fontWeight: 600, border: `1px solid ${theme.ac}` }
+                      : { background: theme.idleBg, color: theme.off, border: `1px solid ${theme.idleBorder}` }}
                   >
                     {t[locale]}
                   </button>
@@ -404,21 +405,36 @@ export function CasosExito() {
               </div>
               {/* Active screen (remounts on case/inner change → re-fires entry animations) */}
               <div key={`${c}-${ip}`} className="px-3.5 py-4" style={{ background: theme.bodyBg, minHeight: '300px' }}>
-                <Screen c={c} ip={ip} />
+                <Screen c={c} ip={ip} loc={locale} />
               </div>
             </div>
           </div>
 
-          {/* Highlights (re-stagger per case) */}
-          <div key={c} className="flex flex-col gap-3">
+          {/* Highlights — prominent cards; 3-col row on mobile, vertical stack on desktop */}
+          <div key={c} className="grid grid-cols-3 lg:grid-cols-1 gap-2.5 lg:gap-3 mt-1">
             {HIGHLIGHTS[c].map((h, i) => (
-              <div key={i} className={i > 0 ? 'pt-3 border-t border-white/10' : ''}>
-                <Hl big={h.big} small={h.small[locale]} delay={150 + i * 200} />
-              </div>
+              <HlCard key={i} big={h.big[locale]} small={h.small[locale]} delay={150 + i * 150} />
             ))}
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function HlCard({ big, small, delay }: { big: string; small: string; delay: number }) {
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setOn(true), delay)
+    return () => clearTimeout(t)
+  }, [delay])
+  return (
+    <div
+      className="rounded-xl bg-nex-dark border border-white/10 px-3 py-3 lg:px-4 lg:py-3.5"
+      style={{ borderLeft: '2px solid rgba(34,181,97,.55)', opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(8px)', transition: 'opacity .5s, transform .5s' }}
+    >
+      <p className="font-jost font-extrabold text-nex-green leading-tight m-0 text-lg sm:text-xl lg:text-2xl">{big}</p>
+      <p className="font-jost text-nex-grey m-0 mt-1 leading-snug text-[11px] lg:text-[11.5px]">{small}</p>
+    </div>
   )
 }

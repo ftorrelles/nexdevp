@@ -17,18 +17,19 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
-    id: 'cocinerhosp',
-    name: 'CocinerHosp',
+    id: 'fpy-academy',
+    name: 'FPY Academy',
     description: {
-      es: 'PWA mobile-first para gestión de producción diaria de comedor hospitalario en Tenerife. 6 centros operando en simultáneo.',
-      en: 'Mobile-first PWA for daily production management of a hospital cafeteria in Tenerife. 6 centers operating simultaneously.',
+      es: 'Plataforma educativa completa con gestión de cursos, alumnos, pagos online y seguimiento de progreso.',
+      en: 'Full-featured educational platform with course management, students, online payments, and progress tracking.',
     },
     category: 'systems',
     colSpan: 2,
     rowSpan: 2,
-    stack: ['React', 'PWA', 'Node.js', 'PostgreSQL'],
-    gradient: 'from-blue-950 via-nex-black to-nex-black',
-    accent: '#3b82f6',
+    stack: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
+    liveUrl: 'https://www.fpyacademy.com',
+    gradient: 'from-indigo-950 via-nex-black to-nex-black',
+    accent: '#6366f1',
     year: '2025',
   },
   {
@@ -46,22 +47,6 @@ export const PROJECTS: Project[] = [
     gradient: 'from-emerald-950 via-nex-black to-nex-black',
     accent: '#22b561',
     year: '2026',
-  },
-  {
-    id: 'fpy-academy',
-    name: 'FPY Academy',
-    description: {
-      es: 'Plataforma educativa completa con gestión de cursos, alumnos y pagos online.',
-      en: 'Full-featured educational platform with course management, students, and online payments.',
-    },
-    category: 'systems',
-    colSpan: 2,
-    rowSpan: 1,
-    stack: ['React', 'Node.js', 'PostgreSQL'],
-    liveUrl: 'https://www.fpyacademy.com',
-    gradient: 'from-indigo-950 via-nex-black to-nex-black',
-    accent: '#6366f1',
-    year: '2025',
   },
   {
     id: 'vivir-chevere',

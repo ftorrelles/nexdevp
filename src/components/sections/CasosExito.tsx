@@ -306,18 +306,20 @@ function DeviceHeader({ c, loc }: { c: number; loc: Loc }) {
 
 // ac = active bg, fg = active text, idleBg/idleBorder/off = inactive look (per product theme)
 const INNER_THEME = [
-  { ac: '#22b561', fg: '#070809', off: '#9aa0a0', idleBg: 'rgba(255,255,255,.06)', idleBorder: 'rgba(255,255,255,.12)', barBg: '#111414', bodyBg: '#0a0c0d' },
-  { ac: '#15543a', fg: '#ffffff', off: '#5f7268', idleBg: '#e8ece8', idleBorder: '#d2dcd2', barBg: '#eef1ee', bodyBg: '#f3f5f3' },
-  { ac: '#234fe0', fg: '#ffffff', off: '#6a7596', idleBg: '#e9edf6', idleBorder: '#d6deec', barBg: '#eef1f6', bodyBg: '#f6f7fb' },
+  { ac: '#22b561', fg: '#070809', off: '#9aa0a0', idleBg: 'rgba(255,255,255,.06)', idleBorder: 'rgba(255,255,255,.12)', barBg: '#111414', bodyBg: '#0a0c0d', glow: 'rgba(34,181,97,.45)' },
+  { ac: '#15543a', fg: '#ffffff', off: '#5f7268', idleBg: '#e8ece8', idleBorder: '#d2dcd2', barBg: '#eef1ee', bodyBg: '#f3f5f3', glow: 'rgba(21,84,58,.4)' },
+  { ac: '#234fe0', fg: '#ffffff', off: '#6a7596', idleBg: '#e9edf6', idleBorder: '#d6deec', barBg: '#eef1f6', bodyBg: '#f6f7fb', glow: 'rgba(35,79,224,.4)' },
 ]
 
 export function CasosExito() {
   const locale = useLocale() as Loc
   const [c, setC] = useState(0)
   const [ip, setIp] = useState(0)
+  const [touched, setTouched] = useState(false)
   const sceneRef = useRef<HTMLDivElement>(null)
 
   function selectCase(i: number) { setC(i); setIp(0) }
+  function selectInner(i: number) { setIp(i); setTouched(true) }
 
   // 3D parallax tilt on the active device (pointer-fine only; flat on touch / reduced-motion)
   useEffect(() => {
@@ -351,6 +353,7 @@ export function CasosExito() {
 
   return (
     <section id="casos" className="bg-nex-black py-24 px-6 lg:px-12">
+      <style>{`@media (prefers-reduced-motion: no-preference){.casos-tab-hint{animation:casosTabPulse 1.7s ease-in-out infinite}}@keyframes casosTabPulse{0%,100%{box-shadow:0 0 0 0 var(--tab-glow)}50%{box-shadow:0 0 0 4px var(--tab-glow)}}`}</style>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <p className="font-dm-mono text-[11px] uppercase text-nex-green mb-2" style={{ letterSpacing: '.25em' }}>{COPY.eyebrow[locale]}</p>
@@ -390,18 +393,22 @@ export function CasosExito() {
               <DeviceHeader c={c} loc={locale} />
               {/* Inner tabs — styled as a real segmented control so they read as clickable */}
               <div className="flex gap-1.5 px-2.5 py-2 flex-wrap" style={{ background: theme.barBg }}>
-                {INNER_TABS[c].map((t, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setIp(i)}
-                    className="text-[10.5px] px-2.5 py-1.5 rounded-md transition-all cursor-pointer"
-                    style={ip === i
-                      ? { background: theme.ac, color: theme.fg, fontWeight: 600, border: `1px solid ${theme.ac}` }
-                      : { background: theme.idleBg, color: theme.off, border: `1px solid ${theme.idleBorder}` }}
-                  >
-                    {t[locale]}
-                  </button>
-                ))}
+                {INNER_TABS[c].map((t, i) => {
+                  const isActive = ip === i
+                  const hint = !touched && !isActive
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => selectInner(i)}
+                      className={'text-[10.5px] px-2.5 py-1.5 rounded-md transition-all cursor-pointer' + (hint ? ' casos-tab-hint' : '')}
+                      style={isActive
+                        ? { background: theme.ac, color: theme.fg, fontWeight: 600, border: `1px solid ${theme.ac}` }
+                        : { background: theme.idleBg, color: theme.off, border: `1px solid ${theme.idleBorder}`, ...(hint ? { ['--tab-glow' as string]: theme.glow, animationDelay: `${i * 0.22}s` } : {}) }}
+                    >
+                      {t[locale]}
+                    </button>
+                  )
+                })}
               </div>
               {/* Active screen (remounts on case/inner change → re-fires entry animations) */}
               <div key={`${c}-${ip}`} className="px-3.5 py-4" style={{ background: theme.bodyBg, minHeight: '300px' }}>
@@ -410,8 +417,8 @@ export function CasosExito() {
             </div>
           </div>
 
-          {/* Highlights — prominent cards; 3-col row on mobile, vertical stack on desktop */}
-          <div key={c} className="grid grid-cols-3 lg:grid-cols-1 gap-2.5 lg:gap-3 mt-1">
+          {/* Highlights — prominent cards stacked in rows (mobile + desktop) */}
+          <div key={c} className="grid grid-cols-1 gap-2.5 lg:gap-3 mt-1">
             {HIGHLIGHTS[c].map((h, i) => (
               <HlCard key={i} big={h.big[locale]} small={h.small[locale]} delay={150 + i * 150} />
             ))}

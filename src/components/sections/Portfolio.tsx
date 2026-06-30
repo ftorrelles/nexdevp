@@ -71,11 +71,19 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
       {/* Gradient overlay */}
       <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-60`} />
 
-      {/* Top glow */}
+      {/* Top glow — always visible on featured card */}
       <div
-        className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-10 group-hover:opacity-25 transition-opacity duration-700"
+        className={`absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl transition-opacity duration-700 ${isBig ? 'opacity-15 group-hover:opacity-30' : 'opacity-10 group-hover:opacity-25'}`}
         style={{ background: project.accent }}
       />
+
+      {/* Shimmer sweep on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-hidden rounded-2xl">
+        <div
+          className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+          style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.045) 50%, transparent 60%)' }}
+        />
+      </div>
 
       {/* Bottom line accent */}
       <div

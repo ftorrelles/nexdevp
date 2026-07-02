@@ -11,33 +11,54 @@ import type {
 
 const TIPOS: { value: QuoteTipo; label: string }[] = [
   { value: 'desarrollo', label: 'Desarrollo' },
-  { value: 'marketing',  label: 'Marketing'  },
-  { value: 'chatbot',    label: 'Chatbot / IA' },
+  { value: 'marketing',  label: 'Web & Marketing' },
+  { value: 'chatbot',    label: 'Agentes IA' },
 ]
 
-const ALL_PRODUCTS: { value: string; label: string; icon: string; tipo: QuoteTipo }[] = [
-  { value: 'software',       label: 'Software a medida',     icon: '🛠️', tipo: 'desarrollo' },
-  { value: 'pwa',            label: 'PWA',                   icon: '📱', tipo: 'desarrollo' },
-  { value: 'mvp',            label: 'MVP',                   icon: '🚀', tipo: 'desarrollo' },
-  { value: 'crm',            label: 'CRM',                   icon: '📊', tipo: 'desarrollo' },
-  { value: 'ecommerce',      label: 'E-commerce',            icon: '🛒', tipo: 'desarrollo' },
-  { value: 'transformacion', label: 'Transformación digital', icon: '🔄', tipo: 'desarrollo' },
-  { value: 'landing',        label: 'Landing page',          icon: '🎯', tipo: 'marketing'  },
-  { value: 'web',            label: 'Web corporativa',       icon: '🌐', tipo: 'marketing'  },
-  { value: 'agente-ia',      label: 'Agente IA WhatsApp',   icon: '💬', tipo: 'chatbot'    },
+const ALL_PRODUCTS: { value: string; label: string; icon: string; tipo: QuoteTipo; desc: string }[] = [
+  { value: 'software',       label: 'Software a medida',     icon: '🛠️', tipo: 'desarrollo', desc: 'Sistema de gestión interno a medida' },
+  { value: 'pwa',            label: 'PWA',                   icon: '📱', tipo: 'desarrollo', desc: 'App instalable sin tienda (iOS + Android)' },
+  { value: 'mvp',            label: 'MVP',                   icon: '🚀', tipo: 'desarrollo', desc: 'Primera versión funcional para validar' },
+  { value: 'crm',            label: 'CRM',                   icon: '📊', tipo: 'desarrollo', desc: 'Pipeline de ventas y gestión de leads' },
+  { value: 'ecommerce',      label: 'E-commerce',            icon: '🛒', tipo: 'desarrollo', desc: 'Tienda online con pagos' },
+  { value: 'transformacion', label: 'Transformación digital', icon: '🔄', tipo: 'desarrollo', desc: 'Diagnóstico + roadmap de digitalización' },
+  { value: 'landing',        label: 'Landing page',          icon: '🎯', tipo: 'marketing',  desc: 'Página de conversión con captura de leads' },
+  { value: 'web',            label: 'Web corporativa',       icon: '🌐', tipo: 'marketing',  desc: 'Sitio corporativo multi-página' },
+  { value: 'agente-ia',      label: 'Agente IA WhatsApp',   icon: '💬', tipo: 'chatbot',    desc: 'Bot que contacta, califica y agenda 24/7' },
 ]
 
-// Add-ons relevantes por producto
+// Add-ons por producto — solo extras REALES y opcionales.
+// Lo obvio (login en un software a medida, formulario en una landing) ya viene en la plantilla base.
 const ADDONS_BY_PRODUCT: Record<string, string[]> = {
-  software:       ['Login + roles', 'Dashboard / reportes', 'Notificaciones email', 'Multi-idioma (i18n)', 'Tiempo real', 'Pasarela de pago', 'PWA / offline'],
-  pwa:            ['Login + roles', 'Notificaciones push', 'PWA / offline', 'Tiempo real', 'Multi-idioma (i18n)'],
-  mvp:            ['Login + roles', 'Dashboard / reportes', 'Pasarela de pago', 'Notificaciones email'],
-  crm:            ['Login + roles', 'Dashboard / reportes', 'Notificaciones email', 'Integración WhatsApp API', 'Tiempo real', 'Multi-idioma (i18n)'],
-  ecommerce:      ['Pasarela de pago', 'Dashboard / reportes', 'Login + roles', 'Notificaciones email', 'Multi-idioma (i18n)', 'PWA / offline'],
-  transformacion: ['Dashboard / reportes', 'Integración WhatsApp API', 'Notificaciones email', 'Multi-idioma (i18n)'],
-  landing:        ['Formulario de contacto', 'Multi-idioma (i18n)', 'Integración WhatsApp API', 'Analytics'],
-  web:            ['Blog / CMS', 'Formulario de contacto', 'Multi-idioma (i18n)', 'Analytics', 'Integración WhatsApp API'],
-  'agente-ia':    ['Integración WhatsApp API', 'Escalado a humano', 'Entrenamiento con docs propios', 'Multicanal (WA + web)', 'Base de conocimiento'],
+  software:       ['Notificaciones email', 'Multi-idioma (i18n)', 'Tiempo real', 'Pasarela de pago', 'PWA / offline', 'Integración WhatsApp API'],
+  pwa:            ['Notificaciones push', 'Tiempo real', 'Multi-idioma (i18n)', 'Pasarela de pago'],
+  mvp:            ['Dashboard / reportes', 'Pasarela de pago', 'Notificaciones email', 'Multi-idioma (i18n)'],
+  crm:            ['Integración WhatsApp API', 'Tiempo real', 'Multi-idioma (i18n)', 'Carga de archivos'],
+  ecommerce:      ['Multi-idioma (i18n)', 'PWA / offline', 'Tiempo real', 'Integración WhatsApp API'],
+  transformacion: ['Dashboard / reportes', 'Integración WhatsApp API', 'Notificaciones email'],
+  landing:        ['Multi-idioma (i18n)', 'Integración WhatsApp API', 'Analytics'],
+  web:            ['Blog / CMS', 'Multi-idioma (i18n)', 'Analytics', 'Integración WhatsApp API'],
+  'agente-ia':    ['Escalado a humano', 'Entrenamiento con docs propios', 'Multicanal (WA + web)', 'Base de conocimiento', 'Multi-idioma (i18n)'],
+}
+
+// Cada add-on suma horas reales al presupuesto como línea propia.
+// name = cómo aparece en el desglose · size = tamaño default (editable en el resultado)
+const ADDON_ITEMS: Record<string, { name: string; size: QuoteSize }> = {
+  'Notificaciones email':           { name: 'Notificaciones por email (transaccionales)', size: 'S' },
+  'Multi-idioma (i18n)':            { name: 'Multi-idioma (i18n)',                        size: 'S' },
+  'Analytics':                      { name: 'Analytics (GA4 + eventos de conversión)',    size: 'S' },
+  'Notificaciones push':            { name: 'Notificaciones push',                        size: 'M' },
+  'Blog / CMS':                     { name: 'Blog / CMS autoadministrable',               size: 'M' },
+  'Carga de archivos':              { name: 'Carga y gestión de archivos',                size: 'M' },
+  'Escalado a humano':              { name: 'Escalado a humano (handoff en vivo)',        size: 'M' },
+  'Entrenamiento con docs propios': { name: 'Entrenamiento IA con documentos propios',    size: 'M' },
+  'Base de conocimiento':           { name: 'Base de conocimiento (RAG)',                 size: 'M' },
+  'Dashboard / reportes':           { name: 'Dashboard con reportes y métricas',          size: 'L' },
+  'Tiempo real':                    { name: 'Sincronización en tiempo real',              size: 'L' },
+  'Pasarela de pago':               { name: 'Pasarela de pago',                           size: 'L' },
+  'PWA / offline':                  { name: 'PWA / funcionalidad offline-first',          size: 'L' },
+  'Integración WhatsApp API':       { name: 'Integración WhatsApp Business API',          size: 'L' },
+  'Multicanal (WA + web)':          { name: 'Multicanal (WhatsApp + widget web)',         size: 'L' },
 }
 
 const BUNDLE_DISCOUNT = 0.10 // 10% cuando se seleccionan 2+ productos
@@ -140,21 +161,50 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
         setSettings(first.settings ?? [])
         setSizes(first.sizes ?? [])
 
-        // Merge items from all templates, prefixed with product label
+        // Count catalog_id occurrences across templates: an item shared by 2+
+        // products (setup, login, emails…) is ONE piece of work — include it once,
+        // without product prefix. Product-specific items keep their prefix.
+        const idCount = new Map<string, number>()
+        for (const result of results) {
+          for (const ci of (result.items ?? [])) {
+            idCount.set(ci.id, (idCount.get(ci.id) ?? 0) + 1)
+          }
+        }
+
         const merged: QuoteItem[] = []
+        const seen = new Set<string>()
         let order = 0
         for (const [i, result] of results.entries()) {
           const productLabel = ALL_PRODUCTS.find(ap => ap.value === products[i])?.label ?? products[i]
           const isMulti = results.length > 1
           for (const ci of (result.items ?? [])) {
+            if (seen.has(ci.id)) continue
+            seen.add(ci.id)
+            const shared = (idCount.get(ci.id) ?? 1) > 1
             merged.push({
               catalog_id: ci.id,
-              name:       isMulti ? `[${productLabel}] ${ci.name}` : ci.name,
+              name:       isMulti && !shared ? `[${productLabel}] ${ci.name}` : ci.name,
               size:       ci.size,
               hours:      first.sizes.find(s => s.size === ci.size)?.hours ?? 0,
               sort_order: order++,
             })
           }
+        }
+
+        // Add-ons add real hours: one line each, skipping anything the
+        // templates already cover (matched by resulting item name).
+        const mergedNames = new Set(merged.map(m => m.name.replace(/^\[[^\]]+\]\s*/, '')))
+        for (const addon of addons) {
+          const def = ADDON_ITEMS[addon]
+          if (!def || mergedNames.has(def.name)) continue
+          mergedNames.add(def.name)
+          merged.push({
+            catalog_id: null,
+            name:       def.name,
+            size:       def.size,
+            hours:      first.sizes.find(s => s.size === def.size)?.hours ?? 0,
+            sort_order: order++,
+          })
         }
         setItems(merged)
         setCustomRate(null)
@@ -165,7 +215,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
 
     load()
     return () => { cancelled = true }
-  }, [products, tipo, fetchTemplate])
+  }, [products, addons, tipo, fetchTemplate])
 
   useEffect(() => { setCustomRate(null) }, [region])
 
@@ -371,6 +421,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                       )}
                       <div className="text-xl mb-1.5">{p.icon}</div>
                       <div className="font-jost font-bold text-nex-white text-sm">{p.label}</div>
+                      <div className="font-jost text-[10px] text-nex-grey mt-0.5">{p.desc}</div>
                     </button>
                   )
                 })}
@@ -399,7 +450,8 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                       )}
                       <div className="text-xl mb-1.5">{p.icon}</div>
                       <div className="font-jost font-bold text-nex-white text-sm">{p.label}</div>
-                      <div className="font-jost text-[10px] text-nex-grey mt-0.5">
+                      <div className="font-jost text-[10px] text-nex-grey mt-0.5">{p.desc}</div>
+                      <div className="font-dm-mono text-[9px] text-nex-grey/60 mt-1 uppercase tracking-wider">
                         {TIPOS.find(t2 => t2.value === p.tipo)?.label}
                       </div>
                     </button>
@@ -431,7 +483,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                 ¿Qué funcionalidades extra incluye?
               </h2>
               <p className="font-jost text-sm text-nex-grey mt-1">
-                Opcional — filtrados según los productos elegidos.
+                Opcional — cada add-on suma su línea de horas al estimado. Lo esencial (login, formularios, base del producto) ya viene incluido en la plantilla.
               </p>
             </div>
 

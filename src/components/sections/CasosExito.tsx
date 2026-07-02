@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, type CSSProperties } from 'react'
+import { useState, useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { useLocale } from 'next-intl'
 
 type Loc = 'es' | 'en'
@@ -41,6 +41,47 @@ const INNER_TABS: { es: string; en: string }[][] = [
     { es: 'Curso', en: 'Course' },
     { es: 'Lección', en: 'Lesson' },
   ],
+]
+
+const CASE_LABELS = {
+  problem: { es: 'El problema', en: 'The problem' },
+  solution: { es: 'La solución', en: 'The solution' },
+}
+
+const CASE_CONTENT: { problem: { es: string; en: string }; solution: { es: string; en: string }; stack: string[] }[] = [
+  {
+    problem: {
+      es: 'Una constructora que opera de forma remota desde Estados Unidos gestionaba todo su ciclo de presupuesto — cotizaciones, aprobaciones, ejecución, cierre — mediante Excel y WhatsApp, sin visibilidad de costos en tiempo real.',
+      en: 'A construction company operating remotely from the US managed its entire budget cycle — quotes, approvals, execution, close-out — through Excel and WhatsApp, with no real-time cost visibility.',
+    },
+    solution: {
+      es: 'Plataforma full-stack que centraliza todo el ciclo de vida del proyecto: flujos de aprobación guiados por rol, seguimiento de costos en tiempo real (presupuestado vs. real por ítem con alertas tipo semáforo), generación de PDF con un clic para los clientes, y un dashboard de rentabilidad en vivo al que el dueño accede desde Estados Unidos.',
+      en: 'Full-stack platform that centralizes the entire project lifecycle: role-guided approval flows, real-time cost tracking (budgeted vs. actual per line item with traffic-light alerts), one-click PDF generation for clients, and a live profitability dashboard the owner accesses from the US.',
+    },
+    stack: ['Next.js 16', 'React 19', 'TypeScript', 'Tailwind v4', 'Supabase', 'PWA'],
+  },
+  {
+    problem: {
+      es: 'Una empresa de catering hospitalario que atiende 6 centros y 2 servicios diarios calculaba las cantidades de producción de forma manual — proteínas, porciones, cantidad de bolsas congeladas, variantes dietarias — con riesgo sistemático de error a esa escala.',
+      en: 'A hospital catering company serving 6 centers and 2 daily meal services calculated production quantities manually — proteins, portions, frozen bag counts, dietary variants — with systematic risk of error at that scale.',
+    },
+    solution: {
+      es: 'PWA mobile-first (iOS + Android, sin tienda de aplicaciones) construida en una semana. Calculadora de producción automatizada con factores de merma auto-completados, módulo de dietas blandas, motor de escalado de recetas, registro de producción, y dashboard de analítica con filtrado por cocinero. Acceso de 3 roles gestionado dentro de la app.',
+      en: 'Mobile-first PWA (iOS + Android, no app store) built in one week. Automated production calculator with auto-filled waste factors, a soft-diet module, a recipe-scaling engine, production logging, and an analytics dashboard filterable by cook. 3-role access managed inside the app.',
+    },
+    stack: ['React 18', 'TypeScript', 'Vite', 'Tailwind CSS', 'Supabase', 'vite-plugin-pwa'],
+  },
+  {
+    problem: {
+      es: 'Una academia de inglés que gestionaba ~120 clases mensuales con agendamiento manual (WhatsApp), contenido estático en PDF y sin visibilidad financiera — con dobles reservas crónicas y sin datos sobre la utilización de profesores ni el progreso de los estudiantes.',
+      en: 'An English academy managing ~120 monthly classes with manual scheduling (WhatsApp), static PDF content, and no financial visibility — with chronic double-bookings and no data on teacher utilization or student progress.',
+    },
+    solution: {
+      es: 'PWA full-stack con tres paneles según rol (estudiante, profesor, administrador): agendamiento automatizado de clases 1 a 1 con disponibilidad de profesores en tiempo real y soporte de zona horaria, contenido de lecciones interactivo que reemplaza los PDF, dashboard de ganancias para profesores, y métricas administrativas centralizadas.',
+      en: 'Full-stack PWA with three role-based panels (student, teacher, admin): automated 1-on-1 class scheduling with real-time teacher availability and timezone support, interactive lesson content replacing PDFs, a teacher earnings dashboard, and centralized admin metrics.',
+    },
+    stack: ['Next.js 15', 'TypeScript', 'React Server Components', 'Server Actions', 'PostgreSQL', 'Drizzle ORM', 'Supabase', 'PWA'],
+  },
 ]
 
 const HIGHLIGHTS: { big: { es: string; en: string }; small: { es: string; en: string } }[][] = [
@@ -382,8 +423,8 @@ export function CasosExito() {
           {COPY.hint[locale]}
         </p>
 
-        {/* Scene: device + highlights */}
-        <div ref={sceneRef} className="grid lg:grid-cols-[1fr_180px] gap-5 lg:gap-6 items-center" style={{ perspective: '1500px' }}>
+        {/* Scene: device + explanation */}
+        <div ref={sceneRef} className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8 lg:items-start" style={{ perspective: '1500px' }}>
           <div>
             <div
               data-dev
@@ -417,15 +458,44 @@ export function CasosExito() {
             </div>
           </div>
 
-          {/* Highlights — prominent cards stacked in rows (mobile + desktop) */}
-          <div key={c} className="grid grid-cols-1 gap-2.5 lg:gap-3 mt-1">
-            {HIGHLIGHTS[c].map((h, i) => (
-              <HlCard key={i} big={h.big[locale]} small={h.small[locale]} delay={150 + i * 150} />
-            ))}
+          {/* Explanation: problem, solution, stack, then highlight cards */}
+          <div key={c} className="flex flex-col gap-5 mt-1">
+            <Reveal delay={100}>
+              <p className="font-dm-mono text-[10px] uppercase text-nex-green mb-1.5" style={{ letterSpacing: '.2em' }}>{CASE_LABELS.problem[locale]}</p>
+              <p className="font-jost text-[13px] text-nex-grey leading-relaxed mb-4">{CASE_CONTENT[c].problem[locale]}</p>
+              <p className="font-dm-mono text-[10px] uppercase text-nex-green mb-1.5" style={{ letterSpacing: '.2em' }}>{CASE_LABELS.solution[locale]}</p>
+              <p className="font-jost text-[13px] text-nex-grey leading-relaxed mb-4">{CASE_CONTENT[c].solution[locale]}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {CASE_CONTENT[c].stack.map((tech) => (
+                  <span key={tech} className="font-dm-mono text-[9px] tracking-[0.08em] uppercase px-2 py-[3px] rounded bg-white/[0.04] border border-white/[0.08] text-nex-grey/80">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-1 gap-2.5">
+              {HIGHLIGHTS[c].map((h, i) => (
+                <HlCard key={i} big={h.big[locale]} small={h.small[locale]} delay={250 + i * 150} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function Reveal({ children, delay }: { children: ReactNode; delay: number }) {
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setOn(true), delay)
+    return () => clearTimeout(t)
+  }, [delay])
+  return (
+    <div style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(8px)', transition: 'opacity .5s, transform .5s' }}>
+      {children}
+    </div>
   )
 }
 

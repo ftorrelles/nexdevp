@@ -10,35 +10,33 @@ import type {
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const TIPOS: { value: QuoteTipo; label: string }[] = [
-  { value: 'desarrollo', label: 'Desarrollo' },
+  { value: 'desarrollo', label: 'Software a medida' },
+  { value: 'chatbot',    label: 'Automatización & IA' },
   { value: 'marketing',  label: 'Web & Marketing' },
-  { value: 'chatbot',    label: 'Agentes IA' },
 ]
 
 const ALL_PRODUCTS: { value: string; label: string; icon: string; tipo: QuoteTipo; desc: string }[] = [
-  { value: 'software',       label: 'Software a medida',     icon: '🛠️', tipo: 'desarrollo', desc: 'Sistema de gestión interno a medida' },
-  { value: 'pwa',            label: 'PWA',                   icon: '📱', tipo: 'desarrollo', desc: 'App instalable sin tienda (iOS + Android)' },
-  { value: 'mvp',            label: 'MVP',                   icon: '🚀', tipo: 'desarrollo', desc: 'Primera versión funcional para validar' },
-  { value: 'crm',            label: 'CRM',                   icon: '📊', tipo: 'desarrollo', desc: 'Pipeline de ventas y gestión de leads' },
-  { value: 'ecommerce',      label: 'E-commerce',            icon: '🛒', tipo: 'desarrollo', desc: 'Tienda online con pagos' },
-  { value: 'transformacion', label: 'Transformación digital', icon: '🔄', tipo: 'desarrollo', desc: 'Diagnóstico + roadmap de digitalización' },
-  { value: 'landing',        label: 'Landing page',          icon: '🎯', tipo: 'marketing',  desc: 'Página de conversión con captura de leads' },
-  { value: 'web',            label: 'Web corporativa',       icon: '🌐', tipo: 'marketing',  desc: 'Sitio corporativo multi-página' },
-  { value: 'agente-ia',      label: 'Agente IA WhatsApp',   icon: '💬', tipo: 'chatbot',    desc: 'Bot que contacta, califica y agenda 24/7' },
+  { value: 'app-web',   label: 'Aplicación web a medida', icon: '🛠️', tipo: 'desarrollo', desc: 'Gestión a medida — login, dashboard y PWA incluidos' },
+  { value: 'ecommerce', label: 'E-commerce',              icon: '🛒', tipo: 'desarrollo', desc: 'Tienda online — carrito y pasarela de pago incluidos' },
+  { value: 'app-movil', label: 'App móvil (tiendas)',     icon: '📱', tipo: 'desarrollo', desc: 'App nativa publicada en App Store + Play Store' },
+  { value: 'agente-ia', label: 'Agente IA / Chatbot',     icon: '🤖', tipo: 'chatbot',    desc: 'Responde, califica y agenda 24/7 — 1 canal incluido' },
+  { value: 'crm',       label: 'CRM + ventas',            icon: '📊', tipo: 'chatbot',    desc: 'Pipeline, asignación de leads y notificaciones' },
+  { value: 'landing',   label: 'Landing page',            icon: '🎯', tipo: 'marketing',  desc: 'Página de conversión con captura de leads' },
+  { value: 'web',       label: 'Web corporativa',         icon: '🌐', tipo: 'marketing',  desc: 'Sitio corporativo multi-página' },
+  { value: 'redes',     label: 'Gestión de redes & Ads',  icon: '📣', tipo: 'marketing',  desc: 'Setup de marca y contenido — fee y pauta mensual aparte' },
 ]
 
 // Add-ons por producto — solo extras REALES y opcionales.
 // Lo obvio (login en un software a medida, formulario en una landing) ya viene en la plantilla base.
 const ADDONS_BY_PRODUCT: Record<string, string[]> = {
-  software:       ['Notificaciones email', 'Multi-idioma (i18n)', 'Tiempo real', 'Pasarela de pago', 'PWA / offline', 'Integración WhatsApp API'],
-  pwa:            ['Notificaciones push', 'Tiempo real', 'Multi-idioma (i18n)', 'Pasarela de pago'],
-  mvp:            ['Dashboard / reportes', 'Pasarela de pago', 'Notificaciones email', 'Multi-idioma (i18n)'],
-  crm:            ['Integración WhatsApp API', 'Tiempo real', 'Multi-idioma (i18n)', 'Carga de archivos'],
-  ecommerce:      ['Multi-idioma (i18n)', 'PWA / offline', 'Tiempo real', 'Integración WhatsApp API'],
-  transformacion: ['Dashboard / reportes', 'Integración WhatsApp API', 'Notificaciones email'],
-  landing:        ['Multi-idioma (i18n)', 'Integración WhatsApp API', 'Analytics'],
-  web:            ['Blog / CMS', 'Multi-idioma (i18n)', 'Analytics', 'Integración WhatsApp API'],
-  'agente-ia':    ['Escalado a humano', 'Entrenamiento con docs propios', 'Multicanal (WA + web)', 'Base de conocimiento', 'Multi-idioma (i18n)'],
+  'app-web':   ['Pasarela de pago', 'Integración WhatsApp API', 'Tiempo real', 'PWA / offline', 'Notificaciones push', 'Multi-idioma (i18n)'],
+  ecommerce:   ['Multi-idioma (i18n)', 'Integración WhatsApp API', 'Tiempo real', 'PWA / offline'],
+  'app-movil': ['Pasarela de pago', 'Tiempo real', 'Multi-idioma (i18n)'],
+  'agente-ia': ['Canal adicional: WhatsApp', 'Canal adicional: web', 'Canal adicional: Instagram/Messenger', 'Escalado a humano', 'Entrenamiento con docs propios', 'Base de conocimiento', 'Multi-idioma (i18n)'],
+  crm:         ['Integración WhatsApp API', 'Tiempo real', 'Carga de archivos', 'Multi-idioma (i18n)'],
+  landing:     ['Multi-idioma (i18n)', 'Integración WhatsApp API', 'Analytics'],
+  web:         ['Blog / CMS', 'Multi-idioma (i18n)', 'Analytics', 'Integración WhatsApp API'],
+  redes:       ['Analytics'],
 }
 
 // Cada add-on suma horas reales al presupuesto como línea propia.
@@ -58,7 +56,9 @@ const ADDON_ITEMS: Record<string, { name: string; size: QuoteSize }> = {
   'Pasarela de pago':               { name: 'Pasarela de pago',                           size: 'L' },
   'PWA / offline':                  { name: 'PWA / funcionalidad offline-first',          size: 'L' },
   'Integración WhatsApp API':       { name: 'Integración WhatsApp Business API',          size: 'L' },
-  'Multicanal (WA + web)':          { name: 'Multicanal (WhatsApp + widget web)',         size: 'L' },
+  'Canal adicional: WhatsApp':      { name: 'Canal adicional: WhatsApp Business API',     size: 'L' },
+  'Canal adicional: web':           { name: 'Canal adicional: widget web',                size: 'L' },
+  'Canal adicional: Instagram/Messenger': { name: 'Canal adicional: Instagram / Messenger', size: 'L' },
 }
 
 const BUNDLE_DISCOUNT = 0.10 // 10% cuando se seleccionan 2+ productos
@@ -98,6 +98,8 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const [products, setProducts] = useState<string[]>([])
   const [addons,   setAddons]   = useState<string[]>([])
   const [region,   setRegion]   = useState<QuoteRegion>('españa')
+  // Scope for "Aplicación web a medida": MVP loads a trimmed template
+  const [appScope, setAppScope] = useState<'full' | 'mvp'>('full')
 
   // Template data
   const [settings,    setSettings]    = useState<PricingSettings[]>([])
@@ -132,6 +134,23 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
     new Set(products.flatMap(p => ADDONS_BY_PRODUCT[p] ?? []))
   )
 
+  // Estimated recurring costs the CLIENT pays directly to providers (informational only)
+  const recurringCosts: { label: string; value: string }[] = []
+  if (products.some(p => ['app-web', 'ecommerce', 'app-movil', 'crm', 'landing', 'web'].includes(p))) {
+    recurringCosts.push({ label: 'Hosting e infraestructura (Vercel / Supabase)', value: '$0–45/mes según tráfico' })
+  }
+  if (products.includes('agente-ia')) {
+    recurringCosts.push({ label: 'API de IA (Groq / OpenAI / Anthropic)', value: '~$10–50/mes según conversaciones' })
+    recurringCosts.push({ label: 'WhatsApp Business API (Meta) — si usa ese canal', value: '~$20–80/mes según volumen' })
+  }
+  if (products.includes('app-movil')) {
+    recurringCosts.push({ label: 'Cuentas de desarrollador (Apple + Google)', value: '$99/año + $25 pago único' })
+  }
+  if (products.includes('redes')) {
+    recurringCosts.push({ label: 'Pauta publicitaria (Meta / Google Ads)', value: 'mín. $300/mes — recomendado $500–1.500/mes' })
+    recurringCosts.push({ label: 'Gestión mensual de contenido (nexdevp)', value: 'se cotiza aparte según paquete' })
+  }
+
   // ── Load template for a single product ──────────────────────────────────────
   const fetchTemplate = useCallback(async (tipo: string, product: string): Promise<TemplateResponse> => {
     const res = await fetch(`/api/cotizador/template?tipo=${tipo}&product=${product}`)
@@ -150,7 +169,8 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
         const results = await Promise.all(
           products.map(p => {
             const t = ALL_PRODUCTS.find(ap => ap.value === p)?.tipo ?? tipo ?? 'desarrollo'
-            return fetchTemplate(t, p)
+            const param = p === 'app-web' && appScope === 'mvp' ? 'app-web-mvp' : p
+            return fetchTemplate(t, param)
           })
         )
 
@@ -215,7 +235,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
 
     load()
     return () => { cancelled = true }
-  }, [products, addons, tipo, fetchTemplate])
+  }, [products, addons, appScope, tipo, fetchTemplate])
 
   useEffect(() => { setCustomRate(null) }, [region])
 
@@ -427,6 +447,32 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                 })}
               </div>
             </div>
+
+            {/* Scope selector for custom web app */}
+            {products.includes('app-web') && (
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-nex-black/40 border border-white/10 rounded-xl px-4 py-3">
+                <span className="font-jost text-xs text-nex-grey shrink-0">Alcance de la aplicación:</span>
+                <div className="flex gap-2">
+                  {([
+                    { value: 'mvp',  label: 'MVP — validar la idea' },
+                    { value: 'full', label: 'Completa — todos los módulos' },
+                  ] as const).map(s => (
+                    <button
+                      key={s.value}
+                      onClick={() => setAppScope(s.value)}
+                      className={[
+                        'px-3 py-1.5 rounded-lg border text-xs font-jost transition-all',
+                        appScope === s.value
+                          ? 'border-nex-green bg-nex-green/10 text-nex-green'
+                          : 'border-white/10 text-nex-grey hover:border-white/25',
+                      ].join(' ')}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Cross-tipo products */}
             <div>
@@ -741,6 +787,26 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                         <span key={a} className="font-jost text-xs px-3 py-1 rounded-full border border-nex-green/30 bg-nex-green/5 text-nex-green">
                           {a}
                         </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recurring costs the client pays directly to providers */}
+                {recurringCosts.length > 0 && (
+                  <div className="bg-nex-black/40 border border-white/5 rounded-xl p-4">
+                    <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-1">
+                      Costos recurrentes estimados del cliente
+                    </h3>
+                    <p className="font-jost text-[11px] text-nex-grey mb-3">
+                      Informativo — no forma parte del presupuesto. Montos en USD, el cliente los paga directo al proveedor.
+                    </p>
+                    <div className="space-y-2">
+                      {recurringCosts.map(r => (
+                        <div key={r.label} className="flex flex-col sm:flex-row sm:justify-between gap-0.5 font-jost text-sm">
+                          <span className="text-nex-grey">{r.label}</span>
+                          <span className="text-nex-white font-dm-mono text-xs sm:text-sm shrink-0">{r.value}</span>
+                        </div>
                       ))}
                     </div>
                   </div>

@@ -72,22 +72,12 @@ export async function PATCH(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
+  if (role === 'vendor') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { id } = await params
   const client = createServiceClient()
-
-  // Verify access: vendor must own the lead
-  if (role === 'vendor') {
-    const { data: project } = await client
-      .from('projects')
-      .select('id, leads!inner(assigned_to)')
-      .eq('id', id)
-      .eq('leads.assigned_to', user.id)
-      .maybeSingle()
-
-    if (!project) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
-  }
 
   try {
     const body = await req.json()

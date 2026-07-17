@@ -26,7 +26,7 @@ export async function PATCH(
   const forbidden = requireOwnerSupervisor(role)
   if (forbidden) return forbidden
 
-  const { did } = await params
+  const { id, did } = await params
   const client = createServiceClient()
 
   try {
@@ -47,6 +47,7 @@ export async function PATCH(
       .from('project_deliverables')
       .update({ ...allowed, updated_at: new Date().toISOString() })
       .eq('id', did)
+      .eq('project_id', id)
 
     if (error) {
       console.error('Deliverable PATCH error:', error)
@@ -71,13 +72,14 @@ export async function DELETE(
   const forbidden = requireOwnerSupervisor(role)
   if (forbidden) return forbidden
 
-  const { did } = await params
+  const { id, did } = await params
   const client = createServiceClient()
 
   const { error } = await client
     .from('project_deliverables')
     .delete()
     .eq('id', did)
+    .eq('project_id', id)
 
   if (error) {
     console.error('Deliverable DELETE error:', error)

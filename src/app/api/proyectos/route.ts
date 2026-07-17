@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
     if (quote) {
       const { data: items } = await client
         .from('quote_items')
-        .select('name, hours, sort_order')
+        .select('id, name, hours, sort_order')
         .eq('quote_id', quote.id)
         .order('sort_order', { ascending: true })
 
@@ -126,6 +126,7 @@ export async function POST(req: NextRequest) {
           name: item.name,
           hours: item.hours,
           sort_order: item.sort_order,
+          seeded_from_quote_item_id: item.id,
         }))
 
         const { error: delErr } = await client

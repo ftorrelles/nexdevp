@@ -1,8 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { UserRole } from '@/lib/supabase'
+
+interface CommentData {
+  id: string
+  body: string
+  kind: string
+  author_role: string
+  created_at: string
+}
 
 interface ProjectData {
   id: string
@@ -67,6 +75,16 @@ const STATUS_COLORS: Record<string, string> = {
   pausado: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   entregado: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
   cerrado: 'text-nex-grey bg-white/5 border-white/20',
+}
+
+function formatCommentDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString('es-AR', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    })
+  } catch {
+    return iso
+  }
 }
 
 function ProgressBar({ pct }: { pct: number }) {
@@ -165,6 +183,57 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
       setAdding(false)
     }
   }
+
+  const [openComments, setOpenComments] = useState<Record<string, boolean>>({})
+  const [commentsData, setCommentsData] = useState<Record<string, CommentData[]>>({})
+  const [commentBodies, setCommentBodies] = useState<Record<string, string>>({})
+  const [postingComment, setPostingComment] = useState<string | null>(null)
+
+  async function fetchComments(deliverableId: string) {
+    if (commentsData[deliverableId]) return
+    try {
+      const res = await fetch(`/api/proyectos/${project.id}/deliverables/${deliverableId}/comments`)
+      if (res.ok) {
+        const data: CommentData[] = await res.json()
+        setCommentsData((prev) => ({ ...prev, [deliverableId]: data }))
+      }
+    } catch {
+      // silent
+    }
+  }
+
+  async function postComment(deliverableId: string) {
+    const body = commentBodies[deliverableId]
+    if (!body?.trim()) return
+    setPostingComment(deliverableId)
+    try {
+      const res = await fetch(`/api/proyectos/${project.id}/deliverables/${deliverableId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body, kind: 'comentario' }),
+      })
+      if (res.ok) {
+        const created = await res.json()
+        setCommentsData((prev) => ({
+          ...prev,
+          [deliverableId]: [...(prev[deliverableId] ?? []), created],
+        }))
+        setCommentBodies((prev) => ({ ...prev, [deliverableId]: '' }))
+      }
+    } finally {
+      setPostingComment(null)
+    }
+  }
+
+  const toggleComments = useCallback(async (deliverableId: string) => {
+    setOpenComments((prev) => {
+      const next = { ...prev, [deliverableId]: !prev[deliverableId] }
+      return next
+    })
+    if (!commentsData[deliverableId]) {
+      await fetchComments(deliverableId)
+    }
+  }, [project.id, commentsData])
 
   const [inviting, setInviting] = useState(false)
   const [inviteMsg, setInviteMsg] = useState<string | null>(null)
@@ -290,62 +359,113 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
         ) : (
           <div className="space-y-2">
             {deliverables.map((d) => (
-              <div key={d.id} className="flex items-center gap-3 bg-nex-black rounded-lg px-4 py-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-jost text-sm text-nex-white truncate">{d.name}</p>
-                </div>
-                <span className="font-dm-mono text-xs text-nex-grey shrink-0 w-10 text-right">{d.hours}h</span>
-
-                {/* Status dropdown (editable for owner/supervisor) */}
-                {isEditable ? (
-                  <select
-                    value={d.status}
-                    disabled={saving === d.id}
-                    onChange={(e) => updateDeliverable(d.id, 'status', e.target.value)}
-                    className={[
-                      'font-dm-mono text-[10px] tracking-[0.1em] uppercase rounded px-2 py-1 border outline-none cursor-pointer disabled:opacity-50 shrink-0',
-                      DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
-                    ].join(' ')}
-                  >
-                    {DELIVERABLE_STATUS_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt} className="bg-nex-dark text-nex-white">
-                        {DELIVERABLE_STATUS_LABELS[opt]}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className={[
-                    'font-dm-mono text-[10px] uppercase tracking-wider rounded-full border px-2 py-0.5 shrink-0',
-                    DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
-                  ].join(' ')}>
-                    {DELIVERABLE_STATUS_LABELS[d.status] ?? d.status}
-                  </span>
-                )}
-
-                {/* Assigned to — owner/supervisor only */}
-                {isEditable && (
-                  <select
-                    value={d.assigned_to ?? ''}
-                    disabled={saving === d.id}
-                    onChange={(e) => updateDeliverable(d.id, 'assigned_to', e.target.value || null)}
-                    className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-white/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-white/30 transition-colors disabled:opacity-50 shrink-0 max-w-[140px]"
-                  >
-                    <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
-                    {vendorUsers.map((u) => (
-                      <option key={u.id} value={u.id} className="bg-nex-dark text-nex-white">{u.email}</option>
-                    ))}
-                  </select>
-                )}
-
-                {/* Delete — owner/supervisor only */}
-                {isEditable && (
+              <div key={d.id} className="bg-nex-black rounded-lg border border-white/5 overflow-hidden">
+                {/* Header row */}
+                <div className="flex items-center gap-3 px-4 py-3">
                   <button
-                    onClick={() => deleteDeliverable(d.id)}
-                    disabled={saving === d.id}
-                    className="font-jost text-xs text-nex-grey hover:text-red-400 transition-colors shrink-0 disabled:opacity-40"
+                    onClick={() => toggleComments(d.id)}
+                    className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey hover:text-nex-green transition-colors shrink-0"
                   >
-                    ✕
+                    {openComments[d.id] ? '▼' : '▶'}
                   </button>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-jost text-sm text-nex-white truncate">{d.name}</p>
+                  </div>
+                  <span className="font-dm-mono text-xs text-nex-grey shrink-0 w-10 text-right">{d.hours}h</span>
+
+                  {isEditable ? (
+                    <select
+                      value={d.status}
+                      disabled={saving === d.id}
+                      onChange={(e) => updateDeliverable(d.id, 'status', e.target.value)}
+                      className={[
+                        'font-dm-mono text-[10px] tracking-[0.1em] uppercase rounded px-2 py-1 border outline-none cursor-pointer disabled:opacity-50 shrink-0',
+                        DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
+                      ].join(' ')}
+                    >
+                      {DELIVERABLE_STATUS_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt} className="bg-nex-dark text-nex-white">
+                          {DELIVERABLE_STATUS_LABELS[opt]}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className={[
+                      'font-dm-mono text-[10px] uppercase tracking-wider rounded-full border px-2 py-0.5 shrink-0',
+                      DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
+                    ].join(' ')}>
+                      {DELIVERABLE_STATUS_LABELS[d.status] ?? d.status}
+                    </span>
+                  )}
+
+                  {isEditable && (
+                    <select
+                      value={d.assigned_to ?? ''}
+                      disabled={saving === d.id}
+                      onChange={(e) => updateDeliverable(d.id, 'assigned_to', e.target.value || null)}
+                      className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-white/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-white/30 transition-colors disabled:opacity-50 shrink-0 max-w-[140px]"
+                    >
+                      <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
+                      {vendorUsers.map((u) => (
+                        <option key={u.id} value={u.id} className="bg-nex-dark text-nex-white">{u.email}</option>
+                      ))}
+                    </select>
+                  )}
+
+                  {isEditable && (
+                    <button
+                      onClick={() => deleteDeliverable(d.id)}
+                      disabled={saving === d.id}
+                      className="font-jost text-xs text-nex-grey hover:text-red-400 transition-colors shrink-0 disabled:opacity-40"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Collapsible comments section */}
+                {openComments[d.id] && (
+                  <div className="border-t border-white/5 px-4 py-3 space-y-3">
+                    {(commentsData[d.id] ?? []).length === 0 ? (
+                      <p className="font-jost text-xs text-nex-grey italic">Sin comentarios.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {(commentsData[d.id] ?? []).map((c) => (
+                          <div key={c.id} className="bg-nex-dark rounded px-3 py-2">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-green">
+                                {c.author_role === 'client' ? 'Cliente' : c.author_role}
+                              </span>
+                              <span className="font-dm-mono text-[9px] text-nex-grey ml-auto">
+                                {formatCommentDate(c.created_at)}
+                              </span>
+                            </div>
+                            <p className="font-jost text-sm text-nex-white">{c.body}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {isEditable && (
+                      <div className="flex items-start gap-2">
+                        <input
+                          type="text"
+                          value={commentBodies[d.id] ?? ''}
+                          onChange={(e) => setCommentBodies((prev) => ({ ...prev, [d.id]: e.target.value }))}
+                          placeholder="Escribí un comentario…"
+                          className="flex-1 bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                          onKeyDown={(e) => { if (e.key === 'Enter') postComment(d.id) }}
+                        />
+                        <button
+                          onClick={() => postComment(d.id)}
+                          disabled={postingComment === d.id || !(commentBodies[d.id] ?? '').trim()}
+                          className="font-jost font-bold text-sm bg-nex-green text-nex-black px-4 py-2 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors shrink-0"
+                        >
+                          {postingComment === d.id ? '…' : 'Enviar'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

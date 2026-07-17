@@ -23,7 +23,7 @@ describe('computeProgressPct', () => {
   })
 
   it('calculates partial weighted progress correctly', () => {
-    // 40h done (aprobado) out of 100h total → 40%
+    // 50h done (aprobado) out of 100h total → 50%
     const items = [
       { hours: 20, status: 'aprobado' },
       { hours: 30, status: 'en_curso' },

@@ -70,10 +70,21 @@ do $$ begin
       );
   end if;
 
-  -- project_deliverables: staff select (owner/supervisor/vendor)
+  -- project_deliverables: staff select (owner/supervisor all; vendor scoped to assigned leads)
   if not exists (select 1 from pg_policies where tablename='project_deliverables' and policyname='staff_select') then
     create policy staff_select on public.project_deliverables
-      for select using (auth.jwt() -> 'app_metadata' ->> 'role' in ('owner','supervisor','vendor'));
+      for select using (
+        auth.jwt() -> 'app_metadata' ->> 'role' in ('owner','supervisor')
+        or (
+          auth.jwt() -> 'app_metadata' ->> 'role' = 'vendor'
+          and exists (
+            select 1 from public.projects p
+            join public.leads l on l.id = p.lead_id
+            where p.id = project_deliverables.project_id
+            and l.assigned_to = auth.uid()
+          )
+        )
+      );
   end if;
 
   -- project_deliverables: client select (own project only; Slice 2+)

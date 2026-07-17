@@ -12,6 +12,7 @@ create table if not exists public.projects (
                 check (status in ('activo','pausado','entregado','cerrado')),
   vercel_url  text,
   client_user_id uuid references auth.users(id) on delete set null,
+  client_email text,
   created_by  uuid references auth.users(id),
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()

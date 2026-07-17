@@ -33,8 +33,12 @@ export default function AdminLoginPage() {
         return
       }
 
-      // Applicants are not staff — send them to their portal.
-      router.push(data.role === 'applicant' ? '/careers/portal' : '/admin')
+      // Applicants go to careers portal; clients go to project portal; staff go to CRM.
+      router.push(
+        data.role === 'applicant' ? '/careers/portal'
+        : data.role === 'client'  ? '/proyecto'
+        : '/admin'
+      )
       router.refresh()
     } catch {
       setError('Error de conexión')

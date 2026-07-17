@@ -26,6 +26,8 @@ interface Props {
   project: ProjectData
   role: UserRole
   vendorUsers: { id: string; email: string }[]
+  clientEmail: string | null
+  leadEmail: string | null
 }
 
 const STATUS_OPTIONS = ['activo', 'pausado', 'entregado', 'cerrado']
@@ -80,7 +82,7 @@ function ProgressBar({ pct }: { pct: number }) {
   )
 }
 
-export function ProjectEditor({ project: initial, role, vendorUsers }: Props) {
+export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail, leadEmail }: Props) {
   const router = useRouter()
   const [project, setProject] = useState(initial)
   const [deliverables, setDeliverables] = useState(initial.deliverables)
@@ -161,6 +163,29 @@ export function ProjectEditor({ project: initial, role, vendorUsers }: Props) {
       }
     } finally {
       setAdding(false)
+    }
+  }
+
+  const [inviting, setInviting] = useState(false)
+  const [inviteMsg, setInviteMsg] = useState<string | null>(null)
+  const [invitedEmail, setInvitedEmail] = useState<string | null>(null)
+
+  async function inviteClient() {
+    setInviting(true)
+    setInviteMsg(null)
+    try {
+      const res = await fetch(`/api/proyectos/${project.id}/invite-client`, { method: 'POST' })
+      const body = await res.json()
+      if (res.ok) {
+        setInvitedEmail(body.email)
+        setInviteMsg('Invitación enviada correctamente.')
+      } else {
+        setInviteMsg(body.error ?? 'Error al enviar invitación.')
+      }
+    } catch {
+      setInviteMsg('Error de conexión.')
+    } finally {
+      setInviting(false)
     }
   }
 
@@ -359,6 +384,48 @@ export function ProjectEditor({ project: initial, role, vendorUsers }: Props) {
           </div>
         )}
       </div>
+
+      {/* Invite client — owner/supervisor only */}
+      {isEditable && (
+        <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+          <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-4">
+            Cliente
+          </p>
+
+          <div className="space-y-3">
+            {(invitedEmail ?? clientEmail) ? (
+              <p className="font-jost text-sm text-nex-white">
+                Usuario invitado:{' '}
+                <span className="text-nex-green">{invitedEmail ?? clientEmail}</span>
+              </p>
+            ) : leadEmail ? (
+              <p className="font-jost text-sm text-nex-grey">
+                Cliente sin acceso:{' '}
+                <span className="text-nex-white">{leadEmail}</span>
+              </p>
+            ) : (
+              <p className="font-jost text-sm text-nex-grey italic">
+                El lead no tiene email registrado.
+              </p>
+            )}
+
+            {leadEmail && (
+              <div>
+                <button
+                  onClick={inviteClient}
+                  disabled={inviting}
+                  className="font-jost font-bold text-sm bg-nex-green text-nex-black px-4 py-2 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors"
+                >
+                  {inviting ? '…' : (clientEmail ? 'Re-enviar invitación' : 'Invitar cliente')}
+                </button>
+                {inviteMsg && (
+                  <p className="font-jost text-xs text-nex-grey mt-2">{inviteMsg}</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

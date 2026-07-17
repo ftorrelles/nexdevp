@@ -4,6 +4,7 @@ import { createAuthServerClient } from '@/lib/supabase-server'
 import { computeProgressPct } from '@/lib/projects'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
+import { DeliverableThread } from './DeliverableThread'
 
 type Props = {
   params: Promise<{ locale: string; id: string }>
@@ -46,6 +47,9 @@ const DELIVERABLE_STATUS_COLORS: Record<string, string> = {
   cambios_solicitados: 'text-red-400 bg-red-400/10 border-red-400/30',
 }
 
+type DeliverableRow = { id: string; name: string; status: string; sort_order: number }
+type CommentRow = { id: string; body: string; kind: string; author_role: string; created_at: string; deliverable_id: string }
+
 export default async function ProyectoDetailPage({ params }: Props): Promise<React.JSX.Element> {
   const { locale, id } = await params
   const loc = locale as Locale
@@ -56,7 +60,6 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   if (!user) redirect('/admin/login')
   if (user.app_metadata?.role !== 'client') redirect('/admin')
 
-  // Fetch project with deliverables (no assigned_to, no hours in rendered output)
   const { data: project } = await auth
     .from('projects')
     .select('id, name, status, vercel_url, project_deliverables(id, name, status, sort_order)')
@@ -66,7 +69,6 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
 
   if (!project) notFound()
 
-  // Fetch hours separately for progress computation only
   const { data: progressData } = await auth
     .from('project_deliverables')
     .select('hours, status')
@@ -75,13 +77,29 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   const pct = computeProgressPct(progressData ?? [])
   const progressColor = pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
 
-  type DeliverableRow = { id: string; name: string; status: string; sort_order: number }
   const deliverables = ((project.project_deliverables as DeliverableRow[] | undefined) ?? [])
     .sort((a: DeliverableRow, b: DeliverableRow) => a.sort_order - b.sort_order)
 
+  // Pre-fetch comments for all deliverables
+  const deliverableIds = deliverables.map((d) => d.id)
+  let commentsByDeliverable: Record<string, CommentRow[]> = {}
+  if (deliverableIds.length > 0) {
+    const { data: allComments } = await auth
+      .from('deliverable_comments')
+      .select('id, body, kind, author_role, created_at, deliverable_id')
+      .in('deliverable_id', deliverableIds)
+      .order('created_at', { ascending: true })
+
+    for (const c of (allComments as CommentRow[] | null) ?? []) {
+      if (!commentsByDeliverable[c.deliverable_id]) {
+        commentsByDeliverable[c.deliverable_id] = []
+      }
+      commentsByDeliverable[c.deliverable_id].push(c)
+    }
+  }
+
   return (
     <main className="px-4 sm:px-6 py-10 max-w-3xl mx-auto">
-      {/* Back link */}
       <Link
         href="/proyecto"
         className="inline-flex items-center gap-2 font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey hover:text-nex-white transition-colors mb-8"
@@ -92,7 +110,6 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
         {loc === 'es' ? '← Volver a proyectos' : '← Back to projects'}
       </Link>
 
-      {/* Project header */}
       <div className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-6">
         <div className="flex items-center justify-between gap-4">
           <h1 className="font-jost font-bold text-2xl text-nex-white">{project.name}</h1>
@@ -104,7 +121,6 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
           </span>
         </div>
 
-        {/* Progress bar */}
         <div>
           <p className="font-dm-mono text-[10px] uppercase tracking-[0.1em] text-nex-grey mb-2">
             {loc === 'es' ? 'Progreso general' : 'Overall progress'}
@@ -117,7 +133,6 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
           </div>
         </div>
 
-        {/* Vercel link */}
         {project.vercel_url && (
           <a
             href={project.vercel_url}
@@ -130,7 +145,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
         )}
       </div>
 
-      {/* Deliverables */}
+      {/* Deliverables with threads */}
       <div className="bg-nex-dark border border-white/10 rounded-xl p-6 mt-6">
         <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-4">
           {loc === 'es' ? 'Entregables' : 'Deliverables'}
@@ -143,19 +158,30 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
               : 'No deliverables have been added yet.'}
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {deliverables.map((d: DeliverableRow) => (
               <div
                 key={d.id}
-                className="flex items-center justify-between gap-4 bg-nex-black rounded-lg px-4 py-3"
+                className="bg-nex-black rounded-xl border border-white/10 overflow-hidden"
               >
-                <p className="font-jost text-sm text-nex-white">{d.name}</p>
-                <span className={[
-                  'font-dm-mono text-[10px] uppercase tracking-wider rounded-full border px-2.5 py-0.5 shrink-0',
-                  DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
-                ].join(' ')}>
-                  {DELIVERABLE_STATUS_LABELS[loc][d.status] ?? d.status}
-                </span>
+                {/* Header row */}
+                <div className="flex items-center justify-between gap-4 px-4 py-3">
+                  <p className="font-jost text-sm text-nex-white">{d.name}</p>
+                  <span className={[
+                    'font-dm-mono text-[10px] uppercase tracking-wider rounded-full border px-2.5 py-0.5 shrink-0',
+                    DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
+                  ].join(' ')}>
+                    {DELIVERABLE_STATUS_LABELS[loc][d.status] ?? d.status}
+                  </span>
+                </div>
+
+                {/* Comment thread */}
+                <DeliverableThread
+                  deliverable={d}
+                  projectId={id}
+                  initialComments={commentsByDeliverable[d.id] ?? []}
+                  locale={loc}
+                />
               </div>
             ))}
           </div>

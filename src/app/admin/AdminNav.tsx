@@ -24,6 +24,7 @@ export function AdminNav({ role, currentPath }: Props) {
     { href: '/admin', label: 'Leads' },
     ...((role === 'owner' || role === 'supervisor') ? [{ href: '/admin/applicants', label: 'Applicants' }] : []),
     { href: '/admin/cotizador', label: 'Cotizador' },
+    ...(['owner', 'supervisor', 'vendor'].includes(role) ? [{ href: '/admin/proyectos', label: 'Proyectos' }] : []),
     ...(['owner', 'supervisor', 'vendor'].includes(role) ? [{ href: '/admin/comisiones', label: 'Comisiones' }] : []),
     ...(role === 'owner' ? [{ href: '/admin/users', label: 'Usuarios' }] : []),
     { href: '/admin/profile', label: 'Mi cuenta' },

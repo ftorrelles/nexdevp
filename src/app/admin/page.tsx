@@ -30,12 +30,19 @@ export default async function AdminPage() {
     }))
   }
 
+  // Fetch existing projects to know which leads already have projects
+  const { data: existingProjects } = await client
+    .from('projects')
+    .select('lead_id')
+  const projectLeadIds = new Set(existingProjects?.map((p) => p.lead_id) ?? [])
+
   return (
     <AdminCRM
       leads={(leads as Lead[]) ?? []}
       role={role}
       currentUserId={user.id}
       vendorUsers={vendorUsers}
+      projectLeadIds={projectLeadIds}
     />
   )
 }

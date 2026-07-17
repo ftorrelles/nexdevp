@@ -33,6 +33,10 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const kind = bodyJson.kind as string
   const body = bodyJson.body as string | undefined
 
+  if (role === 'developer' && kind !== 'comentario') {
+    return NextResponse.json({ error: 'Developer can only post kind=comentario' }, { status: 403 })
+  }
+
   if (!body || !body.trim()) {
     return NextResponse.json({ error: 'body is required' }, { status: 422 })
   }

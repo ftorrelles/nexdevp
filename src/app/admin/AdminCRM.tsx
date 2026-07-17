@@ -46,9 +46,10 @@ interface Props {
   role: UserRole
   currentUserId: string
   vendorUsers: AdminUser[]
+  projectLeadIds?: Set<string>
 }
 
-export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
+export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadIds }: Props) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [filter, setFilter] = useState<EstadoFilter>('todos')
   const [updating, setUpdating] = useState<string | null>(null)
@@ -455,6 +456,32 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers }: Props) {
                               {lead.mensaje || <span className="italic opacity-50">Sin mensaje</span>}
                             </p>
                             <LeadQuotes leadId={lead.id!} />
+                            {lead.estado === 'cerrado' &&
+                             !projectLeadIds?.has(lead.id!) &&
+                             canSeeAll && (
+                              <div className="mt-4 pt-4 border-t border-white/5">
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation()
+                                    const res = await fetch('/api/proyectos', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ lead_id: lead.id! }),
+                                    })
+                                    if (res.ok) {
+                                      const { id } = await res.json()
+                                      window.location.href = `/admin/proyectos/${id}`
+                                    } else {
+                                      const err = await res.json()
+                                      alert(err.error ?? 'Error al convertir')
+                                    }
+                                  }}
+                                  className="font-jost text-sm font-bold bg-nex-green text-nex-black px-5 py-2 rounded-lg hover:bg-nex-green/90 transition-colors"
+                                >
+                                  + Convertir en proyecto
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       )}

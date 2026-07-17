@@ -30,7 +30,7 @@ export interface Lead {
 // 'applicant' is the self-registered job candidate role. Staff roles
 // (owner/supervisor/vendor) are assigned only by an owner. An applicant
 // becomes a vendor when hired (see the "Contratar" action).
-export type UserRole = 'owner' | 'supervisor' | 'vendor' | 'applicant'
+export type UserRole = 'owner' | 'supervisor' | 'vendor' | 'applicant' | 'client'
 
 // Roles an owner can assign manually from the CRM user manager.
 export const STAFF_ROLES: UserRole[] = ['owner', 'supervisor', 'vendor']
@@ -59,6 +59,33 @@ export interface Career {
   responsibilities_en?: string
   active?: boolean
   created_at?: string
+}
+
+export interface Project {
+  id?: string
+  lead_id: string
+  quote_id?: string | null
+  name: string
+  status?: 'activo' | 'pausado' | 'entregado' | 'cerrado'
+  vercel_url?: string | null
+  client_user_id?: string | null
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+  deliverables?: ProjectDeliverable[]
+}
+
+export interface ProjectDeliverable {
+  id?: string
+  project_id: string
+  name: string
+  hours?: number
+  status?: 'pendiente' | 'en_curso' | 'en_revision' | 'aprobado' | 'cambios_solicitados'
+  assigned_to?: string | null
+  seeded_from_quote_item_id?: string | null
+  sort_order?: number
+  created_at?: string
+  updated_at?: string
 }
 
 export interface CareerApplication {

@@ -6,6 +6,8 @@ import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import { DeliverableThread } from './DeliverableThread'
 
+type BriefSummary = { id: string; status: string } | null
+
 type Props = {
   params: Promise<{ locale: string; id: string }>
 }
@@ -77,6 +79,14 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   const pct = computeProgressPct(progressData ?? [])
   const progressColor = pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
 
+  const { data: briefData } = await auth
+    .from('project_briefs')
+    .select('id, status')
+    .eq('project_id', id)
+    .maybeSingle()
+
+  const brief = briefData as BriefSummary
+
   const deliverables = ((project.project_deliverables as DeliverableRow[] | undefined) ?? [])
     .sort((a: DeliverableRow, b: DeliverableRow) => a.sort_order - b.sort_order)
 
@@ -132,6 +142,51 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
             <span className="font-jost font-bold text-lg text-nex-white">{pct}%</span>
           </div>
         </div>
+
+        {/* Brief status — shown when sent or completed */}
+        {brief?.status === 'sent' && (
+          <Link
+            href={`/proyecto/${id}/brief`}
+            className="block bg-nex-green/10 border border-nex-green/30 rounded-xl p-4 hover:bg-nex-green/15 transition-colors"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-dm-mono text-[10px] uppercase tracking-[0.15em] text-nex-green mb-0.5">Brief</p>
+                <p className="font-jost font-semibold text-sm text-nex-white">
+                  {loc === 'es' ? 'Tenés un brief pendiente' : 'You have a pending brief'}
+                </p>
+                <p className="font-jost text-xs text-nex-grey mt-0.5">
+                  {loc === 'es'
+                    ? 'Completá el brief para que podamos avanzar con tu proyecto.'
+                    : 'Complete the brief so we can move forward with your project.'}
+                </p>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green shrink-0" aria-hidden="true">
+                <path d="M4 8h8M9 5l3 3-3 3" />
+              </svg>
+            </div>
+          </Link>
+        )}
+
+        {brief?.status === 'completed' && (
+          <Link
+            href={`/proyecto/${id}/brief`}
+            className="block bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition-colors"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-dm-mono text-[10px] uppercase tracking-[0.15em] text-nex-grey mb-0.5">Brief</p>
+                <p className="font-jost font-semibold text-sm text-nex-white flex items-center gap-2">
+                  <span className="text-nex-green">✓</span>
+                  {loc === 'es' ? 'Brief completado' : 'Brief submitted'}
+                </p>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-nex-grey shrink-0" aria-hidden="true">
+                <path d="M4 8h8M9 5l3 3-3 3" />
+              </svg>
+            </div>
+          </Link>
+        )}
 
         {project.vercel_url && (
           <a

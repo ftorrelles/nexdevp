@@ -22,7 +22,7 @@ export default async function ProyectoDetailPage({
 
   let query = client
     .from('projects')
-    .select('*, leads!inner(id, nombre, assigned_to)')
+    .select('*, leads!inner(id, nombre, assigned_to, email)')
     .eq('id', id)
 
   if (role === 'vendor') {
@@ -73,7 +73,13 @@ export default async function ProyectoDetailPage({
     <div className="min-h-screen bg-nex-black text-nex-white">
       <AdminNav role={role} currentPath="/admin/proyectos" />
       <main className="px-4 sm:px-6 py-10 max-w-4xl mx-auto">
-        <ProjectEditor project={projectData} role={role} vendorUsers={vendorUsers} />
+        <ProjectEditor
+          project={projectData}
+          role={role}
+          vendorUsers={vendorUsers}
+          clientEmail={project.client_email as string | null}
+          leadEmail={(project as unknown as { leads: { email: string | null } }).leads?.email ?? null}
+        />
       </main>
     </div>
   )

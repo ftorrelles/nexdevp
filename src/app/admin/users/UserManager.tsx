@@ -8,6 +8,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   supervisor: 'Supervisor',
   vendor: 'Vendedor',
   applicant: 'Postulante',
+  client: 'Cliente',
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -15,6 +16,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   supervisor: 'text-yellow-400 bg-yellow-400/10',
   vendor: 'text-blue-400 bg-blue-400/10',
   applicant: 'text-nex-grey bg-white/10',
+  client: 'text-purple-400 bg-purple-400/10',
 }
 
 // Only staff roles can be assigned manually; applicants come from self-registration.

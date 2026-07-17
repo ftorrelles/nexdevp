@@ -131,7 +131,7 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
       {isTerminal && (
         <div className="bg-nex-black/50 rounded-lg px-4 py-3">
           <p className="font-jost text-sm text-nex-white">
-            {STATUS_BANNERS[loc][deliverable.status] ?? deliverable.status}
+            {STATUS_BANNERS[loc][currentStatus] ?? currentStatus}
           </p>
         </div>
       )}

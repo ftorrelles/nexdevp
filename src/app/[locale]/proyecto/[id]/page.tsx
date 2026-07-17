@@ -76,7 +76,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   const progressColor = pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
 
   type DeliverableRow = { id: string; name: string; status: string; sort_order: number }
-  const deliverables = (project.project_deliverables as DeliverableRow[] | undefined) ?? []
+  const deliverables = ((project.project_deliverables as DeliverableRow[] | undefined) ?? [])
     .sort((a: DeliverableRow, b: DeliverableRow) => a.sort_order - b.sort_order)
 
   return (

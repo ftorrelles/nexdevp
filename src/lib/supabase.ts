@@ -28,12 +28,12 @@ export interface Lead {
 }
 
 // 'applicant' is the self-registered job candidate role. Staff roles
-// (owner/supervisor/vendor) are assigned only by an owner. An applicant
+// (owner/supervisor/vendor/developer) are assigned only by an owner. An applicant
 // becomes a vendor when hired (see the "Contratar" action).
-export type UserRole = 'owner' | 'supervisor' | 'vendor' | 'applicant' | 'client'
+export type UserRole = 'owner' | 'supervisor' | 'developer' | 'vendor' | 'applicant' | 'client'
 
 // Roles an owner can assign manually from the CRM user manager.
-export const STAFF_ROLES: UserRole[] = ['owner', 'supervisor', 'vendor']
+export const STAFF_ROLES: UserRole[] = ['owner', 'supervisor', 'developer', 'vendor']
 
 export interface AdminUser {
   id: string
@@ -86,6 +86,54 @@ export interface ProjectDeliverable {
   sort_order?: number
   created_at?: string
   updated_at?: string
+}
+
+export interface BriefTemplate {
+  id: string
+  name: string
+  description: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export interface BriefTemplateQuestion {
+  id: string
+  template_id: string
+  label: string
+  description: string | null
+  field_type: 'text' | 'textarea' | 'url' | 'image' | 'boolean'
+  sort_order: number
+  required: boolean
+  created_at: string
+}
+
+export interface ProjectBrief {
+  id: string
+  project_id: string
+  template_id: string | null
+  status: 'draft' | 'sent' | 'completed'
+  sent_at: string | null
+  completed_at: string | null
+  created_at: string
+}
+
+export interface ProjectBriefQuestion {
+  id: string
+  brief_id: string
+  label: string
+  description: string | null
+  field_type: 'text' | 'textarea' | 'url' | 'image' | 'boolean'
+  sort_order: number
+  required: boolean
+  from_template_question_id: string | null
+}
+
+export interface ProjectBriefAnswer {
+  id: string
+  brief_question_id: string
+  value: string | null
+  file_path: string | null
+  answered_at: string
 }
 
 export interface CareerApplication {

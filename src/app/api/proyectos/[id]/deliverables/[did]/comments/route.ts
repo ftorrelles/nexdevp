@@ -169,7 +169,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
     if (!project || project.client_user_id !== user.id) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
-  } else if (!role || !['owner', 'supervisor'].includes(role)) {
+  } else if (!role || !['owner', 'supervisor', 'developer'].includes(role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

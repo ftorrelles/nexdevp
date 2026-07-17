@@ -100,6 +100,84 @@ export async function sendApplicantDecisionEmail(
   }
 }
 
+export async function sendBriefSentEmail(
+  to: string,
+  projectName: string,
+  projectId: string,
+  locale: string = 'es',
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || !to) return
+
+  const subject =
+    locale === 'es'
+      ? `Tu brief para ${projectName} está listo`
+      : `Your brief for ${projectName} is ready`
+
+  const ctaLabel = locale === 'es' ? 'Completar brief' : 'Fill out brief'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const briefUrl = `${siteUrl}/${locale}/proyecto/${projectId}/brief`
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;background:#0a0a0a;color:#e8e8e8;padding:32px;border-radius:12px;max-width:520px;margin:0 auto;">
+      <h1 style="color:#22b561;font-size:20px;margin:0 0 16px;">nexdevp</h1>
+      <p style="font-size:15px;line-height:1.6;">${
+        locale === 'es'
+          ? `Hola, tu proyecto <strong>${projectName}</strong> tiene un brief listo para completar. Necesitamos esta información para avanzar con el desarrollo.`
+          : `Hi, your project <strong>${projectName}</strong> has a brief ready to fill out. We need this information to move forward with development.`
+      }</p>
+      <p style="margin-top:24px;">
+        <a href="${briefUrl}" style="display:inline-block;background:#22b561;color:#0a0a0a;text-decoration:none;font-weight:bold;font-size:14px;padding:10px 20px;border-radius:8px;">${ctaLabel}</a>
+      </p>
+      <p style="font-size:13px;color:#8a8c8b;margin-top:24px;">— nexdevp</p>
+    </div>
+  `
+
+  try {
+    const res = await fetch(RESEND_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to, subject, html }),
+    })
+    if (!res.ok) console.error('sendBriefSentEmail failed:', res.status, await res.text())
+  } catch (err) {
+    console.error('sendBriefSentEmail error:', err)
+  }
+}
+
+export async function sendBriefCompletedEmail(
+  to: string[],
+  projectName: string,
+  clientEmail: string,
+  projectId: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || to.length === 0) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;background:#0a0a0a;color:#e8e8e8;padding:32px;border-radius:12px;max-width:520px;margin:0 auto;">
+      <h1 style="color:#22b561;font-size:20px;margin:0 0 16px;">nexdevp</h1>
+      <p style="font-size:15px;line-height:1.6;"><strong>${clientEmail}</strong> completó el brief del proyecto <strong>${projectName}</strong>.</p>
+      <p style="margin-top:24px;">
+        <a href="${siteUrl}/admin/proyectos/${projectId}" style="display:inline-block;background:#22b561;color:#0a0a0a;text-decoration:none;font-weight:bold;font-size:14px;padding:10px 20px;border-radius:8px;">Ver proyecto</a>
+      </p>
+      <p style="font-size:13px;color:#8a8c8b;margin-top:24px;">— nexdevp</p>
+    </div>
+  `
+
+  try {
+    const res = await fetch(RESEND_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to, subject: `✅ Brief completado — ${projectName}`, html }),
+    })
+    if (!res.ok) console.error('sendBriefCompletedEmail failed:', res.status, await res.text())
+  } catch (err) {
+    console.error('sendBriefCompletedEmail error:', err)
+  }
+}
+
 export async function sendDeliverableActivityEmail(
   to: string[],
   projectName: string,

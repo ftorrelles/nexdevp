@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
-import { createServiceClient, type UserRole } from '@/lib/supabase'
+import { createServiceClient, type UserRole, type BriefTemplate, type ProjectBrief, type ProjectBriefQuestion, type ProjectBriefAnswer } from '@/lib/supabase'
 import { computeProgressPct } from '@/lib/projects'
+import { withSignedBriefUrls } from '@/lib/brief-storage'
 import { AdminNav } from '@/app/admin/AdminNav'
 import { ProjectEditor } from './ProjectEditor'
 
@@ -53,6 +54,49 @@ export default async function ProyectoDetailPage({
       .sort((a, b) => a.email.localeCompare(b.email))
   }
 
+  // Fetch brief data + templates for BriefSection
+  type BriefWithQuestions = ProjectBrief & {
+    project_brief_questions: (ProjectBriefQuestion & { project_brief_answers: ProjectBriefAnswer[] })[]
+  }
+  let briefData: BriefWithQuestions | null = null
+  let templates: BriefTemplate[] = []
+
+  const { data: rawBrief } = await client
+    .from('project_briefs')
+    .select(`
+      *,
+      project_brief_questions (
+        *,
+        project_brief_answers (*)
+      )
+    `)
+    .eq('project_id', id)
+    .maybeSingle()
+
+  if (rawBrief) {
+    const questions = ((rawBrief.project_brief_questions ?? []) as (ProjectBriefQuestion & { project_brief_answers: ProjectBriefAnswer[] })[]).sort(
+      (a, b) => a.sort_order - b.sort_order
+    )
+    const allAnswers = questions.flatMap((q) => q.project_brief_answers ?? [])
+    const signedAnswers = await withSignedBriefUrls(allAnswers)
+    const signedMap = new Map(signedAnswers.map((a) => [a.id, a]))
+    briefData = {
+      ...(rawBrief as unknown as ProjectBrief),
+      project_brief_questions: questions.map((q) => ({
+        ...q,
+        project_brief_answers: (q.project_brief_answers ?? []).map((a) => signedMap.get(a.id) ?? a),
+      })),
+    }
+  }
+
+  if (role === 'owner' || role === 'supervisor') {
+    const { data: tmpl } = await client
+      .from('brief_templates')
+      .select('*')
+      .order('created_at', { ascending: false })
+    templates = (tmpl ?? []) as BriefTemplate[]
+  }
+
   const projectData = {
     id: project.id,
     name: project.name,
@@ -79,6 +123,8 @@ export default async function ProyectoDetailPage({
           vendorUsers={vendorUsers}
           clientEmail={project.client_email as string | null}
           leadEmail={(project as unknown as { leads: { email: string | null } }).leads?.email ?? null}
+          initialBrief={briefData}
+          templates={templates}
         />
       </main>
     </div>

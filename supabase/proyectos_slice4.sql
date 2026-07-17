@@ -316,13 +316,17 @@ create policy staff_select on public.project_deliverables
   for select using (
     auth.jwt()->'app_metadata'->>'role' in ('owner', 'supervisor')
     or (
-      auth.jwt()->'app_metadata'->>'role' in ('vendor', 'developer')
+      auth.jwt()->'app_metadata'->>'role' = 'vendor'
       and exists (
         select 1 from public.projects p
         join public.leads l on l.id = p.lead_id
         where p.id = project_deliverables.project_id
           and l.assigned_to = auth.uid()
       )
+    )
+    or (
+      auth.jwt()->'app_metadata'->>'role' = 'developer'
+      and project_deliverables.assigned_to = auth.uid()
     )
   );
 

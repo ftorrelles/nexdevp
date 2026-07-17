@@ -40,9 +40,10 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
   const [body, setBody] = useState('')
   const [posting, setPosting] = useState(false)
   const [actionKind, setActionKind] = useState<string | null>(null)
+  const [currentStatus, setCurrentStatus] = useState(deliverable.status)
 
-  const isEnRevision = deliverable.status === 'en_revision'
-  const isTerminal = deliverable.status === 'aprobado' || deliverable.status === 'cambios_solicitados'
+  const isEnRevision = currentStatus === 'en_revision'
+  const isTerminal = currentStatus === 'aprobado' || currentStatus === 'cambios_solicitados'
 
   async function postComment(kind: string) {
     if (!body.trim() && kind === 'comentario') return
@@ -57,6 +58,8 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
       if (res.ok) {
         const created: CommentData = await res.json()
         setComments((prev) => [...prev, created])
+        if (kind === 'aprobacion') setCurrentStatus('aprobado')
+        if (kind === 'cambios') setCurrentStatus('cambios_solicitados')
         if (kind === 'comentario') setBody('')
       }
     } finally {

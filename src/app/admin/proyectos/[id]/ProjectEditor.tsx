@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import type { UserRole } from '@/lib/supabase'
+import type { UserRole, BriefTemplate, ProjectBrief, ProjectBriefQuestion, ProjectBriefAnswer } from '@/lib/supabase'
+import { BriefSection } from './BriefSection'
 
 interface CommentData {
   id: string
@@ -30,12 +31,18 @@ interface DeliverableData {
   sort_order: number
 }
 
+type BriefWithQuestions = ProjectBrief & {
+  project_brief_questions: (ProjectBriefQuestion & { project_brief_answers: ProjectBriefAnswer[] })[]
+}
+
 interface Props {
   project: ProjectData
   role: UserRole
   vendorUsers: { id: string; email: string }[]
   clientEmail: string | null
   leadEmail: string | null
+  initialBrief: BriefWithQuestions | null
+  templates: BriefTemplate[]
 }
 
 const STATUS_OPTIONS = ['activo', 'pausado', 'entregado', 'cerrado']
@@ -100,7 +107,7 @@ function ProgressBar({ pct }: { pct: number }) {
   )
 }
 
-export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail, leadEmail }: Props) {
+export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail, leadEmail, initialBrief, templates }: Props) {
   const router = useRouter()
   const [project, setProject] = useState(initial)
   const [deliverables, setDeliverables] = useState(initial.deliverables)
@@ -504,6 +511,18 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
           </div>
         )}
       </div>
+
+      {/* Brief section — owner/supervisor/developer */}
+      {(isEditable || role === 'developer') && (
+        <BriefSection
+          projectId={project.id}
+          initialBrief={initialBrief}
+          templates={templates}
+          canEdit={isEditable}
+          canEditQuestions={isEditable || role === 'developer'}
+          clientEmail={clientEmail}
+        />
+      )}
 
       {/* Invite client — owner/supervisor only */}
       {isEditable && (

@@ -5,16 +5,16 @@ import { Lead, AdminUser, UserRole } from '@/lib/supabase'
 import { AdminNav } from './AdminNav'
 import { LeadQuotes } from './LeadQuotes'
 
-type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'calificado' | 'cerrado' | 'perdido'
+type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'negociacion' | 'cerrado' | 'perdido'
 
 const EMPTY_LEAD = { nombre: '', email: '', telefono: '', tipo_negocio: '', mensaje: '' }
 
-const ESTADO_OPTIONS: Lead['estado'][] = ['nuevo', 'contactado', 'calificado', 'cerrado', 'perdido']
+const ESTADO_OPTIONS: Lead['estado'][] = ['nuevo', 'contactado', 'negociacion', 'cerrado', 'perdido']
 
 const ESTADO_COLORS: Record<string, string> = {
   nuevo:      'text-nex-green bg-nex-green/10',
   contactado: 'text-blue-400 bg-blue-400/10',
-  calificado: 'text-yellow-400 bg-yellow-400/10',
+  negociacion: 'text-yellow-400 bg-yellow-400/10',
   cerrado:    'text-nex-grey bg-nex-ink/5',
   perdido:    'text-red-400 bg-red-400/10',
 }
@@ -25,7 +25,7 @@ const FILTER_TABS: { label: string; value: EstadoFilter }[] = [
   { label: 'Todos', value: 'todos' },
   { label: 'Nuevos', value: 'nuevo' },
   { label: 'Contactados', value: 'contactado' },
-  { label: 'Calificados', value: 'calificado' },
+  { label: 'Negociación', value: 'negociacion' },
   { label: 'Cerrados', value: 'cerrado' },
   { label: 'Perdidos', value: 'perdido' },
 ]
@@ -67,8 +67,8 @@ export function AdminCRM({ leads: initialLeads, role, currentUserEmail, vendorUs
 
   const total = leads.length
   const nuevos = leads.filter((l) => l.estado === 'nuevo').length
-  const calificados = leads.filter((l) => l.estado === 'calificado').length
-  const convertidos = leads.filter((l) => l.estado === 'calificado' || l.estado === 'cerrado').length
+  const negociaciones = leads.filter((l) => l.estado === 'negociacion').length
+  const convertidos = leads.filter((l) => l.estado === 'negociacion' || l.estado === 'cerrado').length
   const conversion = total > 0 ? Math.round((convertidos / total) * 100) : 0
 
   const filtered = filter === 'todos' ? leads : leads.filter((l) => l.estado === filter)
@@ -183,7 +183,7 @@ export function AdminCRM({ leads: initialLeads, role, currentUserEmail, vendorUs
             {[
               { label: 'Total leads', value: total },
               { label: 'Nuevos', value: nuevos },
-              { label: 'Calificados', value: calificados },
+              { label: 'Negociación', value: negociaciones },
               { label: 'Conversión', value: `${conversion}%`, sub: `${convertidos} de ${total}` },
             ].map((stat) => (
               <div key={stat.label} className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">

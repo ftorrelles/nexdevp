@@ -24,6 +24,15 @@ const ROLE_COLORS: Record<UserRole, string> = {
 // Only staff roles can be assigned manually; applicants come from self-registration.
 const ROLES: UserRole[] = STAFF_ROLES
 
+// Tabs shown in the users list — one per role that can appear here (applicant excluded).
+const TABS: { value: UserRole; label: string }[] = [
+  { value: 'owner', label: 'Owners' },
+  { value: 'supervisor', label: 'Supervisores' },
+  { value: 'developer', label: 'Developers' },
+  { value: 'vendor', label: 'Vendedores' },
+  { value: 'client', label: 'Clientes' },
+]
+
 const inputClass =
   'bg-nex-black border border-nex-ink/10 rounded-lg px-4 py-2.5 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors'
 const labelClass =
@@ -36,11 +45,14 @@ interface Props {
 
 export function UserManager({ initialUsers, currentUserId }: Props) {
   const [users, setUsers] = useState<AdminUser[]>(initialUsers)
+  const [activeTab, setActiveTab] = useState<UserRole>('owner')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ email: '', role: 'vendor' as UserRole })
   const [formError, setFormError] = useState('')
   const [formLoading, setFormLoading] = useState(false)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const visibleUsers = users.filter((u) => u.role === activeTab)
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -157,11 +169,35 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
         </div>
       )}
 
+      {/* Role tabs */}
+      <div className="flex items-center gap-1 mb-4 border-b border-nex-ink/10 overflow-x-auto">
+        {TABS.map((tab) => {
+          const count = users.filter((u) => u.role === tab.value).length
+          return (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              className={[
+                'font-jost text-sm px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap',
+                activeTab === tab.value
+                  ? 'text-nex-white border-nex-green'
+                  : 'text-nex-grey border-transparent hover:text-nex-white',
+              ].join(' ')}
+            >
+              {tab.label} <span className="text-xs text-nex-grey">({count})</span>
+            </button>
+          )
+        })}
+      </div>
+
       <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
         <table className="w-full text-sm font-jost">
           <thead>
             <tr className="border-b border-nex-ink/10">
-              {['Email', 'Rol', 'Acciones'].map((col) => (
+              {(activeTab === 'client'
+                ? ['Email', 'Proyecto', 'Acciones']
+                : ['Email', 'Rol', 'Acciones']
+              ).map((col) => (
                 <th
                   key={col}
                   className="text-left font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-grey px-5 py-3"
@@ -172,8 +208,15 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="border-b border-nex-ink/5 hover:bg-white/[0.02] transition-colors">
+            {visibleUsers.length === 0 && (
+              <tr>
+                <td colSpan={3} className="px-5 py-8 text-center font-jost text-sm text-nex-grey italic">
+                  Sin usuarios en esta pestaña.
+                </td>
+              </tr>
+            )}
+            {visibleUsers.map((user) => (
+              <tr key={user.id} className="border-b border-nex-ink/5 hover:bg-nex-ink/[0.02] transition-colors">
                 <td className="px-5 py-4 text-nex-white">
                   {user.email}
                   {user.id === currentUserId && (
@@ -182,23 +225,29 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
                     </span>
                   )}
                 </td>
-                <td className="px-5 py-4">
-                  <select
-                    value={user.role}
-                    disabled={updatingId === user.id || user.id === currentUserId}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
-                    className={[
-                      'font-dm-mono text-[10px] tracking-[0.1em] uppercase rounded px-2 py-1 border-0 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-default',
-                      ROLE_COLORS[user.role],
-                    ].join(' ')}
-                  >
-                    {ROLES.map((r) => (
-                      <option key={r} value={r} className="bg-nex-dark text-nex-white">
-                        {ROLE_LABELS[r]}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+                {activeTab === 'client' ? (
+                  <td className="px-5 py-4 text-nex-grey">
+                    {user.projectName ?? <span className="italic">Sin proyecto asignado</span>}
+                  </td>
+                ) : (
+                  <td className="px-5 py-4">
+                    <select
+                      value={user.role}
+                      disabled={updatingId === user.id || user.id === currentUserId}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
+                      className={[
+                        'font-dm-mono text-[10px] tracking-[0.1em] uppercase rounded px-2 py-1 border-0 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-default',
+                        ROLE_COLORS[user.role],
+                      ].join(' ')}
+                    >
+                      {ROLES.map((r) => (
+                        <option key={r} value={r} className="bg-nex-dark text-nex-white">
+                          {ROLE_LABELS[r]}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                )}
                 <td className="px-5 py-4">
                   {user.id !== currentUserId && (
                     <button

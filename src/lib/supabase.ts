@@ -21,7 +21,7 @@ export interface Lead {
   tipo_negocio?: string
   mensaje?: string
   canal?: 'form' | 'whatsapp' | 'cal' | 'chatbot' | 'maps' | 'vendedor'
-  estado?: 'nuevo' | 'contactado' | 'calificado' | 'cerrado' | 'perdido'
+  estado?: 'nuevo' | 'contactado' | 'negociacion' | 'cerrado' | 'perdido'
   notas?: string
   assigned_to?: string | null
   created_at?: string
@@ -39,6 +39,7 @@ export interface AdminUser {
   id: string
   email: string
   role: UserRole
+  projectName?: string // set for clients — which project they're linked to
 }
 
 export interface Career {

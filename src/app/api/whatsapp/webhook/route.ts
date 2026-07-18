@@ -86,7 +86,7 @@ async function saveWhatsAppLead(
     email: '',
     telefono: phone.replace('@c.us', ''),
     canal: 'whatsapp',
-    estado: 'calificado',
+    estado: 'negociacion',
     mensaje: aiResponse.text,
   })
 }

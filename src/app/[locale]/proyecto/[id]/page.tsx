@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase'
 import { computeProgressPct } from '@/lib/projects'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
@@ -62,7 +63,9 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   if (!user) redirect('/admin/login')
   if (user.app_metadata?.role !== 'client') redirect('/admin')
 
-  const { data: project } = await auth
+  const db = createServiceClient()
+
+  const { data: project } = await db
     .from('projects')
     .select('id, name, status, vercel_url, project_deliverables(id, name, status, sort_order)')
     .eq('id', id)
@@ -71,7 +74,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
 
   if (!project) notFound()
 
-  const { data: progressData } = await auth
+  const { data: progressData } = await db
     .from('project_deliverables')
     .select('hours, status')
     .eq('project_id', id)
@@ -79,7 +82,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   const pct = computeProgressPct(progressData ?? [])
   const progressColor = pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
 
-  const { data: briefData } = await auth
+  const { data: briefData } = await db
     .from('project_briefs')
     .select('id, status')
     .eq('project_id', id)
@@ -94,7 +97,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
   const deliverableIds = deliverables.map((d) => d.id)
   let commentsByDeliverable: Record<string, CommentRow[]> = {}
   if (deliverableIds.length > 0) {
-    const { data: allComments } = await auth
+    const { data: allComments } = await db
       .from('deliverable_comments')
       .select('id, body, kind, author_role, created_at, deliverable_id')
       .in('deliverable_id', deliverableIds)

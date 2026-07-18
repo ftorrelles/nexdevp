@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase'
 import { withSignedBriefUrls } from '@/lib/brief-storage'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
@@ -44,8 +45,10 @@ export default async function BriefPage({ params }: Props): Promise<React.JSX.El
   if (!user) redirect('/admin/login')
   if (user.app_metadata?.role !== 'client') redirect('/admin')
 
+  const db = createServiceClient()
+
   // Verify project ownership
-  const { data: project } = await auth
+  const { data: project } = await db
     .from('projects')
     .select('id, name, client_user_id')
     .eq('id', id)
@@ -55,7 +58,7 @@ export default async function BriefPage({ params }: Props): Promise<React.JSX.El
   if (!project) notFound()
 
   // Fetch brief with questions and answers
-  const { data: briefRaw } = await auth
+  const { data: briefRaw } = await db
     .from('project_briefs')
     .select('id, status, project_brief_questions(id, label, description, field_type, required, sort_order, project_brief_answers(id, brief_question_id, value, file_path, answered_at))')
     .eq('project_id', id)

@@ -81,7 +81,7 @@ export function UserMenu({ email, onLogout, accountHref, locale = 'es' }: Props)
               <span
                 className={[
                   'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
-                  theme === 'dark' ? 'translate-x-4' : 'translate-x-0.5',
+                  theme === 'dark' ? 'translate-x-0.5' : 'translate-x-4',
                 ].join(' ')}
               />
             </span>

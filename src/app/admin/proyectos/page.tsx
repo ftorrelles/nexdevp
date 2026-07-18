@@ -68,7 +68,7 @@ export default async function ProyectosListPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/proyectos" email={user.email ?? ''} />
+      <AdminNav role={role} currentPath="/admin/proyectos" email={user.email ?? ''} name={user.user_metadata?.full_name as string | undefined} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>

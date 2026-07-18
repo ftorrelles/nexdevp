@@ -47,7 +47,7 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
   const [users, setUsers] = useState<AdminUser[]>(initialUsers)
   const [activeTab, setActiveTab] = useState<UserRole>('owner')
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ email: '', role: 'vendor' as UserRole })
+  const [form, setForm] = useState({ email: '', full_name: '', role: 'vendor' as UserRole })
   const [formError, setFormError] = useState('')
   const [formLoading, setFormLoading] = useState(false)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -67,7 +67,7 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
       const data = await res.json()
       if (!res.ok) { setFormError(data.error); return }
       setUsers((prev) => [...prev, data.user])
-      setForm({ email: '', role: 'vendor' })
+      setForm({ email: '', full_name: '', role: 'vendor' })
       setShowForm(false)
     } catch {
       setFormError('Error de conexión')
@@ -129,6 +129,16 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
           </p>
           <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
+              <label className={labelClass}>Nombre completo</label>
+              <input
+                type="text"
+                value={form.full_name}
+                onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
+                className={inputClass}
+                placeholder="Nombre y apellido"
+              />
+            </div>
+            <div>
               <label className={labelClass}>Email</label>
               <input
                 type="email"
@@ -170,7 +180,7 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
       )}
 
       {/* Role tabs */}
-      <div className="flex items-center gap-1 mb-4 border-b border-nex-ink/10 overflow-x-auto">
+      <div className="flex items-center gap-1 mb-4 border-b border-nex-ink/10 flex-wrap">
         {TABS.map((tab) => {
           const count = users.filter((u) => u.role === tab.value).length
           return (
@@ -190,9 +200,9 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
         })}
       </div>
 
-      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-y-auto max-h-[28rem]">
         <table className="w-full text-sm font-jost">
-          <thead>
+          <thead className="sticky top-0 bg-nex-dark z-10">
             <tr className="border-b border-nex-ink/10">
               {(activeTab === 'client'
                 ? ['Email', 'Proyecto', 'Acciones']

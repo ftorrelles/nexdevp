@@ -48,7 +48,12 @@ export default async function ApplicantPortalPage({ params }: Props): Promise<Re
 
   return (
     <main className="min-h-screen bg-nex-black text-nex-white">
-      <CareersHeader locale={loc} isLoggedIn={true} email={user.email ?? ''} />
+      <CareersHeader
+        locale={loc}
+        isLoggedIn={true}
+        email={user.email ?? ''}
+        name={user.user_metadata?.full_name as string | undefined}
+      />
 
       <section className="px-6 lg:px-12 py-16 max-w-3xl mx-auto">
         <div className="mb-10">

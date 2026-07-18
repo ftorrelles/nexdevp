@@ -58,6 +58,7 @@ export default async function ApplicantsPage(): Promise<React.JSX.Element> {
       role={role}
       currentUserId={user.id}
       currentUserEmail={user.email ?? ''}
+      currentUserName={user.user_metadata?.full_name as string | undefined}
     />
   )
 }

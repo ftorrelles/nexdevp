@@ -42,6 +42,7 @@ export default async function AdminPage() {
       role={role}
       currentUserId={user.id}
       currentUserEmail={user.email ?? ''}
+      currentUserName={user.user_metadata?.full_name as string | undefined}
       vendorUsers={vendorUsers}
       projectLeadIds={projectLeadIds}
     />

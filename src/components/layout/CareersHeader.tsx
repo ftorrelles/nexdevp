@@ -11,9 +11,10 @@ interface Props {
   locale:     Locale
   isLoggedIn: boolean
   email?:     string
+  name?:      string
 }
 
-export function CareersHeader({ locale, isLoggedIn, email }: Props) {
+export function CareersHeader({ locale, isLoggedIn, email, name }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const router = useRouter()
 
@@ -49,7 +50,7 @@ export function CareersHeader({ locale, isLoggedIn, email }: Props) {
               <Link href="/careers/portal" className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">
                 {myPortal}
               </Link>
-              <UserMenu email={email ?? ''} onLogout={handleLogout} locale={locale === 'en' ? 'en' : 'es'} />
+              <UserMenu email={email ?? ''} name={name} onLogout={handleLogout} locale={locale === 'en' ? 'en' : 'es'} />
             </>
           ) : (
             <>
@@ -107,7 +108,7 @@ export function CareersHeader({ locale, isLoggedIn, email }: Props) {
                 {myPortal}
               </Link>
               <div className="py-3">
-                <UserMenu email={email ?? ''} onLogout={handleLogout} locale={locale === 'en' ? 'en' : 'es'} />
+                <UserMenu email={email ?? ''} name={name} onLogout={handleLogout} locale={locale === 'en' ? 'en' : 'es'} />
               </div>
             </>
           ) : (

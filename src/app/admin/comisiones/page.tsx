@@ -105,7 +105,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/comisiones" email={user.email ?? ''} />
+      <AdminNav role={role} currentPath="/admin/comisiones" email={user.email ?? ''} name={user.user_metadata?.full_name as string | undefined} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto space-y-10">
 
         {/* Header */}

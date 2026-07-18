@@ -7,19 +7,29 @@ import { ChangePasswordModal } from './ChangePasswordModal'
 
 interface Props {
   email: string
+  name?: string
   onLogout: () => void | Promise<void>
   accountHref?: string
   locale?: 'es' | 'en'
 }
 
-function getInitials(email: string): string {
+// Prefers first+last name initials (e.g. "Juan Pérez" -> "JP") when a name is
+// known; falls back to deriving something from the email for accounts that
+// don't have one on file yet.
+function getInitials(email: string, name?: string): string {
+  const trimmedName = name?.trim()
+  if (trimmedName) {
+    const words = trimmedName.split(/\s+/).filter(Boolean)
+    if (words.length >= 2) return (words[0][0] + words[words.length - 1][0]).toUpperCase()
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  }
   const local = email.split('@')[0] ?? ''
   const parts = local.split(/[.\-_]/).filter(Boolean)
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
   return local.slice(0, 2).toUpperCase() || '??'
 }
 
-export function UserMenu({ email, onLogout, accountHref, locale = 'es' }: Props) {
+export function UserMenu({ email, name, onLogout, accountHref, locale = 'es' }: Props) {
   const loc = locale
   const [open, setOpen] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
@@ -41,11 +51,12 @@ export function UserMenu({ email, onLogout, accountHref, locale = 'es' }: Props)
         aria-label={loc === 'es' ? 'Cuenta' : 'Account'}
         className="h-9 w-9 rounded-full bg-nex-green/15 border border-nex-green/30 text-nex-green font-dm-mono text-xs font-bold flex items-center justify-center hover:bg-nex-green/25 transition-colors"
       >
-        {getInitials(email)}
+        {getInitials(email, name)}
       </button>
 
       {open && (
         <div className="absolute right-0 mt-2 w-56 bg-nex-dark border border-nex-ink/10 rounded-xl shadow-xl py-2 z-40">
+          {name && <p className="px-4 font-jost text-sm text-nex-white truncate">{name}</p>}
           <p className="px-4 py-1.5 font-jost text-xs text-nex-grey truncate">{email}</p>
 
           <div className="my-1 border-t border-nex-ink/10" />

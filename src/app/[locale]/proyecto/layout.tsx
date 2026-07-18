@@ -26,7 +26,11 @@ export default async function ProyectoLayout({
     <div className="min-h-screen bg-nex-black text-nex-white">
       <header className="border-b border-nex-ink/10 px-4 sm:px-6 py-4 flex items-center justify-between">
         <BrandLogo />
-        <ProyectoUserMenu email={user.email ?? ''} locale={locale === 'en' ? 'en' : 'es'} />
+        <ProyectoUserMenu
+          email={user.email ?? ''}
+          name={user.user_metadata?.full_name as string | undefined}
+          locale={locale === 'en' ? 'en' : 'es'}
+        />
       </header>
       {children}
     </div>

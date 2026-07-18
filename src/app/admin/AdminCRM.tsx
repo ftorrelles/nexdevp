@@ -46,11 +46,12 @@ interface Props {
   role: UserRole
   currentUserId: string
   currentUserEmail: string
+  currentUserName?: string
   vendorUsers: AdminUser[]
   projectLeadIds?: Set<string>
 }
 
-export function AdminCRM({ leads: initialLeads, role, currentUserEmail, vendorUsers, projectLeadIds }: Props) {
+export function AdminCRM({ leads: initialLeads, role, currentUserEmail, currentUserName, vendorUsers, projectLeadIds }: Props) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [filter, setFilter] = useState<EstadoFilter>('todos')
   const [updating, setUpdating] = useState<string | null>(null)
@@ -175,7 +176,7 @@ export function AdminCRM({ leads: initialLeads, role, currentUserEmail, vendorUs
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin" email={currentUserEmail} />
+      <AdminNav role={role} currentPath="/admin" email={currentUserEmail} name={currentUserName} />
 
       <main className="px-6 py-8 max-w-7xl mx-auto">
         {canSeeAll && (

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   const user = await requireOwner()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { email, role } = await req.json()
+  const { email, role, full_name } = await req.json()
   if (!email || !role) {
     return NextResponse.json({ error: 'email y role son requeridos' }, { status: 400 })
   }
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
   const adminClient = createServiceClient()
   const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${siteUrl}/auth/setup`,
+    data: full_name?.trim() ? { full_name: full_name.trim() } : undefined,
   })
 
   if (error) {

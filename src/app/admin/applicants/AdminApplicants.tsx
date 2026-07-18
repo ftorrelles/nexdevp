@@ -10,6 +10,7 @@ interface Props {
   role: UserRole
   currentUserId: string
   currentUserEmail: string
+  currentUserName?: string
 }
 
 type TabType = 'applicants' | 'positions'
@@ -55,7 +56,7 @@ const inputClass =
 const labelClass =
   'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1.5'
 
-export function AdminApplicants({ careers: initialCareers, applications: initialApplications, role, currentUserEmail }: Props): React.JSX.Element {
+export function AdminApplicants({ careers: initialCareers, applications: initialApplications, role, currentUserEmail, currentUserName }: Props): React.JSX.Element {
   const [careers, setCareers] = useState<Career[]>(initialCareers)
   const [applications, setApplications] = useState<CareerApplication[]>(initialApplications)
   const [activeTab, setActiveTab] = useState<TabType>('applicants')
@@ -265,7 +266,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/applicants" email={currentUserEmail} />
+      <AdminNav role={role} currentPath="/admin/applicants" email={currentUserEmail} name={currentUserName} />
 
       <main className="px-6 py-8 max-w-7xl mx-auto font-jost">
         {/* Statistics cards */}

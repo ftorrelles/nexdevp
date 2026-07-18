@@ -35,7 +35,7 @@ export default async function UsersPage() {
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role="owner" currentPath="/admin/users" email={user.email ?? ''} />
+      <AdminNav role="owner" currentPath="/admin/users" email={user.email ?? ''} name={user.user_metadata?.full_name as string | undefined} />
       <main className="px-6 py-8 max-w-4xl mx-auto">
         <UserManager initialUsers={adminUsers} currentUserId={user.id} />
       </main>

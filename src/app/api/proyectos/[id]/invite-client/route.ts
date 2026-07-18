@@ -21,7 +21,7 @@ export async function POST(
   // Fetch project with lead email
   const { data: project, error: projErr } = await client
     .from('projects')
-    .select('*, leads!inner(email)')
+    .select('*, leads!inner(email, nombre)')
     .eq('id', id)
     .maybeSingle()
 
@@ -29,7 +29,9 @@ export async function POST(
     return NextResponse.json({ error: 'Project not found' }, { status: 404 })
   }
 
-  const leadEmail = (project as unknown as { leads: { email: string | null } }).leads?.email
+  const lead = (project as unknown as { leads: { email: string | null; nombre: string | null } }).leads
+  const leadEmail = lead?.email
+  const leadName = lead?.nombre || undefined
   if (!leadEmail) {
     return NextResponse.json({ error: 'Lead has no email address' }, { status: 422 })
   }
@@ -40,7 +42,7 @@ export async function POST(
   // Re-invite path
   if (project.client_user_id) {
     try {
-      await client.auth.admin.inviteUserByEmail(leadEmail, { redirectTo })
+      await client.auth.admin.inviteUserByEmail(leadEmail, { redirectTo, data: leadName ? { full_name: leadName } : undefined })
     } catch {
       // Supabase errors for already-active users — still return 200
     }
@@ -53,7 +55,7 @@ export async function POST(
 
   // First invite path
   try {
-    const { data: invited, error: inviteErr } = await client.auth.admin.inviteUserByEmail(leadEmail, { redirectTo })
+    const { data: invited, error: inviteErr } = await client.auth.admin.inviteUserByEmail(leadEmail, { redirectTo, data: leadName ? { full_name: leadName } : undefined })
     if (inviteErr || !invited?.user) {
       return NextResponse.json({ error: inviteErr?.message ?? 'Failed to invite user' }, { status: 500 })
     }

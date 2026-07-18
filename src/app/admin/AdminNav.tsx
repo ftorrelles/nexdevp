@@ -11,6 +11,7 @@ interface Props {
   role: UserRole
   currentPath: string
   email: string
+  name?: string
 }
 
 interface NavItem {
@@ -86,7 +87,7 @@ function NavDropdown({ group, currentPath }: { group: NavGroup; currentPath: str
   )
 }
 
-export function AdminNav({ role, currentPath, email }: Props) {
+export function AdminNav({ role, currentPath, email, name }: Props) {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -144,7 +145,7 @@ export function AdminNav({ role, currentPath, email }: Props) {
         <div className="flex items-center gap-3">
           {/* Desktop user menu */}
           <div className="hidden md:block">
-            <UserMenu email={email} onLogout={handleLogout} accountHref="/admin/profile" />
+            <UserMenu email={email} name={name} onLogout={handleLogout} accountHref="/admin/profile" />
           </div>
 
           {/* Mobile hamburger */}
@@ -187,7 +188,7 @@ export function AdminNav({ role, currentPath, email }: Props) {
           ))}
           <div className="border-t border-nex-ink/10 mt-2 pt-3 flex items-center justify-between px-3">
             <span className="font-jost text-xs text-nex-grey truncate">{email}</span>
-            <UserMenu email={email} onLogout={handleLogout} accountHref="/admin/profile" />
+            <UserMenu email={email} name={name} onLogout={handleLogout} accountHref="/admin/profile" />
           </div>
         </nav>
       )}

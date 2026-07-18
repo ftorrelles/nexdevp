@@ -36,6 +36,21 @@ type BriefRow = {
 }
 
 export default async function BriefPage({ params }: Props): Promise<React.JSX.Element> {
+  try {
+    return await renderBriefPage({ params })
+  } catch (err) {
+    console.error('[BriefPage] SSR crash:', err)
+    return (
+      <main className="px-4 sm:px-6 py-10 max-w-3xl mx-auto">
+        <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-6 font-mono text-xs text-red-300 whitespace-pre-wrap break-all">
+          {String(err)}
+        </div>
+      </main>
+    )
+  }
+}
+
+async function renderBriefPage({ params }: Props): Promise<React.JSX.Element> {
   const { locale, id } = await params
   const loc = locale as Locale
   setRequestLocale(loc)

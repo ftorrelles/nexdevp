@@ -9,6 +9,15 @@ type Params = { params: Promise<{ id: string }> }
 // Client marks the brief as completed.
 // Validates all required questions have answers, then transitions status.
 export async function POST(_req: NextRequest, { params }: Params) {
+  try {
+    return await handlePost(_req, { params })
+  } catch (err) {
+    console.error('[brief/submit] Unhandled exception:', err)
+    return NextResponse.json({ error: 'Unexpected server error', detail: String(err) }, { status: 500 })
+  }
+}
+
+async function handlePost(_req: NextRequest, { params }: Params) {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

@@ -10,6 +10,15 @@ type Params = { params: Promise<{ id: string }> }
 // Fields: answers[{question_id}][value] for text types
 //         answers[{question_id}][file]  for image uploads
 export async function POST(req: NextRequest, { params }: Params) {
+  try {
+    return await handlePost(req, { params })
+  } catch (err) {
+    console.error('[brief/answers] Unhandled exception:', err)
+    return NextResponse.json({ error: 'Unexpected server error', detail: String(err) }, { status: 500 })
+  }
+}
+
+async function handlePost(req: NextRequest, { params }: Params) {
   const supabase = await createAuthServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

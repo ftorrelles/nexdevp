@@ -9,11 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "nex-black": "#191a1b",
-        "nex-dark": "#1b1b1c",
-        "nex-grey": "#8a8c8b",
-        "nex-white": "#ffffff",
-        "nex-green": "#22b561",
+        "nex-black": "rgb(var(--nex-black) / <alpha-value>)",
+        "nex-dark": "rgb(var(--nex-dark) / <alpha-value>)",
+        "nex-grey": "rgb(var(--nex-grey) / <alpha-value>)",
+        "nex-white": "rgb(var(--nex-white) / <alpha-value>)",
+        "nex-green": "rgb(var(--nex-green) / <alpha-value>)",
+        "nex-ink": "rgb(var(--nex-ink) / <alpha-value>)",
       },
       fontFamily: {
         cormorant: ["var(--font-cormorant)", "Georgia", "serif"],

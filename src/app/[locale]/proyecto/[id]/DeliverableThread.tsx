@@ -90,11 +90,11 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
   const commentCount = comments.length
 
   return (
-    <div className="border-t border-white/5">
+    <div className="border-t border-nex-ink/5">
       {/* Collapse toggle */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-white/3 transition-colors group"
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-nex-ink/3 transition-colors group"
       >
         <span className="flex items-center gap-2 font-dm-mono text-[10px] uppercase tracking-wider text-nex-grey group-hover:text-nex-white transition-colors">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -127,7 +127,7 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
               {comments.map((c) => (
                 <div
                   key={c.id}
-                  className={`rounded-lg px-3 py-2.5 ${c.author_role === 'client' ? 'bg-nex-green/5 border border-nex-green/15' : 'bg-white/3 border border-white/8'}`}
+                  className={`rounded-lg px-3 py-2.5 ${c.author_role === 'client' ? 'bg-nex-green/5 border border-nex-green/15' : 'bg-nex-ink/3 border border-nex-ink/8'}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`font-dm-mono text-[10px] uppercase tracking-wider ${c.author_role === 'client' ? 'text-nex-green' : 'text-nex-grey'}`}>
@@ -180,7 +180,7 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
               onChange={(e) => setBody(e.target.value)}
               placeholder={loc === 'es' ? 'Escribí un comentario…' : 'Write a comment…'}
               rows={2}
-              className="flex-1 bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white placeholder-nex-grey/50 focus:outline-none focus:border-nex-green/40 transition-colors resize-none"
+              className="flex-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white placeholder-nex-grey/50 focus:outline-none focus:border-nex-green/40 transition-colors resize-none"
             />
             <button
               onClick={() => postComment('comentario')}

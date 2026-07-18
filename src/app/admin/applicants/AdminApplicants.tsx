@@ -27,7 +27,7 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
   nuevo: 'text-blue-400 bg-blue-400/10',
   revisado: 'text-yellow-400 bg-yellow-400/10',
   aceptado: 'text-nex-green bg-nex-green/10',
-  rechazado: 'text-nex-grey bg-white/5',
+  rechazado: 'text-nex-grey bg-nex-ink/5',
 }
 
 const STATUS_ORDER: ApplicationStatus[] = ['nuevo', 'revisado', 'aceptado', 'rechazado']
@@ -51,7 +51,7 @@ function formatDate(dateStr?: string) {
 }
 
 const inputClass =
-  'bg-nex-black border border-white/10 rounded-lg px-4 py-2 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors placeholder:text-nex-grey/40'
+  'bg-nex-black border border-nex-ink/10 rounded-lg px-4 py-2 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors placeholder:text-nex-grey/40'
 const labelClass =
   'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1.5'
 
@@ -265,7 +265,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/applicants" />
+      <AdminNav role={role} currentPath="/admin/applicants" email={currentUserEmail} />
 
       <main className="px-6 py-8 max-w-7xl mx-auto font-jost">
         {/* Statistics cards */}
@@ -275,7 +275,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
             { label: 'Nuevas Candidaturas', value: newApplicants, highlight: newApplicants > 0 },
             { label: 'Posiciones Activas', value: activePositions },
           ].map((stat, idx) => (
-            <div key={idx} className="bg-nex-dark border border-white/10 rounded-xl p-5">
+            <div key={idx} className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
               <p className="font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1">
                 {stat.label}
               </p>
@@ -303,7 +303,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                   'text-sm px-4 py-2 rounded-lg border transition-colors font-medium',
                   activeTab === tab.id
                     ? 'bg-nex-green text-nex-black border-nex-green font-bold'
-                    : 'bg-nex-dark text-nex-grey border-white/10 hover:border-white/30',
+                    : 'bg-nex-dark text-nex-grey border-nex-ink/10 hover:border-nex-ink/30',
                 ].join(' ')}
               >
                 {tab.label}
@@ -326,7 +326,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
 
         {/* Create / Edit Form */}
         {activeTab === 'positions' && showForm && (
-          <div className="bg-nex-dark border border-white/10 rounded-xl p-6 mb-8 max-w-4xl">
+          <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 mb-8 max-w-4xl">
             <h3 className="font-dm-mono text-xs tracking-[0.2em] uppercase text-nex-green mb-6">
               {editingCareer ? 'Editar Posición' : 'Crear Nueva Posición'}
             </h3>
@@ -510,13 +510,13 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
               </div>
 
               {/* Active Toggle & Buttons */}
-              <div className="flex items-center justify-between border-t border-white/10 pt-4 flex-wrap gap-4">
+              <div className="flex items-center justify-between border-t border-nex-ink/10 pt-4 flex-wrap gap-4">
                 <label className="flex items-center gap-3 cursor-pointer text-sm">
                   <input
                     type="checkbox"
                     checked={form.active}
                     onChange={e => setForm(f => ({ ...f, active: e.target.checked }))}
-                    className="w-4 h-4 accent-nex-green bg-nex-black border-white/10 rounded cursor-pointer"
+                    className="w-4 h-4 accent-nex-green bg-nex-black border-nex-ink/10 rounded cursor-pointer"
                   />
                   <span>Posición Activa (Visible en la web)</span>
                 </label>
@@ -527,7 +527,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="bg-white/10 text-nex-grey font-bold text-sm py-2 px-5 rounded-lg hover:bg-white/20 transition-colors"
+                    className="bg-nex-ink/10 text-nex-grey font-bold text-sm py-2 px-5 rounded-lg hover:bg-nex-ink/20 transition-colors"
                   >
                     Descartar
                   </button>
@@ -556,8 +556,8 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                   className={[
                     'flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-colors',
                     isActive
-                      ? 'bg-white/10 text-nex-white border-white/20 font-bold'
-                      : 'bg-nex-dark text-nex-grey border-white/10 hover:border-white/30',
+                      ? 'bg-nex-ink/10 text-nex-white border-nex-ink/20 font-bold'
+                      : 'bg-nex-dark text-nex-grey border-nex-ink/10 hover:border-nex-ink/30',
                   ].join(' ')}
                 >
                   {STATUS_LABELS[s]}
@@ -574,12 +574,12 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
         )}
 
         {/* Data Tables */}
-        <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
+        <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             {activeTab === 'applicants' ? (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10">
+                  <tr className="border-b border-nex-ink/10">
                     {['Fecha', 'Nombre', 'Posición', 'Contacto', 'Mensaje', 'CV', 'Gestionado por', 'Acciones'].map(col => (
                       <th
                         key={col}
@@ -601,7 +601,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                     filteredApplications.map(app => (
                       <React.Fragment key={app.id}>
                       <tr
-                        className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                        className="border-b border-nex-ink/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
                         onClick={() => setExpandedMsg(expandedMsg === app.id ? null : app.id!)}
                       >
                         <td className="px-5 py-4 text-xs text-nex-grey whitespace-nowrap">
@@ -701,7 +701,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                         </td>
                       </tr>
                       {expandedMsg === app.id && (
-                        <tr className="border-b border-white/5 bg-white/[0.015]">
+                        <tr className="border-b border-nex-ink/5 bg-white/[0.015]">
                           <td colSpan={8} className="px-6 py-4">
                             <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-2">
                               Mensaje
@@ -720,7 +720,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10">
+                  <tr className="border-b border-nex-ink/10">
                     {['Título (ES / EN)', 'Departamento', 'Ubicación / Tipo', 'Estado', 'Acciones'].map(col => (
                       <th
                         key={col}
@@ -740,7 +740,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                     </tr>
                   ) : (
                     careers.map(career => (
-                      <tr key={career.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                      <tr key={career.id} className="border-b border-nex-ink/5 hover:bg-white/[0.01] transition-colors">
                         <td className="px-5 py-4">
                           <div className="font-medium text-nex-white">{career.title_es}</div>
                           <div className="text-xs text-nex-grey mt-0.5">{career.title_en}</div>
@@ -756,7 +756,7 @@ export function AdminApplicants({ careers: initialCareers, applications: initial
                             disabled={updatingId === career.id}
                             className={[
                               'font-dm-mono text-[10px] tracking-[0.1em] uppercase rounded px-2.5 py-1 transition-opacity border-0 outline-none',
-                              career.active ? 'text-nex-green bg-nex-green/10' : 'text-nex-grey bg-white/5',
+                              career.active ? 'text-nex-green bg-nex-green/10' : 'text-nex-grey bg-nex-ink/5',
                             ].join(' ')}
                           >
                             {career.active ? 'Activo' : 'Borrador'}

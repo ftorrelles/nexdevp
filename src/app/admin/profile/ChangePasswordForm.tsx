@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 const inputClass =
-  'bg-nex-black border border-white/10 rounded-lg px-4 py-3 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors pr-12'
+  'bg-nex-black border border-nex-ink/10 rounded-lg px-4 py-3 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors pr-12'
 const labelClass =
   'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-2'
 
@@ -15,7 +15,11 @@ function EyeIcon({ open }: { open: boolean }) {
   )
 }
 
-export function ChangePasswordForm() {
+interface Props {
+  title?: string
+}
+
+export function ChangePasswordForm({ title = 'Cambiar contraseña' }: Props = {}) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -50,9 +54,9 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+    <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6">
       <p className="font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-5">
-        Cambiar contraseña
+        {title}
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

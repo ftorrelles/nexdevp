@@ -1,8 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { UserMenu } from '@/components/theme/UserMenu'
 
-export function ProyectoLogout({ label }: { label: string }) {
+export function ProyectoUserMenu({ email, locale }: { email: string; locale: 'es' | 'en' }) {
   const router = useRouter()
 
   async function handleLogout() {
@@ -10,12 +11,5 @@ export function ProyectoLogout({ label }: { label: string }) {
     router.refresh()
   }
 
-  return (
-    <button
-      onClick={handleLogout}
-      className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors"
-    >
-      {label}
-    </button>
-  )
+  return <UserMenu email={email} onLogout={handleLogout} locale={locale} />
 }

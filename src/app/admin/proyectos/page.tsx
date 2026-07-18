@@ -16,7 +16,7 @@ const STATUS_COLORS: Record<string, string> = {
   activo: 'text-nex-green bg-nex-green/10 border-nex-green/30',
   pausado: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   entregado: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-  cerrado: 'text-nex-grey bg-white/5 border-white/20',
+  cerrado: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
 }
 
 function ProgressBar({ pct }: { pct: number }) {
@@ -24,7 +24,7 @@ function ProgressBar({ pct }: { pct: number }) {
     pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
   return (
     <div className="flex items-center gap-2">
-      <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden">
+      <div className="w-20 h-1.5 bg-nex-ink/10 rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
       <span className="font-dm-mono text-[10px] text-nex-grey w-8 text-right">{pct}%</span>
@@ -68,7 +68,7 @@ export default async function ProyectosListPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/proyectos" />
+      <AdminNav role={role} currentPath="/admin/proyectos" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -78,7 +78,7 @@ export default async function ProyectosListPage(): Promise<React.JSX.Element> {
         </div>
 
         {rows.length === 0 ? (
-          <div className="bg-nex-dark border border-white/10 rounded-xl p-10 text-center">
+          <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-10 text-center">
             <p className="font-jost text-sm text-nex-grey">
               {role === 'vendor'
                 ? 'No tenés proyectos asignados todavía.'
@@ -86,8 +86,8 @@ export default async function ProyectosListPage(): Promise<React.JSX.Element> {
             </p>
           </div>
         ) : (
-          <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
-            <div className="grid grid-cols-[1fr_1fr_auto_auto_auto] text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-5 py-3 border-b border-white/5">
+          <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-[1fr_1fr_auto_auto_auto] text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-5 py-3 border-b border-nex-ink/5">
               <span>Proyecto</span>
               <span>Lead</span>
               <span className="px-3">Estado</span>
@@ -100,7 +100,7 @@ export default async function ProyectosListPage(): Promise<React.JSX.Element> {
                 <Link
                   key={p.id}
                   href={`/admin/proyectos/${p.id}`}
-                  className="grid grid-cols-[1fr_1fr_auto_auto_auto] items-center border-b border-white/5 px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
+                  className="grid grid-cols-[1fr_1fr_auto_auto_auto] items-center border-b border-nex-ink/5 px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
                 >
                   <p className="font-jost text-sm text-nex-white truncate">{p.name}</p>
                   <p className="font-jost text-sm text-nex-grey truncate">{p.leads?.nombre ?? '—'}</p>

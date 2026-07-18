@@ -105,7 +105,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/comisiones" />
+      <AdminNav role={role} currentPath="/admin/comisiones" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto space-y-10">
 
         {/* Header */}
@@ -132,7 +132,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
               <select
                 name="vendor"
                 defaultValue={vendorFilter}
-                className="font-jost text-sm bg-nex-dark border border-white/10 text-nex-white rounded-lg px-3 py-2 focus:outline-none focus:border-nex-green/50 appearance-none cursor-pointer"
+                className="font-jost text-sm bg-nex-dark border border-nex-ink/10 text-nex-white rounded-lg px-3 py-2 focus:outline-none focus:border-nex-green/50 appearance-none cursor-pointer"
               >
                 <option value="">Todos los vendedores</option>
                 {allVendors.map(v => (
@@ -141,7 +141,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
               </select>
               <button
                 type="submit"
-                className="font-jost text-sm bg-nex-dark border border-white/10 text-nex-grey hover:text-nex-white hover:border-white/20 rounded-lg px-4 py-2 transition-colors"
+                className="font-jost text-sm bg-nex-dark border border-nex-ink/10 text-nex-grey hover:text-nex-white hover:border-nex-ink/20 rounded-lg px-4 py-2 transition-colors"
               >
                 Filtrar
               </button>
@@ -165,17 +165,17 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
             </p>
             <p className="font-jost font-bold text-2xl text-nex-green">{fmt(totalCommission)}</p>
           </div>
-          <div className="bg-nex-dark border border-white/10 rounded-xl p-5">
+          <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
             <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">Ventas cerradas</p>
             <p className="font-jost font-bold text-2xl text-nex-white">{rows.length}</p>
           </div>
           {canSeeAll && !vendorFilter ? (
-            <div className="bg-nex-dark border border-white/10 rounded-xl p-5">
+            <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
               <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">Vendedores activos</p>
               <p className="font-jost font-bold text-2xl text-nex-white">{Object.keys(byVendor).length}</p>
             </div>
           ) : (
-            <div className="bg-nex-dark border border-white/10 rounded-xl p-5">
+            <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
               <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">% promedio</p>
               <p className="font-jost font-bold text-2xl text-nex-white">
                 {rows.length === 0 ? '—' : `${Math.round(rows.reduce((a, q) => a + (COMMISSION_RATES[q.commission_type] ?? 0), 0) / rows.length * 100)}%`}
@@ -195,7 +195,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
                   <a
                     key={id}
                     href={id === 'sin-asignar' ? '/admin/comisiones' : `/admin/comisiones?vendor=${id}`}
-                    className="bg-nex-dark border border-white/10 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-white/20 transition-colors block"
+                    className="bg-nex-dark border border-nex-ink/10 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-nex-ink/20 transition-colors block"
                   >
                     <div>
                       <p className="font-jost text-sm font-bold text-nex-white">{v.email}</p>
@@ -214,7 +214,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
         <section>
           <h2 className="font-jost font-bold text-lg text-nex-white mb-4">Detalle de ventas</h2>
           {rows.length === 0 ? (
-            <div className="bg-nex-dark border border-white/10 rounded-xl p-10 text-center">
+            <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-10 text-center">
               <p className="font-jost text-sm text-nex-grey">
                 {isVendor
                   ? 'Todavía no tenés ventas cerradas registradas.'
@@ -222,8 +222,8 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
               </p>
             </div>
           ) : (
-            <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
-              <div className={`grid text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-5 py-3 border-b border-white/5 ${canSeeAll ? 'grid-cols-[1fr_auto_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto_auto]'}`}>
+            <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
+              <div className={`grid text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-5 py-3 border-b border-nex-ink/5 ${canSeeAll ? 'grid-cols-[1fr_auto_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto_auto]'}`}>
                 <span>Proyecto · Lead</span>
                 {canSeeAll && <span className="px-4">Vendedor</span>}
                 <span className="px-4">Canal</span>
@@ -240,7 +240,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
                 return (
                   <div
                     key={q.id}
-                    className={`grid items-center border-b border-white/5 px-5 py-3.5 hover:bg-white/[0.02] transition-colors ${canSeeAll ? 'grid-cols-[1fr_auto_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto_auto]'}`}
+                    className={`grid items-center border-b border-nex-ink/5 px-5 py-3.5 hover:bg-white/[0.02] transition-colors ${canSeeAll ? 'grid-cols-[1fr_auto_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto_auto]'}`}
                   >
                     <div>
                       <p className="font-jost text-sm text-nex-white">{q.title}</p>

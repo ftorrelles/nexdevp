@@ -41,6 +41,7 @@ export default async function AdminPage() {
       leads={(leads as Lead[]) ?? []}
       role={role}
       currentUserId={user.id}
+      currentUserEmail={user.email ?? ''}
       vendorUsers={vendorUsers}
       projectLeadIds={projectLeadIds}
     />

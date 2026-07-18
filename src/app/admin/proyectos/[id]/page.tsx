@@ -136,7 +136,7 @@ export default async function ProyectoDetailPage({
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/proyectos" />
+      <AdminNav role={role} currentPath="/admin/proyectos" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-4xl mx-auto">
         <ProjectEditor
           project={projectData}

@@ -69,7 +69,7 @@ const DELIVERABLE_STATUS_LABELS: Record<string, string> = {
 }
 
 const DELIVERABLE_STATUS_COLORS: Record<string, string> = {
-  pendiente: 'text-nex-grey bg-white/5 border-white/20',
+  pendiente: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
   en_curso: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
   en_revision: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   aprobado: 'text-nex-green bg-nex-green/10 border-nex-green/30',
@@ -83,7 +83,7 @@ const STATUS_COLORS: Record<string, string> = {
   activo: 'text-nex-green bg-nex-green/10 border-nex-green/30',
   pausado: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   entregado: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-  cerrado: 'text-nex-grey bg-white/5 border-white/20',
+  cerrado: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
 }
 
 function formatCommentDate(iso: string): string {
@@ -101,7 +101,7 @@ function ProgressBar({ pct }: { pct: number }) {
     pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-nex-ink/10 rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
       <span className="font-jost font-bold text-lg text-nex-white w-10 text-right">{pct}%</span>
@@ -271,7 +271,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
   return (
     <div className="space-y-8">
       {/* Project header */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-6">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 space-y-6">
         <div>
           <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-1">Proyecto</p>
           <h1 className="font-jost font-bold text-2xl text-nex-white">{project.name}</h1>
@@ -320,7 +320,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                     }
                   }}
                   placeholder="https://..."
-                  className="flex-1 bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                  className="flex-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
                 />
                 {project.vercel_url && (
                   <a
@@ -356,7 +356,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
       </div>
 
       {/* Deliverables */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green">Entregables</p>
           <span className="font-dm-mono text-[10px] text-nex-grey">
@@ -369,7 +369,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
         ) : (
           <div className="space-y-2">
             {deliverables.map((d) => (
-              <div key={d.id} className="bg-nex-black rounded-lg border border-white/5 overflow-hidden">
+              <div key={d.id} className="bg-nex-black rounded-lg border border-nex-ink/5 overflow-hidden">
                 {/* Header row */}
                 <div className="flex items-center gap-3 px-4 py-3">
                   <button
@@ -415,7 +415,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                       value={d.assigned_to ?? ''}
                       disabled={saving === d.id}
                       onChange={(e) => updateDeliverable(d.id, 'assigned_to', e.target.value || null)}
-                      className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-white/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-white/30 transition-colors disabled:opacity-50 shrink-0 max-w-[140px]"
+                      className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-nex-ink/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-nex-ink/30 transition-colors disabled:opacity-50 shrink-0 max-w-[140px]"
                     >
                       <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
                       {vendorUsers.map((u) => (
@@ -439,7 +439,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
 
                 {/* Collapsible comments section */}
                 {openComments[d.id] && (
-                  <div className="border-t border-white/5 px-4 py-3 space-y-3">
+                  <div className="border-t border-nex-ink/5 px-4 py-3 space-y-3">
                     {(commentsData[d.id] ?? []).length === 0 ? (
                       <p className="font-jost text-xs text-nex-grey italic">Sin comentarios.</p>
                     ) : (
@@ -467,7 +467,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                           value={commentBodies[d.id] ?? ''}
                           onChange={(e) => setCommentBodies((prev) => ({ ...prev, [d.id]: e.target.value }))}
                           placeholder="Escribí un comentario…"
-                          className="flex-1 bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                          className="flex-1 bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
                           onKeyDown={(e) => { if (e.key === 'Enter') postComment(d.id) }}
                         />
                         <button
@@ -488,14 +488,14 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
 
         {/* Add deliverable form — owner/supervisor only */}
         {isEditable && (
-          <div className="mt-4 pt-4 border-t border-white/5">
+          <div className="mt-4 pt-4 border-t border-nex-ink/5">
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Nombre del entregable"
-                className="flex-1 bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                className="flex-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
                 onKeyDown={(e) => { if (e.key === 'Enter') addDeliverable() }}
               />
               <input
@@ -504,7 +504,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                 onChange={(e) => setNewHours(e.target.value)}
                 placeholder="Horas"
                 min={0}
-                className="w-20 bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors text-center"
+                className="w-20 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors text-center"
                 onKeyDown={(e) => { if (e.key === 'Enter') addDeliverable() }}
               />
               <button
@@ -533,7 +533,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
 
       {/* Invite client — owner/supervisor only */}
       {isEditable && (
-        <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+        <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6">
           <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-4">
             Cliente
           </p>

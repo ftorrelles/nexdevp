@@ -182,7 +182,7 @@ export function QuoteWizard() {
                   'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
                   active ? 'bg-nex-green text-nex-black' :
                   done   ? 'bg-nex-green/30 text-nex-green' :
-                           'bg-white/10 text-nex-grey',
+                           'bg-nex-ink/10 text-nex-grey',
                 ].join(' ')}>
                   {done ? '✓' : n}
                 </div>
@@ -194,7 +194,7 @@ export function QuoteWizard() {
               {i < steps.length - 1 && (
                 <div className={[
                   'flex-1 h-px transition-colors',
-                  done ? 'bg-nex-green/50' : 'bg-white/10',
+                  done ? 'bg-nex-green/50' : 'bg-nex-ink/10',
                 ].join(' ')} />
               )}
             </div>
@@ -203,7 +203,7 @@ export function QuoteWizard() {
       </div>
 
       {/* Card */}
-      <div className="bg-nex-dark border border-white/10 rounded-2xl p-6 sm:p-8">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-6 sm:p-8">
 
         {/* ── STEP 1: Tipo ── */}
         {step === 1 && (
@@ -220,7 +220,7 @@ export function QuoteWizard() {
                     'p-5 rounded-xl border text-left transition-all',
                     tipo === t.value
                       ? 'border-nex-green bg-nex-green/10'
-                      : 'border-white/10 hover:border-white/25',
+                      : 'border-nex-ink/10 hover:border-nex-ink/25',
                   ].join(' ')}
                 >
                   <div className="text-2xl mb-2">{t.icon}</div>
@@ -255,7 +255,7 @@ export function QuoteWizard() {
                     'p-4 rounded-xl border text-left transition-all',
                     product === p.value
                       ? 'border-nex-green bg-nex-green/10'
-                      : 'border-white/10 hover:border-white/25',
+                      : 'border-nex-ink/10 hover:border-nex-ink/25',
                   ].join(' ')}
                 >
                   <div className="text-xl mb-1.5">{p.icon}</div>
@@ -297,7 +297,7 @@ export function QuoteWizard() {
                     className={[
                       'px-3 py-2 rounded-lg border text-xs font-jost text-left transition-all',
                       on ? 'border-nex-green bg-nex-green/10 text-nex-green'
-                         : 'border-white/10 text-nex-grey hover:border-white/25',
+                         : 'border-nex-ink/10 text-nex-grey hover:border-nex-ink/25',
                     ].join(' ')}
                   >
                     {a}
@@ -336,7 +336,7 @@ export function QuoteWizard() {
                       'p-5 rounded-xl border text-left transition-all',
                       region === r.value
                         ? 'border-nex-green bg-nex-green/10'
-                        : 'border-white/10 hover:border-white/25',
+                        : 'border-nex-ink/10 hover:border-nex-ink/25',
                     ].join(' ')}
                   >
                     <div className="font-jost font-bold text-nex-white text-base">{r.label}</div>
@@ -370,7 +370,7 @@ export function QuoteWizard() {
               <h2 className="font-jost font-bold text-xl text-nex-white">Estimado del proyecto</h2>
               <div className="flex items-center gap-3">
                 <span className="font-jost text-sm text-nex-grey">Tarifa/hora:</span>
-                <div className="flex items-center gap-1 bg-nex-black border border-white/10 rounded-lg px-3 py-1.5">
+                <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5">
                   <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
                   <input
                     type="number"
@@ -397,7 +397,7 @@ export function QuoteWizard() {
                 placeholder={`${PRODUCTS[tipo!]?.find(p => p.value === product)?.label ?? 'Proyecto'} — cliente`}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
               />
             </div>
 
@@ -422,7 +422,7 @@ export function QuoteWizard() {
                     {items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-3 bg-nex-black border border-white/5 rounded-lg px-4 py-3"
+                        className="flex items-center gap-3 bg-nex-black border border-nex-ink/5 rounded-lg px-4 py-3"
                       >
                         {item.size && (
                           <span className={[
@@ -444,7 +444,7 @@ export function QuoteWizard() {
                             min={1}
                             value={item.hours}
                             onChange={e => updateItemHours(idx, Number(e.target.value))}
-                            className="w-14 bg-nex-dark border border-white/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
+                            className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
                           />
                           <span className="font-dm-mono text-xs text-nex-grey">h</span>
                         </div>
@@ -461,7 +461,7 @@ export function QuoteWizard() {
                 </div>
 
                 {/* Overhead breakdown */}
-                <div className="bg-nex-black/40 border border-white/5 rounded-xl p-4 space-y-2">
+                <div className="bg-nex-black/40 border border-nex-ink/5 rounded-xl p-4 space-y-2">
                   <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-3">
                     Desglose de horas
                   </h3>
@@ -476,7 +476,7 @@ export function QuoteWizard() {
                       <span className="text-nex-white font-dm-mono">{row.hours}h</span>
                     </div>
                   ))}
-                  <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
+                  <div className="border-t border-nex-ink/10 pt-2 flex justify-between font-jost text-sm font-bold">
                     <span className="text-nex-white">Total horas</span>
                     <span className="text-nex-green font-dm-mono">{totalHours}h</span>
                   </div>
@@ -493,7 +493,7 @@ export function QuoteWizard() {
                       key={card.label}
                       className={[
                         'rounded-xl border p-4',
-                        card.big ? 'border-nex-green/40 bg-nex-green/5' : 'border-white/10 bg-nex-black/40',
+                        card.big ? 'border-nex-green/40 bg-nex-green/5' : 'border-nex-ink/10 bg-nex-black/40',
                       ].join(' ')}
                     >
                       <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">

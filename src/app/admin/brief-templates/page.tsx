@@ -34,7 +34,7 @@ export default async function BriefTemplatesPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/brief-templates" />
+      <AdminNav role={role} currentPath="/admin/brief-templates" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -50,7 +50,7 @@ export default async function BriefTemplatesPage(): Promise<React.JSX.Element> {
         </div>
 
         {rows.length === 0 ? (
-          <div className="bg-nex-dark border border-white/10 rounded-xl p-10 text-center">
+          <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-10 text-center">
             <p className="font-jost text-sm text-nex-grey">No templates yet. Create your first one.</p>
           </div>
         ) : (
@@ -59,7 +59,7 @@ export default async function BriefTemplatesPage(): Promise<React.JSX.Element> {
               <Link
                 key={t.id}
                 href={`/admin/brief-templates/${t.id}`}
-                className="block bg-nex-dark border border-white/10 rounded-xl p-5 hover:border-white/20 hover:bg-white/[0.02] transition-all"
+                className="block bg-nex-dark border border-nex-ink/10 rounded-xl p-5 hover:border-nex-ink/20 hover:bg-white/[0.02] transition-all"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">

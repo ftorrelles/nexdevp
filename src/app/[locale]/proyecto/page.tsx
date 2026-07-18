@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<string, string> = {
   activo: 'text-nex-green bg-nex-green/10 border-nex-green/30',
   pausado: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   entregado: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-  cerrado: 'text-nex-grey bg-white/5 border-white/20',
+  cerrado: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
 }
 
 export default async function ProyectoListPage({ params }: Props): Promise<React.JSX.Element> {
@@ -58,7 +58,7 @@ export default async function ProyectoListPage({ params }: Props): Promise<React
       </div>
 
       {rows.length === 0 ? (
-        <div className="bg-nex-dark border border-white/10 rounded-2xl p-8 text-center">
+        <div className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-8 text-center">
           <p className="font-jost text-sm text-nex-grey">
             {loc === 'es'
               ? 'Todavía no tenés proyectos activos.'
@@ -74,7 +74,7 @@ export default async function ProyectoListPage({ params }: Props): Promise<React
               <Link
                 key={p.id}
                 href={`/proyecto/${p.id}`}
-                className="bg-nex-dark border border-white/10 rounded-xl p-5 flex items-center justify-between gap-4 hover:border-white/20 transition-colors block"
+                className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 flex items-center justify-between gap-4 hover:border-nex-ink/20 transition-colors block"
               >
                 <div className="min-w-0">
                   <h2 className="font-jost font-bold text-base text-nex-white truncate">{p.name}</h2>
@@ -86,7 +86,7 @@ export default async function ProyectoListPage({ params }: Props): Promise<React
                       {STATUS_LABELS[loc][p.status] ?? p.status}
                     </span>
                     <div className="flex items-center gap-2">
-                      <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="w-16 h-1.5 bg-nex-ink/10 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
                       </div>
                       <span className="font-dm-mono text-[10px] text-nex-grey">{pct}%</span>

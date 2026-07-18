@@ -210,7 +210,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full bg-transparent font-jost font-bold text-2xl text-nex-white outline-none border-b border-white/10 focus:border-nex-green/50 pb-1 transition-colors"
+            className="w-full bg-transparent font-jost font-bold text-2xl text-nex-white outline-none border-b border-nex-ink/10 focus:border-nex-green/50 pb-1 transition-colors"
           />
           <p className="font-jost text-xs text-nex-grey mt-1">
             {quote.tipo} · {quote.product} · {quote.region.charAt(0).toUpperCase() + quote.region.slice(1)}
@@ -219,7 +219,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         <select
           value={status}
           onChange={e => setStatus(e.target.value as QuoteStatus)}
-          className="bg-nex-dark border border-white/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 shrink-0"
+          className="bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 shrink-0"
         >
           {STATUS_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -251,7 +251,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
                   setCommissionType(null)
                 }
               }}
-              className="font-jost text-xs text-nex-grey hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-md px-2.5 py-1 transition-colors shrink-0"
+              className="font-jost text-xs text-nex-grey hover:text-red-400 border border-nex-ink/10 hover:border-red-400/30 rounded-md px-2.5 py-1 transition-colors shrink-0"
             >
               Quitar lead
             </button>
@@ -260,7 +260,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           <select
             value={leadId}
             onChange={e => setLeadId(e.target.value)}
-            className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+            className="w-full bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 font-jost text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
           >
             <option value="">— Sin vincular —</option>
             {leads.map(l => (
@@ -275,7 +275,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       {/* Rate */}
       <div className="flex items-center gap-3">
         <span className="font-jost text-sm text-nex-grey">Tarifa/hora:</span>
-        <div className="flex items-center gap-1 bg-nex-black border border-white/10 rounded-lg px-3 py-1.5">
+        <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5">
           <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
           <input
             type="number"
@@ -289,7 +289,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       </div>
 
       {/* Line items */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-5 space-y-3">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 space-y-3">
         <div className="flex items-center justify-between mb-1">
           <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Fases / funcionalidades</h3>
           <div className="flex items-center gap-2">
@@ -304,7 +304,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         {items.map((item, idx) => (
           <div key={idx} className={[
             'flex items-center gap-3 border rounded-lg px-4 py-3',
-            item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-white/5',
+            item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-nex-ink/5',
           ].join(' ')}>
             {item.gift ? (
               <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green bg-nex-green/10 border-nex-green/30">
@@ -333,7 +333,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
                 min={1}
                 value={item.hours}
                 onChange={e => updateHours(idx, Number(e.target.value))}
-                className="w-14 bg-nex-dark border border-white/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
+                className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
               />
               <span className="font-dm-mono text-xs text-nex-grey">h</span>
             </div>
@@ -350,7 +350,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       </div>
 
       {/* Overhead breakdown */}
-      <div className="bg-nex-black/40 border border-white/5 rounded-xl p-4 space-y-2">
+      <div className="bg-nex-black/40 border border-nex-ink/5 rounded-xl p-4 space-y-2">
         <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-3">Desglose</h3>
         {[
           { label: 'Subtotal funcionalidades', val: baseHours },
@@ -369,7 +369,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             <span className="text-nex-green font-dm-mono">{giftHours}h</span>
           </div>
         )}
-        <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
+        <div className="border-t border-nex-ink/10 pt-2 flex justify-between font-jost text-sm font-bold">
           <span className="text-nex-white">Total horas</span>
           <span className="text-nex-green font-dm-mono">{totalHours}h</span>
         </div>
@@ -377,11 +377,11 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
 
       {/* Price summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
+        <div className="rounded-xl border border-nex-ink/10 bg-nex-black/40 p-4">
           <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Precio del proyecto</p>
           <p className="font-jost font-bold text-2xl text-nex-green">{fmt(totalPrice)}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
+        <div className="rounded-xl border border-nex-ink/10 bg-nex-black/40 p-4">
           <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Mantenimiento / mes</p>
           <div className="flex items-baseline gap-1">
             <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
@@ -402,14 +402,14 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             </button>
           )}
         </div>
-        <div className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
+        <div className="rounded-xl border border-nex-ink/10 bg-nex-black/40 p-4">
           <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Total horas</p>
           <p className="font-jost font-bold text-xl text-nex-white">{totalHours}h</p>
         </div>
       </div>
 
       {/* Special discount / price rounding */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-5 space-y-3">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 space-y-3">
         <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Ajuste de precio final</h3>
         <div className="flex justify-between font-jost text-sm">
           <span className="text-nex-grey">Precio calculado</span>
@@ -417,7 +417,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         </div>
         <div className="flex items-center justify-between">
           <span className="font-jost text-sm text-nex-grey">Descuento especial</span>
-          <div className="flex items-center gap-1 bg-nex-black border border-white/10 rounded-lg px-3 py-1.5">
+          <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5">
             <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
             <input
               type="number"
@@ -428,7 +428,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             />
           </div>
         </div>
-        <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
+        <div className="border-t border-nex-ink/10 pt-2 flex justify-between font-jost text-sm font-bold">
           <span className="text-nex-white">Precio final al cliente</span>
           <span className="text-nex-green font-dm-mono">{fmt(totalPrice)}</span>
         </div>
@@ -469,7 +469,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="Observaciones, acuerdos, contexto del cliente…"
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
         />
       </div>
 
@@ -484,13 +484,13 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
           <div className="relative" ref={pdfRef}>
             <button
               onClick={() => setPdfOpen(v => !v)}
-              className="border border-white/20 text-nex-white font-jost text-sm py-2.5 px-5 rounded-lg hover:border-nex-green/50 hover:text-nex-green transition-colors"
+              className="border border-nex-ink/20 text-nex-white font-jost text-sm py-2.5 px-5 rounded-lg hover:border-nex-green/50 hover:text-nex-green transition-colors"
             >
               Exportar PDF ▾
             </button>
 
             {pdfOpen && (
-              <div className="absolute bottom-full right-0 mb-2 w-64 bg-nex-dark border border-white/15 rounded-xl shadow-xl p-4 space-y-3 z-10">
+              <div className="absolute bottom-full right-0 mb-2 w-64 bg-nex-dark border border-nex-ink/15 rounded-xl shadow-xl p-4 space-y-3 z-10">
                 <p className="font-dm-mono text-[10px] text-nex-grey uppercase tracking-[0.15em]">Opciones del PDF</p>
 
                 {[
@@ -503,7 +503,7 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
                       onClick={() => set(v => !v)}
                       className={[
                         'w-9 h-5 rounded-full transition-colors shrink-0',
-                        state ? 'bg-nex-green' : 'bg-white/20',
+                        state ? 'bg-nex-green' : 'bg-nex-ink/20',
                       ].join(' ')}
                     >
                       <div className={[

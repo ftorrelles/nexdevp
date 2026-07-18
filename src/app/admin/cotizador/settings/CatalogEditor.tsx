@@ -99,7 +99,7 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
           placeholder="Filtrar ítems…"
           value={filter}
           onChange={e => setFilter(e.target.value)}
-          className="flex-1 max-w-xs bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="flex-1 max-w-xs bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors"
         />
         {canEdit && !adding && (
           <button
@@ -130,8 +130,8 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
       )}
 
       {/* Table */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-4 py-2.5 border-b border-white/5">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-4 py-2.5 border-b border-nex-ink/5">
           <span>Nombre</span>
           <span className="text-center px-3">Talla</span>
           <span className="text-right px-3">Horas</span>
@@ -145,7 +145,7 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
 
         {visible.map(item => (
           editing === item.id ? (
-            <div key={item.id} className="border-b border-white/5 px-4 py-4 space-y-3 bg-nex-black/40">
+            <div key={item.id} className="border-b border-nex-ink/5 px-4 py-4 space-y-3 bg-nex-black/40">
               <ItemForm item={draft as Omit<CatalogItem,'id'>} onChange={d => setDraft(prev => ({ ...prev, ...d }))} />
               <div className="flex justify-end gap-2">
                 <button onClick={cancelEdit} className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">Cancelar</button>
@@ -159,7 +159,7 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
               </div>
             </div>
           ) : (
-            <div key={item.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 items-center border-b border-white/5 px-4 py-3 hover:bg-white/[0.02] transition-colors">
+            <div key={item.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 items-center border-b border-nex-ink/5 px-4 py-3 hover:bg-white/[0.02] transition-colors">
               <span className="font-jost text-sm text-nex-white truncate pr-3">{item.name}</span>
               <span className={['font-dm-mono text-[10px] font-bold border rounded px-1.5 text-center', SIZE_STYLES[item.size]].join(' ')}>
                 {item.size}
@@ -197,7 +197,7 @@ function ItemForm({
           type="text"
           value={item.name ?? ''}
           onChange={e => onChange({ name: e.target.value })}
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
         />
       </div>
       <div>
@@ -205,7 +205,7 @@ function ItemForm({
         <select
           value={item.tipo ?? ''}
           onChange={e => onChange({ tipo: e.target.value })}
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
         >
           {['Desarrollo', 'Marketing Digital', 'IA & Automatización', 'Paquete'].map(t => (
             <option key={t} value={t}>{t}</option>
@@ -218,7 +218,7 @@ function ItemForm({
           type="text"
           value={item.product ?? ''}
           onChange={e => onChange({ product: e.target.value })}
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
         />
       </div>
       <div>
@@ -226,7 +226,7 @@ function ItemForm({
         <select
           value={item.size ?? 'M'}
           onChange={e => onChange({ size: e.target.value as QuoteSize })}
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
         >
           {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
@@ -238,7 +238,7 @@ function ItemForm({
           min={1}
           value={item.default_hours ?? 0}
           onChange={e => onChange({ default_hours: parseInt(e.target.value) || 0 })}
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
         />
       </div>
       <div className="col-span-2">
@@ -247,7 +247,7 @@ function ItemForm({
           type="text"
           value={item.description ?? ''}
           onChange={e => onChange({ description: e.target.value || null })}
-          className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
         />
       </div>
     </div>

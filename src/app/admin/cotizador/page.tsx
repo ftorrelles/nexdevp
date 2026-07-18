@@ -23,7 +23,7 @@ export default async function CotizadorListPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/cotizador" />
+      <AdminNav role={role} currentPath="/admin/cotizador" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -36,7 +36,7 @@ export default async function CotizadorListPage(): Promise<React.JSX.Element> {
             {['owner', 'supervisor'].includes(role) && (
               <Link
                 href="/admin/cotizador/settings"
-                className="border border-white/20 text-nex-grey font-jost text-sm py-2.5 px-4 rounded-lg hover:border-white/40 hover:text-nex-white transition-colors"
+                className="border border-nex-ink/20 text-nex-grey font-jost text-sm py-2.5 px-4 rounded-lg hover:border-nex-ink/40 hover:text-nex-white transition-colors"
               >
                 Configuración
               </Link>

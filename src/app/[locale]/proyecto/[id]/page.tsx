@@ -22,7 +22,7 @@ const STATUS_COLORS: Record<string, string> = {
   activo: 'text-nex-green bg-nex-green/10 border-nex-green/30',
   pausado: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   entregado: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-  cerrado: 'text-nex-grey bg-white/5 border-white/20',
+  cerrado: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
 }
 
 const DELIVERABLE_STATUS_LABELS: Record<Locale, Record<string, string>> = {
@@ -43,7 +43,7 @@ const DELIVERABLE_STATUS_LABELS: Record<Locale, Record<string, string>> = {
 }
 
 const DELIVERABLE_STATUS_COLORS: Record<string, string> = {
-  pendiente: 'text-nex-grey bg-white/5 border-white/20',
+  pendiente: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
   en_curso: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
   en_revision: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   aprobado: 'text-nex-green bg-nex-green/10 border-nex-green/30',
@@ -123,7 +123,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
         {loc === 'es' ? '← Volver a proyectos' : '← Back to projects'}
       </Link>
 
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-6">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 space-y-6">
         <div className="flex items-center justify-between gap-4">
           <h1 className="font-jost font-bold text-2xl text-nex-white">{project.name}</h1>
           <span className={[
@@ -139,7 +139,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
             {loc === 'es' ? 'Progreso general' : 'Overall progress'}
           </p>
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-nex-ink/10 rounded-full overflow-hidden">
               <div className={`h-full rounded-full ${progressColor} transition-all`} style={{ width: `${pct}%` }} />
             </div>
             <span className="font-jost font-bold text-lg text-nex-white">{pct}%</span>
@@ -174,7 +174,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
         {brief?.status === 'completed' && (
           <Link
             href={`/proyecto/${id}/brief`}
-            className="block bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition-colors"
+            className="block bg-nex-ink/5 border border-nex-ink/10 rounded-xl p-4 hover:bg-nex-ink/8 transition-colors"
           >
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -204,7 +204,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
       </div>
 
       {/* Deliverables with threads */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6 mt-6">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 mt-6">
         <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-4">
           {loc === 'es' ? 'Entregables' : 'Deliverables'}
         </p>
@@ -220,7 +220,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
             {deliverables.map((d: DeliverableRow) => (
               <div
                 key={d.id}
-                className="bg-nex-black rounded-xl border border-white/10 overflow-hidden"
+                className="bg-nex-black rounded-xl border border-nex-ink/10 overflow-hidden"
               >
                 {/* Header row */}
                 <div className="flex items-center justify-between gap-4 px-4 py-3">

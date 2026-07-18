@@ -181,10 +181,10 @@ export function BriefForm({ projectId, brief, locale }: Props) {
   }
 
   const inputClass =
-    'w-full bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 font-jost text-sm text-nex-white placeholder:text-nex-grey/60 focus:outline-none focus:border-nex-green/50 transition-colors'
+    'w-full bg-nex-black border border-nex-ink/10 rounded-lg px-4 py-2.5 font-jost text-sm text-nex-white placeholder:text-nex-grey/60 focus:outline-none focus:border-nex-green/50 transition-colors'
 
   return (
-    <div className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-6">
+    <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 space-y-6">
       {/* Header */}
       <div>
         <p className="font-dm-mono text-[10px] uppercase tracking-[0.15em] text-nex-green mb-1">Brief</p>
@@ -238,7 +238,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
             <div
               key={q.id}
               className={[
-                'border-t border-white/10 pt-5 first:border-t-0 first:pt-0',
+                'border-t border-nex-ink/10 pt-5 first:border-t-0 first:pt-0',
                 isMissing ? 'rounded-lg ring-1 ring-red-400/50 p-3 -mx-3' : '',
               ].join(' ')}
             >
@@ -302,7 +302,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                         'px-5 py-2 rounded-lg font-jost text-sm font-semibold border transition-colors',
                         answers[q.id] === val
                           ? 'bg-nex-green text-nex-black border-nex-green'
-                          : 'bg-nex-black text-nex-grey border-white/10 hover:border-nex-green/40',
+                          : 'bg-nex-black text-nex-grey border-nex-ink/10 hover:border-nex-green/40',
                       ].join(' ')}
                     >
                       {val === 'true' ? (loc === 'es' ? 'Sí' : 'Yes') : 'No'}
@@ -318,7 +318,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                       <img
                         src={existingImages[q.id]!}
                         alt={loc === 'es' ? 'Imagen actual' : 'Current image'}
-                        className="h-24 w-auto rounded-lg border border-white/10 object-cover"
+                        className="h-24 w-auto rounded-lg border border-nex-ink/10 object-cover"
                       />
                       <p className="font-dm-mono text-[10px] text-nex-grey mt-1">
                         {loc === 'es' ? 'Imagen actual' : 'Current image'}
@@ -343,7 +343,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileChange(q.id, e.target.files?.[0])}
-                    className="block font-jost text-sm text-nex-grey file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border file:border-white/10 file:bg-nex-black file:text-nex-grey file:text-sm file:font-jost file:cursor-pointer hover:file:border-nex-green/40 transition-colors"
+                    className="block font-jost text-sm text-nex-grey file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border file:border-nex-ink/10 file:bg-nex-black file:text-nex-grey file:text-sm file:font-jost file:cursor-pointer hover:file:border-nex-green/40 transition-colors"
                   />
                 </div>
               )}
@@ -357,7 +357,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                           key={i}
                           src={url}
                           alt={loc === 'es' ? 'Imagen actual' : 'Current image'}
-                          className="h-24 w-24 rounded-lg border border-white/10 object-cover"
+                          className="h-24 w-24 rounded-lg border border-nex-ink/10 object-cover"
                         />
                       ))}
                     </div>
@@ -374,7 +374,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                           <button
                             type="button"
                             onClick={() => handleRemoveMultiFile(q.id, i)}
-                            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-nex-black border border-white/20 text-nex-grey text-xs leading-none flex items-center justify-center hover:text-nex-white hover:border-red-400/50"
+                            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-nex-black border border-nex-ink/20 text-nex-grey text-xs leading-none flex items-center justify-center hover:text-nex-white hover:border-red-400/50"
                             aria-label={loc === 'es' ? 'Quitar imagen' : 'Remove image'}
                           >
                             ×
@@ -389,7 +389,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                     accept="image/*"
                     multiple
                     onChange={(e) => handleMultiFileChange(q.id, e.target.files)}
-                    className="block font-jost text-sm text-nex-grey file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border file:border-white/10 file:bg-nex-black file:text-nex-grey file:text-sm file:font-jost file:cursor-pointer hover:file:border-nex-green/40 transition-colors"
+                    className="block font-jost text-sm text-nex-grey file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border file:border-nex-ink/10 file:bg-nex-black file:text-nex-grey file:text-sm file:font-jost file:cursor-pointer hover:file:border-nex-green/40 transition-colors"
                   />
                 </div>
               )}
@@ -399,12 +399,12 @@ export function BriefForm({ projectId, brief, locale }: Props) {
       </div>
 
       {/* Actions */}
-      <div className="border-t border-white/10 pt-6 flex flex-col gap-3">
+      <div className="border-t border-nex-ink/10 pt-6 flex flex-col gap-3">
         <button
           type="button"
           onClick={handleSave}
           disabled={saveStatus === 'saving'}
-          className="w-full py-2.5 rounded-lg font-jost font-semibold text-sm border border-white/20 text-nex-white bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50"
+          className="w-full py-2.5 rounded-lg font-jost font-semibold text-sm border border-nex-ink/20 text-nex-white bg-nex-ink/5 hover:bg-nex-ink/10 transition-colors disabled:opacity-50"
         >
           {saveStatus === 'saving'
             ? (loc === 'es' ? 'Guardando…' : 'Saving…')

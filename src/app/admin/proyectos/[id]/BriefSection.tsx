@@ -30,7 +30,7 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: 'text-nex-grey bg-white/5 border-white/20',
+  draft: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
   sent: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
   completed: 'text-nex-green bg-nex-green/10 border-nex-green/30',
 }
@@ -45,8 +45,8 @@ const FIELD_TYPE_LABELS: Record<string, string> = {
 }
 
 const FIELD_TYPE_COLORS: Record<string, string> = {
-  text: 'text-nex-grey bg-white/5 border-white/10',
-  textarea: 'text-nex-grey bg-white/5 border-white/10',
+  text: 'text-nex-grey bg-nex-ink/5 border-nex-ink/10',
+  textarea: 'text-nex-grey bg-nex-ink/5 border-nex-ink/10',
   url: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
   image: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   image_multi: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
@@ -292,7 +292,7 @@ export function BriefSection({
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+    <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6">
       <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-4">
         Brief del proyecto
       </p>
@@ -309,7 +309,7 @@ export function BriefSection({
               <select
                 value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="flex-1 bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                className="flex-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
               >
                 <option value="" className="bg-nex-dark text-nex-grey">
                   Seleccionar template…
@@ -405,7 +405,7 @@ export function BriefSection({
               return (
                 <div
                   key={q.id}
-                  className="bg-nex-black rounded-lg border border-white/5 px-4 py-3 space-y-2"
+                  className="bg-nex-black rounded-lg border border-nex-ink/5 px-4 py-3 space-y-2"
                 >
                   {isEditing ? (
                     /* Inline edit form */
@@ -415,20 +415,20 @@ export function BriefSection({
                         value={editForm.label}
                         onChange={(e) => setEditForm((f) => ({ ...f, label: e.target.value }))}
                         placeholder="Pregunta"
-                        className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
+                        className="w-full bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
                       />
                       <input
                         type="text"
                         value={editForm.description}
                         onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
                         placeholder="Descripción (opcional)"
-                        className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
+                        className="w-full bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
                       />
                       <div className="flex items-center gap-3">
                         <select
                           value={editForm.field_type}
                           onChange={(e) => setEditForm((f) => ({ ...f, field_type: e.target.value }))}
-                          className="bg-nex-dark border border-white/10 rounded px-2 py-1 text-xs text-nex-white focus:outline-none"
+                          className="bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 text-xs text-nex-white focus:outline-none"
                         >
                           {Object.keys(FIELD_TYPE_LABELS).map((ft) => (
                             <option key={ft} value={ft} className="bg-nex-dark">{FIELD_TYPE_LABELS[ft]}</option>
@@ -510,7 +510,7 @@ export function BriefSection({
 
                       {/* Answer display */}
                       {answer && (
-                        <div className="pl-0 pt-1 border-t border-white/5">
+                        <div className="pl-0 pt-1 border-t border-nex-ink/5">
                           <p className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey mb-1">
                             Respuesta
                           </p>
@@ -525,7 +525,7 @@ export function BriefSection({
                               <img
                                 src={answer.file_path}
                                 alt="Respuesta"
-                                className="h-16 w-auto rounded border border-white/10 object-contain hover:opacity-80 transition-opacity"
+                                className="h-16 w-auto rounded border border-nex-ink/10 object-contain hover:opacity-80 transition-opacity"
                               />
                             </a>
                           ) : q.field_type === 'image_multi' && answer.file_path ? (
@@ -536,7 +536,7 @@ export function BriefSection({
                                   <img
                                     src={url}
                                     alt="Respuesta"
-                                    className="h-16 w-16 rounded border border-white/10 object-cover hover:opacity-80 transition-opacity"
+                                    className="h-16 w-16 rounded border border-nex-ink/10 object-cover hover:opacity-80 transition-opacity"
                                   />
                                 </a>
                               ))}
@@ -561,7 +561,7 @@ export function BriefSection({
 
           {/* Add question */}
           {canEditQuestions && (
-            <div className="pt-2 border-t border-white/5">
+            <div className="pt-2 border-t border-nex-ink/5">
               {showAddForm ? (
                 <div className="space-y-2">
                   <input
@@ -569,20 +569,20 @@ export function BriefSection({
                     value={addForm.label}
                     onChange={(e) => setAddForm((f) => ({ ...f, label: e.target.value }))}
                     placeholder="Pregunta"
-                    className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
+                    className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
                   />
                   <input
                     type="text"
                     value={addForm.description}
                     onChange={(e) => setAddForm((f) => ({ ...f, description: e.target.value }))}
                     placeholder="Descripción (opcional)"
-                    className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
+                    className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
                   />
                   <div className="flex items-center gap-3">
                     <select
                       value={addForm.field_type}
                       onChange={(e) => setAddForm((f) => ({ ...f, field_type: e.target.value }))}
-                      className="bg-nex-dark border border-white/10 rounded px-2 py-1 text-xs text-nex-white focus:outline-none"
+                      className="bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 text-xs text-nex-white focus:outline-none"
                     >
                       {Object.keys(FIELD_TYPE_LABELS).map((ft) => (
                         <option key={ft} value={ft} className="bg-nex-dark">{FIELD_TYPE_LABELS[ft]}</option>

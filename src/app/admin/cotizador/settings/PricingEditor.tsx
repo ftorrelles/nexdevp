@@ -56,7 +56,7 @@ export function PricingEditor({ initialSettings }: { initialSettings: PricingSet
   return (
     <div className="space-y-4">
       {settings.map(s => (
-        <div key={s.region} className="bg-nex-dark border border-white/10 rounded-xl p-5">
+        <div key={s.region} className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-jost font-bold text-sm text-nex-white">
               {REGION_LABELS[s.region] ?? s.region}
@@ -74,7 +74,7 @@ export function PricingEditor({ initialSettings }: { initialSettings: PricingSet
             ].map(({ label, field, suffix, pctField }) => (
               <div key={field}>
                 <label className="block font-jost text-xs text-nex-grey mb-1">{label}</label>
-                <div className="flex items-center gap-1 bg-nex-black border border-white/10 rounded-lg px-2.5 py-1.5 focus-within:border-nex-green/50 transition-colors">
+                <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-2.5 py-1.5 focus-within:border-nex-green/50 transition-colors">
                   <input
                     type="number"
                     min={0}

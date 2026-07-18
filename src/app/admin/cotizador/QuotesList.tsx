@@ -19,7 +19,7 @@ interface QuoteRow {
 }
 
 const STATUS_STYLES: Record<QuoteRow['status'], string> = {
-  draft:    'text-nex-grey    bg-white/5       border-white/20',
+  draft:    'text-nex-grey    bg-nex-ink/5       border-nex-ink/20',
   sent:     'text-blue-400   bg-blue-400/10   border-blue-400/30',
   accepted: 'text-nex-green  bg-nex-green/10  border-nex-green/30',
   rejected: 'text-red-400    bg-red-400/10    border-red-400/30',
@@ -53,7 +53,7 @@ export function QuotesList({ quotes: initial }: Props) {
 
   if (quotes.length === 0) {
     return (
-      <div className="bg-nex-dark border border-white/10 rounded-2xl p-12 text-center">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-12 text-center">
         <p className="font-jost text-nex-grey text-sm mb-5">
           Todavía no hay presupuestos guardados.
         </p>
@@ -72,7 +72,7 @@ export function QuotesList({ quotes: initial }: Props) {
       {quotes.map(q => (
         <div
           key={q.id}
-          className="bg-nex-dark border border-white/10 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-white/20 transition-colors"
+          className="bg-nex-dark border border-nex-ink/10 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-nex-ink/20 transition-colors"
         >
           {/* Main info */}
           <div className="flex-1 min-w-0">
@@ -99,7 +99,7 @@ export function QuotesList({ quotes: initial }: Props) {
                   {q.leads.nombre}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 font-jost text-[11px] text-nex-grey bg-white/5 border border-white/10 rounded-full px-2 py-0.5">
+                <span className="inline-flex items-center gap-1 font-jost text-[11px] text-nex-grey bg-nex-ink/5 border border-nex-ink/10 rounded-full px-2 py-0.5">
                   Sin lead asignado
                 </span>
               )}
@@ -126,14 +126,14 @@ export function QuotesList({ quotes: initial }: Props) {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href={`/admin/cotizador/${q.id}`}
-              className="font-jost text-xs text-nex-grey hover:text-nex-white border border-white/10 hover:border-white/30 rounded-lg px-3 py-1.5 transition-colors"
+              className="font-jost text-xs text-nex-grey hover:text-nex-white border border-nex-ink/10 hover:border-nex-ink/30 rounded-lg px-3 py-1.5 transition-colors"
             >
               Ver / editar
             </Link>
             <button
               onClick={() => handleDelete(q.id)}
               disabled={deleting === q.id}
-              className="font-jost text-xs text-nex-grey hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40"
+              className="font-jost text-xs text-nex-grey hover:text-red-400 border border-nex-ink/10 hover:border-red-400/30 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40"
             >
               {deleting === q.id ? '…' : 'Eliminar'}
             </button>

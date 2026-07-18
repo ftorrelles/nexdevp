@@ -93,7 +93,7 @@ async function renderBriefPage({ params }: Props): Promise<React.JSX.Element> {
           {loc === 'es' ? '← Volver al proyecto' : '← Back to project'}
         </Link>
 
-        <div className="bg-nex-dark border border-white/10 rounded-xl p-8 text-center">
+        <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-8 text-center">
           <p className="font-dm-mono text-[10px] uppercase tracking-[0.15em] text-nex-grey mb-3">Brief</p>
           <p className="font-jost text-nex-white text-lg font-semibold mb-2">
             {loc === 'es' ? 'El brief no está disponible todavía' : 'Brief not available yet'}

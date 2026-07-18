@@ -27,7 +27,7 @@ export default async function CotizadorSettingsPage(): Promise<React.JSX.Element
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/cotizador" />
+      <AdminNav role={role} currentPath="/admin/cotizador" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-5xl mx-auto space-y-12">
 
         <div className="flex items-start justify-between">
@@ -53,7 +53,7 @@ export default async function CotizadorSettingsPage(): Promise<React.JSX.Element
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-jost font-bold text-lg text-nex-white">Tarifas por región</h2>
             {!canEditPricing && (
-              <span className="font-dm-mono text-xs text-nex-grey border border-white/10 rounded-full px-3 py-1">
+              <span className="font-dm-mono text-xs text-nex-grey border border-nex-ink/10 rounded-full px-3 py-1">
                 Solo lectura
               </span>
             )}
@@ -63,7 +63,7 @@ export default async function CotizadorSettingsPage(): Promise<React.JSX.Element
           ) : (
             <div className="space-y-4">
               {(settingsRes.data ?? []).map(s => (
-                <div key={s.region} className="bg-nex-dark border border-white/10 rounded-xl px-5 py-4">
+                <div key={s.region} className="bg-nex-dark border border-nex-ink/10 rounded-xl px-5 py-4">
                   <p className="font-jost font-bold text-sm text-nex-white mb-3">
                     {{ españa: 'España', eeuu: 'Estados Unidos', latam: 'Latinoamérica' }[s.region as string] ?? s.region}
                   </p>

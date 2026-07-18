@@ -2,13 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand token definitions — dark SaaS palette */
+/* Brand token definitions — dark SaaS palette (default) and light-theme override.
+   Stored as "R G B" triplets so Tailwind's rgb(var(--x) / <alpha-value>) can apply
+   opacity modifiers (e.g. border-nex-ink/10) per current theme. */
 :root {
-  --nex-black: #191a1b;
-  --nex-dark: #1b1b1c;
-  --nex-grey: #8a8c8b;
-  --nex-white: #ffffff;
-  --nex-green: #22b561;
+  --nex-black: 25 26 27;
+  --nex-dark: 27 27 28;
+  --nex-grey: 138 140 139;
+  --nex-white: 255 255 255;
+  --nex-green: 34 181 97;
+  /* nex-ink: subtle border/divider/hover-overlay tint — light-on-dark, dark-on-light */
+  --nex-ink: 255 255 255;
+}
+
+:root[data-theme="light"] {
+  --nex-black: 247 247 248;
+  --nex-dark: 255 255 255;
+  --nex-grey: 91 93 92;
+  --nex-white: 25 26 27;
+  --nex-green: 34 181 97;
+  --nex-ink: 0 0 0;
 }
 
 /* Animations */
@@ -75,8 +88,8 @@
 /* Dark-first base */
 @layer base {
   html {
-    background-color: var(--nex-black);
-    color: var(--nex-white);
+    background-color: rgb(var(--nex-black));
+    color: rgb(var(--nex-white));
     scroll-behavior: smooth;
   }
 

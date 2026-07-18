@@ -1,26 +1,33 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
-import { ApplicantLogout } from '@/app/[locale]/careers/portal/ApplicantLogout'
+import { UserMenu } from '@/components/theme/UserMenu'
 
 interface Props {
   locale:     Locale
   isLoggedIn: boolean
+  email?:     string
 }
 
-export function CareersHeader({ locale, isLoggedIn }: Props) {
+export function CareersHeader({ locale, isLoggedIn, email }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const router = useRouter()
+
+  async function handleLogout() {
+    await fetch('/api/admin/auth', { method: 'DELETE' })
+    router.refresh()
+  }
 
   const backToSite    = locale === 'es' ? 'Volver al sitio'  : 'Back to site'
   const myPortal      = locale === 'es' ? 'Mi portal'        : 'My portal'
   const logIn         = locale === 'es' ? 'Iniciar sesión'   : 'Log in'
   const createAccount = locale === 'es' ? 'Crear cuenta'     : 'Create account'
-  const logOut        = locale === 'es' ? 'Cerrar sesión'    : 'Log out'
 
   return (
-    <header className="sticky top-0 z-50 bg-nex-black/90 backdrop-blur-md border-b border-white/10">
+    <header className="sticky top-0 z-50 bg-nex-black/90 backdrop-blur-md border-b border-nex-ink/10">
       <div className="px-4 sm:px-6 lg:px-12 h-16 flex items-center justify-between gap-4">
 
         {/* Brand */}
@@ -42,7 +49,7 @@ export function CareersHeader({ locale, isLoggedIn }: Props) {
               <Link href="/careers/portal" className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">
                 {myPortal}
               </Link>
-              <ApplicantLogout label={logOut} />
+              <UserMenu email={email ?? ''} onLogout={handleLogout} locale={locale === 'en' ? 'en' : 'es'} />
             </>
           ) : (
             <>
@@ -82,11 +89,11 @@ export function CareersHeader({ locale, isLoggedIn }: Props) {
         className="sm:hidden overflow-hidden transition-all duration-300"
         style={{ maxHeight: menuOpen ? '320px' : '0px' }}
       >
-        <div className="px-6 pb-6 pt-2 flex flex-col gap-1 border-t border-white/5">
+        <div className="px-6 pb-6 pt-2 flex flex-col gap-1 border-t border-nex-ink/5">
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
-            className="py-3 font-jost text-base text-nex-grey hover:text-nex-white border-b border-white/5 transition-colors"
+            className="py-3 font-jost text-base text-nex-grey hover:text-nex-white border-b border-nex-ink/5 transition-colors"
           >
             ← {backToSite}
           </Link>
@@ -95,12 +102,12 @@ export function CareersHeader({ locale, isLoggedIn }: Props) {
               <Link
                 href="/careers/portal"
                 onClick={() => setMenuOpen(false)}
-                className="py-3 font-jost text-base text-nex-grey hover:text-nex-white border-b border-white/5 transition-colors"
+                className="py-3 font-jost text-base text-nex-grey hover:text-nex-white border-b border-nex-ink/5 transition-colors"
               >
                 {myPortal}
               </Link>
               <div className="py-3">
-                <ApplicantLogout label={logOut} />
+                <UserMenu email={email ?? ''} onLogout={handleLogout} locale={locale === 'en' ? 'en' : 'es'} />
               </div>
             </>
           ) : (
@@ -108,7 +115,7 @@ export function CareersHeader({ locale, isLoggedIn }: Props) {
               <Link
                 href="/careers/login"
                 onClick={() => setMenuOpen(false)}
-                className="py-3 font-jost text-base text-nex-grey hover:text-nex-white border-b border-white/5 transition-colors"
+                className="py-3 font-jost text-base text-nex-grey hover:text-nex-white border-b border-nex-ink/5 transition-colors"
               >
                 {logIn}
               </Link>

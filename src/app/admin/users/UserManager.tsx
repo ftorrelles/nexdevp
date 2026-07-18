@@ -17,7 +17,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   supervisor: 'text-yellow-400 bg-yellow-400/10',
   developer: 'text-orange-400 bg-orange-400/10',
   vendor: 'text-blue-400 bg-blue-400/10',
-  applicant: 'text-nex-grey bg-white/10',
+  applicant: 'text-nex-grey bg-nex-ink/10',
   client: 'text-purple-400 bg-purple-400/10',
 }
 
@@ -25,7 +25,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
 const ROLES: UserRole[] = STAFF_ROLES
 
 const inputClass =
-  'bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors'
+  'bg-nex-black border border-nex-ink/10 rounded-lg px-4 py-2.5 text-nex-white font-jost text-sm w-full focus:outline-none focus:border-nex-green/50 transition-colors'
 const labelClass =
   'block font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1.5'
 
@@ -111,7 +111,7 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
       </div>
 
       {showForm && (
-        <div className="bg-nex-dark border border-white/10 rounded-xl p-6 mb-6">
+        <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 mb-6">
           <p className="font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-5">
             Crear usuario
           </p>
@@ -157,10 +157,10 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
         </div>
       )}
 
-      <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
         <table className="w-full text-sm font-jost">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-nex-ink/10">
               {['Email', 'Rol', 'Acciones'].map((col) => (
                 <th
                   key={col}
@@ -173,7 +173,7 @@ export function UserManager({ initialUsers, currentUserId }: Props) {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+              <tr key={user.id} className="border-b border-nex-ink/5 hover:bg-white/[0.02] transition-colors">
                 <td className="px-5 py-4 text-nex-white">
                   {user.email}
                   {user.id === currentUserId && (

@@ -20,7 +20,7 @@ const STATUS_LABELS: Record<QuoteRow['status'], string> = {
 }
 
 const STATUS_STYLES: Record<QuoteRow['status'], string> = {
-  draft:    'text-nex-grey  bg-white/5      border-white/20',
+  draft:    'text-nex-grey  bg-nex-ink/5      border-nex-ink/20',
   sent:     'text-blue-400  bg-blue-400/10  border-blue-400/30',
   accepted: 'text-nex-green bg-nex-green/10 border-nex-green/30',
   rejected: 'text-red-400   bg-red-400/10   border-red-400/30',
@@ -49,7 +49,7 @@ export function LeadQuotes({ leadId }: { leadId: string }) {
   }, [leadId])
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/5">
+    <div className="mt-4 pt-4 border-t border-nex-ink/5">
       <div className="flex items-center justify-between mb-3">
         <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green">
           Presupuestos

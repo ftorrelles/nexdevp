@@ -29,7 +29,7 @@ export default async function TemplateDetailPage({ params }: Props): Promise<Rea
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/brief-templates" />
+      <AdminNav role={role} currentPath="/admin/brief-templates" email={user.email ?? ''} />
       <main className="px-4 sm:px-6 py-10 max-w-3xl mx-auto">
         <Link
           href="/admin/brief-templates"

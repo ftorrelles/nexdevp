@@ -48,7 +48,7 @@ export default async function ApplicantPortalPage({ params }: Props): Promise<Re
 
   return (
     <main className="min-h-screen bg-nex-black text-nex-white">
-      <CareersHeader locale={loc} isLoggedIn={true} />
+      <CareersHeader locale={loc} isLoggedIn={true} email={user.email ?? ''} />
 
       <section className="px-6 lg:px-12 py-16 max-w-3xl mx-auto">
         <div className="mb-10">
@@ -61,7 +61,7 @@ export default async function ApplicantPortalPage({ params }: Props): Promise<Re
         </div>
 
         {applications.length === 0 ? (
-          <div className="bg-nex-dark border border-white/10 rounded-2xl p-8 text-center">
+          <div className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-8 text-center">
             <p className="font-jost text-sm text-nex-grey mb-5">
               {loc === 'es'
                 ? 'Todavía no te postulaste a ninguna posición.'
@@ -87,7 +87,7 @@ export default async function ApplicantPortalPage({ params }: Props): Promise<Re
               return (
                 <div
                   key={app.id}
-                  className="bg-nex-dark border border-white/10 rounded-xl p-5 flex items-center justify-between gap-4"
+                  className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 flex items-center justify-between gap-4"
                 >
                   <div>
                     <h2 className="font-jost font-bold text-base text-nex-white">

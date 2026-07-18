@@ -50,7 +50,7 @@ export default function NewTemplatePage() {
 
       <h1 className="font-jost font-bold text-2xl text-nex-white mb-6">New template</h1>
 
-      <form onSubmit={handleSubmit} className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 space-y-5">
         <div>
           <label className="block font-dm-mono text-[10px] uppercase tracking-wider text-nex-grey mb-2">
             Name <span className="text-red-400">*</span>
@@ -60,7 +60,7 @@ export default function NewTemplatePage() {
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Web corporativa"
             required
-            className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+            className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
           />
         </div>
 
@@ -73,7 +73,7 @@ export default function NewTemplatePage() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="When to use this template..."
             rows={3}
-            className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+            className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
           />
         </div>
 

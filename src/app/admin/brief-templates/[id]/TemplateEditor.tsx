@@ -148,7 +148,7 @@ export function TemplateEditor({ template }: Props) {
   return (
     <div className="space-y-6">
       {/* Meta section */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6">
         <p className="font-dm-mono text-[10px] uppercase tracking-wider text-nex-grey mb-4">Template info</p>
         <div className="space-y-4">
           <div>
@@ -156,7 +156,7 @@ export function TemplateEditor({ template }: Props) {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+              className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
             />
           </div>
           <div>
@@ -165,7 +165,7 @@ export function TemplateEditor({ template }: Props) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+              className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
             />
           </div>
           <div className="flex items-center justify-between pt-1">
@@ -190,7 +190,7 @@ export function TemplateEditor({ template }: Props) {
       </div>
 
       {/* Questions section */}
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6">
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6">
         <p className="font-dm-mono text-[10px] uppercase tracking-wider text-nex-grey mb-4">
           Questions ({questions.length})
         </p>
@@ -202,27 +202,27 @@ export function TemplateEditor({ template }: Props) {
             </p>
           )}
           {questions.map((q) => (
-            <div key={q.id} className="bg-nex-black border border-white/10 rounded-lg px-4 py-3">
+            <div key={q.id} className="bg-nex-black border border-nex-ink/10 rounded-lg px-4 py-3">
               {editingId === q.id ? (
                 <div className="space-y-3">
                   <input
                     value={editLabel}
                     onChange={(e) => setEditLabel(e.target.value)}
-                    className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                    className="w-full bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
                     placeholder="Question label"
                   />
                   <textarea
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     rows={2}
-                    className="w-full bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+                    className="w-full bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
                     placeholder="Helper text (optional)"
                   />
                   <div className="flex items-center gap-3">
                     <select
                       value={editFieldType}
                       onChange={(e) => setEditFieldType(e.target.value as typeof FIELD_TYPES[number])}
-                      className="bg-nex-dark border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
+                      className="bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
                     >
                       {FIELD_TYPES.map((t) => (
                         <option key={t} value={t}>{FIELD_TYPE_LABELS[t]}</option>
@@ -311,27 +311,27 @@ export function TemplateEditor({ template }: Props) {
         </div>
 
         {/* Add question form */}
-        <div className="border-t border-white/10 pt-5">
+        <div className="border-t border-nex-ink/10 pt-5">
           <p className="font-dm-mono text-[10px] uppercase tracking-wider text-nex-grey mb-3">Add question</p>
           <div className="space-y-3">
             <input
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
               placeholder="Question label *"
-              className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+              className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
             />
             <textarea
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder="Helper text (optional)"
               rows={2}
-              className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+              className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
             />
             <div className="flex items-center gap-3 flex-wrap">
               <select
                 value={newFieldType}
                 onChange={(e) => setNewFieldType(e.target.value as typeof FIELD_TYPES[number])}
-                className="bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
+                className="bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50"
               >
                 {FIELD_TYPES.map((t) => (
                   <option key={t} value={t}>{FIELD_TYPE_LABELS[t]}</option>

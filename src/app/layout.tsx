@@ -2,6 +2,21 @@ import '@/styles/globals.css'
 import { getLocale } from 'next-intl/server'
 import { Cormorant_Garamond, DM_Mono, Jost } from 'next/font/google'
 import Script from 'next/script'
+import { ThemeProvider } from '@/components/theme/ThemeProvider'
+
+// Applies the stored theme before hydration, only within logged-in areas,
+// to avoid a flash of the wrong theme. Mirrors the scope check in ThemeProvider.
+const THEME_INIT_SCRIPT = `
+(function() {
+  try {
+    var p = window.location.pathname;
+    var authed = p.indexOf('/admin') === 0 || /^\\/(es|en)\\/proyecto(\\/|$)/.test(p) || /^\\/(es|en)\\/careers\\/portal(\\/|$)/.test(p);
+    if (authed && localStorage.getItem('nex-theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  } catch (e) {}
+})();
+`
 
 const META_PIXEL_ID = '1018345797219731'
 
@@ -31,9 +46,12 @@ const jost = Jost({
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
   return (
-    <html lang={locale} className={`${cormorant.variable} ${dmMono.variable} ${jost.variable}`}>
+    <html lang={locale} className={`${cormorant.variable} ${dmMono.variable} ${jost.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="bg-nex-black text-nex-white antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
 
         {/* Meta Pixel — carga después de que la página es interactiva */}
         <Script

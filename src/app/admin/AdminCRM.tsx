@@ -15,7 +15,7 @@ const ESTADO_COLORS: Record<string, string> = {
   nuevo:      'text-nex-green bg-nex-green/10',
   contactado: 'text-blue-400 bg-blue-400/10',
   calificado: 'text-yellow-400 bg-yellow-400/10',
-  cerrado:    'text-nex-grey bg-white/5',
+  cerrado:    'text-nex-grey bg-nex-ink/5',
   perdido:    'text-red-400 bg-red-400/10',
 }
 
@@ -45,11 +45,12 @@ interface Props {
   leads: Lead[]
   role: UserRole
   currentUserId: string
+  currentUserEmail: string
   vendorUsers: AdminUser[]
   projectLeadIds?: Set<string>
 }
 
-export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadIds }: Props) {
+export function AdminCRM({ leads: initialLeads, role, currentUserEmail, vendorUsers, projectLeadIds }: Props) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [filter, setFilter] = useState<EstadoFilter>('todos')
   const [updating, setUpdating] = useState<string | null>(null)
@@ -174,7 +175,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin" />
+      <AdminNav role={role} currentPath="/admin" email={currentUserEmail} />
 
       <main className="px-6 py-8 max-w-7xl mx-auto">
         {canSeeAll && (
@@ -185,7 +186,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
               { label: 'Calificados', value: calificados },
               { label: 'Conversión', value: `${conversion}%`, sub: `${convertidos} de ${total}` },
             ].map((stat) => (
-              <div key={stat.label} className="bg-nex-dark border border-white/10 rounded-xl p-5">
+              <div key={stat.label} className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
                 <p className="font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey mb-1">
                   {stat.label}
                 </p>
@@ -209,7 +210,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                   'font-jost text-sm px-4 py-2 rounded-lg border transition-colors',
                   filter === tab.value
                     ? 'bg-nex-green text-nex-black border-nex-green font-bold'
-                    : 'bg-nex-dark text-nex-grey border-white/10 hover:border-white/30',
+                    : 'bg-nex-dark text-nex-grey border-nex-ink/10 hover:border-nex-ink/30',
                 ].join(' ')}
               >
                 {tab.label}
@@ -228,7 +229,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
           <div className="bg-nex-dark border border-nex-green/30 rounded-xl p-5 mb-6 space-y-4">
             <div className="flex items-center justify-between">
               <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Nuevo lead manual</p>
-              <span className="font-dm-mono text-[10px] text-nex-grey border border-white/10 rounded-full px-2 py-0.5">canal: vendedor · 20% comisión</span>
+              <span className="font-dm-mono text-[10px] text-nex-grey border border-nex-ink/10 rounded-full px-2 py-0.5">canal: vendedor · 20% comisión</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
@@ -243,7 +244,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                     type={type}
                     value={newLead[key as keyof typeof newLead] ?? ''}
                     onChange={e => setNewLead(prev => ({ ...prev, [key]: e.target.value }))}
-                    className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+                    className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
                   />
                 </div>
               ))}
@@ -253,7 +254,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                   rows={2}
                   value={newLead.mensaje}
                   onChange={e => setNewLead(prev => ({ ...prev, mensaje: e.target.value }))}
-                  className="w-full bg-nex-black border border-white/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
+                  className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors resize-none"
                 />
               </div>
             </div>
@@ -273,11 +274,11 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
         )}
 
 
-        <div className="bg-nex-dark border border-white/10 rounded-xl overflow-hidden">
+        <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm font-jost">
               <thead>
-                <tr className="border-b border-white/10">
+                <tr className="border-b border-nex-ink/10">
                   {tableHeaders.map((col) => (
                     <th
                       key={col}
@@ -299,7 +300,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                   filtered.map((lead) => (
                     <React.Fragment key={lead.id}>
                       <tr
-                        className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                        className="border-b border-nex-ink/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
                         onClick={() => setExpanded(expanded === lead.id ? null : lead.id!)}
                       >
                         <td className="px-4 py-3 text-nex-grey text-xs whitespace-nowrap">
@@ -380,7 +381,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                                 value={notaValue}
                                 onChange={(e) => setNotaValue(e.target.value.slice(0, NOTAS_MAX))}
                                 rows={3}
-                                className="w-full bg-nex-black border border-white/20 rounded px-2 py-1 text-xs text-nex-white resize-none outline-none focus:border-nex-green/60 transition-colors"
+                                className="w-full bg-nex-black border border-nex-ink/20 rounded px-2 py-1 text-xs text-nex-white resize-none outline-none focus:border-nex-green/60 transition-colors"
                                 autoFocus
                               />
                               <div className="flex items-center justify-between">
@@ -395,7 +396,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                                   </button>
                                   <button
                                     onClick={() => setEditingNota(null)}
-                                    className="text-[10px] font-dm-mono uppercase tracking-wider px-2 py-1 bg-white/10 text-nex-grey rounded hover:bg-white/20 transition-colors"
+                                    className="text-[10px] font-dm-mono uppercase tracking-wider px-2 py-1 bg-nex-ink/10 text-nex-grey rounded hover:bg-nex-ink/20 transition-colors"
                                   >
                                     Cancelar
                                   </button>
@@ -424,7 +425,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                                 value={lead.assigned_to ?? ''}
                                 disabled={updating === lead.id}
                                 onChange={(e) => handleAssign(lead.id!, e.target.value || null)}
-                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-white/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-white/30 transition-colors disabled:opacity-50 w-full"
+                                className="font-dm-mono text-[10px] tracking-[0.1em] uppercase bg-transparent border border-nex-ink/10 rounded px-2 py-1 text-nex-grey outline-none cursor-pointer hover:border-nex-ink/30 transition-colors disabled:opacity-50 w-full"
                               >
                                 <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
                                 {vendorUsers.map((u) => (
@@ -438,7 +439,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                               <button
                                 onClick={() => handleDeleteLead(lead.id!)}
                                 disabled={deletingLead === lead.id}
-                                className="font-jost text-xs text-nex-grey hover:text-red-400 border border-white/10 hover:border-red-400/30 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 whitespace-nowrap"
+                                className="font-jost text-xs text-nex-grey hover:text-red-400 border border-nex-ink/10 hover:border-red-400/30 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 whitespace-nowrap"
                               >
                                 {deletingLead === lead.id ? '…' : 'Eliminar'}
                               </button>
@@ -447,7 +448,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                         )}
                       </tr>
                       {expanded === lead.id && (
-                        <tr key={`${lead.id}-expanded`} className="border-b border-white/5 bg-white/[0.015]">
+                        <tr key={`${lead.id}-expanded`} className="border-b border-nex-ink/5 bg-white/[0.015]">
                           <td colSpan={tableHeaders.length} className="px-6 py-4">
                             <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-2">
                               Mensaje
@@ -459,7 +460,7 @@ export function AdminCRM({ leads: initialLeads, role, vendorUsers, projectLeadId
                             {lead.estado === 'cerrado' &&
                              !projectLeadIds?.has(lead.id!) &&
                              canSeeAll && (
-                              <div className="mt-4 pt-4 border-t border-white/5">
+                              <div className="mt-4 pt-4 border-t border-nex-ink/5">
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation()

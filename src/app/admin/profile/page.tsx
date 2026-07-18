@@ -14,7 +14,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
-      <AdminNav role={role} currentPath="/admin/profile" />
+      <AdminNav role={role} currentPath="/admin/profile" email={user.email ?? ''} />
       <main className="px-6 py-8 max-w-md mx-auto">
         <h2 className="font-jost font-bold text-xl text-nex-white mb-1">Mi cuenta</h2>
         <p className="font-jost text-sm text-nex-grey mb-8">{user.email}</p>

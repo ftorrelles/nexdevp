@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase'
 import { computeProgressPct } from '@/lib/projects'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
@@ -31,13 +32,12 @@ export default async function ProyectoListPage({ params }: Props): Promise<React
   if (!user) redirect('/admin/login')
   if (user.app_metadata?.role !== 'client') redirect('/admin')
 
-  const { data: projects, error: projectsError } = await auth
+  const db = createServiceClient()
+  const { data: projects } = await db
     .from('projects')
     .select('id, name, status, project_deliverables(hours, status)')
     .eq('client_user_id', user.id)
     .order('created_at', { ascending: false })
-
-  if (projectsError) console.error('[proyecto] query error:', projectsError.message, { userId: user.id })
 
   const rows = (projects as unknown as {
     id: string

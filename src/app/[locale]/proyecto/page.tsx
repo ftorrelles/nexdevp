@@ -31,11 +31,13 @@ export default async function ProyectoListPage({ params }: Props): Promise<React
   if (!user) redirect('/admin/login')
   if (user.app_metadata?.role !== 'client') redirect('/admin')
 
-  const { data: projects } = await auth
+  const { data: projects, error: projectsError } = await auth
     .from('projects')
     .select('id, name, status, project_deliverables(hours, status)')
     .eq('client_user_id', user.id)
     .order('created_at', { ascending: false })
+
+  if (projectsError) console.error('[proyecto] query error:', projectsError.message, { userId: user.id })
 
   const rows = (projects as unknown as {
     id: string

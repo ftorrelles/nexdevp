@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
-type Step = 'loading' | 'set-password' | 'error'
+type Step = 'loading' | 'set-password' | 'success' | 'error'
 
 export default function AuthSetupPage() {
   const router = useRouter()
@@ -60,9 +60,11 @@ export default function AuthSetupPage() {
       return
     }
 
-    // Route by role: clients go to the project portal, everyone else to the CRM
-    const dest = role === 'client' ? '/proyecto' : '/admin'
-    router.push(dest)
+    // Sign out the localStorage session so the server cookie session takes over on login.
+    await supabase.auth.signOut()
+
+    setStep('success')
+    setTimeout(() => router.push('/admin/login'), 2000)
   }
 
   const inputClass =
@@ -78,6 +80,20 @@ export default function AuthSetupPage() {
           <div className="text-center space-y-3">
             <div className="w-8 h-8 border-2 border-nex-green/30 border-t-nex-green rounded-full animate-spin mx-auto" />
             <p className="font-jost text-nex-grey text-sm">Verificando tu invitación…</p>
+          </div>
+        )}
+
+        {step === 'success' && (
+          <div className="bg-nex-dark border border-nex-green/30 rounded-2xl p-8 text-center space-y-4">
+            <div className="w-10 h-10 rounded-full bg-nex-green/10 flex items-center justify-center mx-auto">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <p className="font-jost font-bold text-nex-white text-lg">¡Contraseña creada!</p>
+            <p className="font-jost text-nex-grey text-sm">
+              Redirigiendo al login para que ingreses con tus credenciales…
+            </p>
           </div>
         )}
 

@@ -156,27 +156,30 @@ export async function GET(_req: NextRequest, { params }: Params) {
     return NextResponse.json(null)
   }
 
+  type AnswerRow = { id: string; brief_question_id: string; value: string | null; file_path: string | null; answered_at: string }
+
+  // PostgREST returns a single object (not an array) when a UNIQUE constraint exists
+  // on brief_question_id. Normalize to always produce an array regardless of cardinality.
+  const toAnswerArray = (val: unknown): AnswerRow[] => {
+    if (!val) return []
+    if (Array.isArray(val)) return val as AnswerRow[]
+    return [val as AnswerRow]
+  }
+
   // Sort questions by sort_order
-  const questions = (brief.project_brief_questions ?? []).sort(
-    (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
-  )
+  const questions = ((brief.project_brief_questions ?? []) as Array<{ project_brief_answers: unknown } & Record<string, unknown>>)
+    .sort((a, b) => (a.sort_order as number) - (b.sort_order as number))
+    .map((q) => ({ ...q, project_brief_answers: toAnswerArray(q.project_brief_answers) }))
 
   // Sign file_path fields across all answers
-  const allAnswers = questions.flatMap(
-    (q: { project_brief_answers: Array<{ id: string; brief_question_id: string; value: string | null; file_path: string | null; answered_at: string }> }) =>
-      q.project_brief_answers ?? []
-  )
+  const allAnswers = questions.flatMap((q) => q.project_brief_answers)
   const signedAnswers = await withSignedBriefUrls(allAnswers)
   const signedMap = new Map(signedAnswers.map((a) => [a.id, a]))
 
-  const questionsWithSignedAnswers = questions.map(
-    (q: { project_brief_answers: Array<{ id: string }> } & Record<string, unknown>) => ({
-      ...q,
-      project_brief_answers: (q.project_brief_answers ?? []).map(
-        (a: { id: string }) => signedMap.get(a.id) ?? a
-      ),
-    })
-  )
+  const questionsWithSignedAnswers = questions.map((q) => ({
+    ...q,
+    project_brief_answers: q.project_brief_answers.map((a) => signedMap.get(a.id) ?? a),
+  }))
 
   return NextResponse.json({ ...brief, project_brief_questions: questionsWithSignedAnswers })
 }

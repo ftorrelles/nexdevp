@@ -86,17 +86,26 @@ export default async function ProyectoDetailPage({
     .maybeSingle()
 
   if (rawBrief) {
-    const questions = ((rawBrief.project_brief_questions ?? []) as (ProjectBriefQuestion & { project_brief_answers: ProjectBriefAnswer[] })[]).sort(
-      (a, b) => a.sort_order - b.sort_order
-    )
-    const allAnswers = questions.flatMap((q) => q.project_brief_answers ?? [])
+    // PostgREST returns a single object (not an array) when a UNIQUE constraint exists
+    // on brief_question_id. Normalize to always produce an array regardless of cardinality.
+    const toAnswerArray = (val: unknown): ProjectBriefAnswer[] => {
+      if (!val) return []
+      if (Array.isArray(val)) return val as ProjectBriefAnswer[]
+      return [val as ProjectBriefAnswer]
+    }
+
+    const questions = ((rawBrief.project_brief_questions ?? []) as (ProjectBriefQuestion & { project_brief_answers: unknown })[])
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((q) => ({ ...q, project_brief_answers: toAnswerArray(q.project_brief_answers) }))
+
+    const allAnswers = questions.flatMap((q) => q.project_brief_answers)
     const signedAnswers = await withSignedBriefUrls(allAnswers)
     const signedMap = new Map(signedAnswers.map((a) => [a.id, a]))
     briefData = {
       ...(rawBrief as unknown as ProjectBrief),
       project_brief_questions: questions.map((q) => ({
         ...q,
-        project_brief_answers: (q.project_brief_answers ?? []).map((a) => signedMap.get(a.id) ?? a),
+        project_brief_answers: q.project_brief_answers.map((a) => signedMap.get(a.id) ?? a),
       })),
     }
   }

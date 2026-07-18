@@ -101,7 +101,7 @@ export interface BriefTemplateQuestion {
   template_id: string
   label: string
   description: string | null
-  field_type: 'text' | 'textarea' | 'url' | 'image' | 'boolean'
+  field_type: 'text' | 'textarea' | 'url' | 'image' | 'image_multi' | 'boolean'
   sort_order: number
   required: boolean
   created_at: string
@@ -122,7 +122,7 @@ export interface ProjectBriefQuestion {
   brief_id: string
   label: string
   description: string | null
-  field_type: 'text' | 'textarea' | 'url' | 'image' | 'boolean'
+  field_type: 'text' | 'textarea' | 'url' | 'image' | 'image_multi' | 'boolean'
   sort_order: number
   required: boolean
   from_template_question_id: string | null

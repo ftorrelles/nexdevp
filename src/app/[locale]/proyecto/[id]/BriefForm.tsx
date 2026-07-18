@@ -13,10 +13,21 @@ type QuestionRow = {
   id: string
   label: string
   description: string | null
-  field_type: 'text' | 'textarea' | 'url' | 'image' | 'boolean'
+  field_type: 'text' | 'textarea' | 'url' | 'image' | 'image_multi' | 'boolean'
   required: boolean
   sort_order: number
   project_brief_answers: AnswerRow[]
+}
+
+// image_multi answers store their paths as a JSON-encoded array in file_path.
+function parseMultiPaths(filePath: string | null | undefined): string[] {
+  if (!filePath) return []
+  try {
+    const parsed = JSON.parse(filePath)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
 }
 
 interface Props {
@@ -35,15 +46,15 @@ function getInitialAnswer(q: QuestionRow): string {
   return a.value ?? ''
 }
 
-// Convention: an `image` question is conditional when the immediately
-// preceding question (by sort_order) is a `boolean`. It only renders
-// when the boolean answer is 'true'.
+// Convention: an `image`/`image_multi` question is conditional when the
+// immediately preceding question (by sort_order) is a `boolean`. It only
+// renders when the boolean answer is 'true'.
 function buildConditionalMap(questions: QuestionRow[]): Map<string, string> {
   const sorted = [...questions].sort((a, b) => a.sort_order - b.sort_order)
   const map = new Map<string, string>() // image qid → boolean qid
   for (let i = 1; i < sorted.length; i++) {
     if (
-      sorted[i].field_type === 'image' &&
+      (sorted[i].field_type === 'image' || sorted[i].field_type === 'image_multi') &&
       sorted[i - 1].field_type === 'boolean'
     ) {
       map.set(sorted[i].id, sorted[i - 1].id)
@@ -61,7 +72,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {}
     for (const q of brief.project_brief_questions) {
-      if (q.field_type !== 'image') {
+      if (q.field_type !== 'image' && q.field_type !== 'image_multi') {
         init[q.id] = getInitialAnswer(q)
       }
     }
@@ -69,11 +80,15 @@ export function BriefForm({ projectId, brief, locale }: Props) {
   })
 
   const [files, setFiles] = useState<Record<string, File>>({})
+  const [filesMulti, setFilesMulti] = useState<Record<string, File[]>>({})
 
   const existingImages: Record<string, string | null> = {}
+  const existingImagesMulti: Record<string, string[]> = {}
   for (const q of brief.project_brief_questions) {
     if (q.field_type === 'image') {
       existingImages[q.id] = q.project_brief_answers?.[0]?.file_path ?? null
+    } else if (q.field_type === 'image_multi') {
+      existingImagesMulti[q.id] = parseMultiPaths(q.project_brief_answers?.[0]?.file_path)
     }
   }
 
@@ -92,6 +107,18 @@ export function BriefForm({ projectId, brief, locale }: Props) {
     setFiles((prev) => ({ ...prev, [questionId]: file }))
   }
 
+  function handleMultiFileChange(questionId: string, fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return
+    setFilesMulti((prev) => ({ ...prev, [questionId]: [...(prev[questionId] ?? []), ...Array.from(fileList)] }))
+  }
+
+  function handleRemoveMultiFile(questionId: string, index: number) {
+    setFilesMulti((prev) => ({
+      ...prev,
+      [questionId]: (prev[questionId] ?? []).filter((_, i) => i !== index),
+    }))
+  }
+
   async function save(): Promise<boolean> {
     setSaveStatus('saving')
     const formData = new FormData()
@@ -99,6 +126,9 @@ export function BriefForm({ projectId, brief, locale }: Props) {
       if (q.field_type === 'image') {
         const file = files[q.id]
         if (file) formData.append(`answers[${q.id}][file]`, file)
+      } else if (q.field_type === 'image_multi') {
+        const multi = filesMulti[q.id] ?? []
+        for (const file of multi) formData.append(`answers[${q.id}][files][]`, file)
       } else {
         formData.append(`answers[${q.id}][value]`, answers[q.id] ?? '')
       }
@@ -313,6 +343,52 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileChange(q.id, e.target.files?.[0])}
+                    className="block font-jost text-sm text-nex-grey file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border file:border-white/10 file:bg-nex-black file:text-nex-grey file:text-sm file:font-jost file:cursor-pointer hover:file:border-nex-green/40 transition-colors"
+                  />
+                </div>
+              )}
+
+              {q.field_type === 'image_multi' && (
+                <div className="space-y-3">
+                  {(existingImagesMulti[q.id]?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-3">
+                      {existingImagesMulti[q.id].map((url, i) => (
+                        <img
+                          key={i}
+                          src={url}
+                          alt={loc === 'es' ? 'Imagen actual' : 'Current image'}
+                          className="h-24 w-24 rounded-lg border border-white/10 object-cover"
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {(filesMulti[q.id]?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-3">
+                      {filesMulti[q.id].map((file, i) => (
+                        <div key={i} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={loc === 'es' ? 'Nueva imagen' : 'New image'}
+                            className="h-24 w-24 rounded-lg border border-nex-green/30 object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMultiFile(q.id, i)}
+                            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-nex-black border border-white/20 text-nex-grey text-xs leading-none flex items-center justify-center hover:text-nex-white hover:border-red-400/50"
+                            aria-label={loc === 'es' ? 'Quitar imagen' : 'Remove image'}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <input
+                    id={`q-${q.id}`}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleMultiFileChange(q.id, e.target.files)}
                     className="block font-jost text-sm text-nex-grey file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border file:border-white/10 file:bg-nex-black file:text-nex-grey file:text-sm file:font-jost file:cursor-pointer hover:file:border-nex-green/40 transition-colors"
                   />
                 </div>

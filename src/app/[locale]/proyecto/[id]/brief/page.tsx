@@ -23,7 +23,7 @@ type QuestionRow = {
   id: string
   label: string
   description: string | null
-  field_type: 'text' | 'textarea' | 'url' | 'image' | 'boolean'
+  field_type: 'text' | 'textarea' | 'url' | 'image' | 'image_multi' | 'boolean'
   required: boolean
   sort_order: number
   project_brief_answers: AnswerRow[]

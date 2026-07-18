@@ -4,7 +4,7 @@ import { createAuthServerClient } from '@/lib/supabase-server'
 
 type Params = { params: Promise<{ tid: string; qid: string }> }
 
-const VALID_FIELD_TYPES = ['text', 'textarea', 'url', 'image', 'boolean'] as const
+const VALID_FIELD_TYPES = ['text', 'textarea', 'url', 'image', 'image_multi', 'boolean'] as const
 
 async function requireOwnerSupervisor() {
   const supabase = await createAuthServerClient()

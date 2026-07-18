@@ -113,7 +113,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if (!body.label) return NextResponse.json({ error: 'label is required' }, { status: 400 })
 
-  const validFieldTypes = ['text', 'textarea', 'url', 'image', 'boolean']
+  const validFieldTypes = ['text', 'textarea', 'url', 'image', 'image_multi', 'boolean']
   if (!body.field_type || !validFieldTypes.includes(body.field_type)) {
     return NextResponse.json({ error: `field_type must be one of: ${validFieldTypes.join(', ')}` }, { status: 400 })
   }

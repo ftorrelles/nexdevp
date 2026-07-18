@@ -65,14 +65,16 @@ async function handlePost(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Invalid form data' }, { status: 400 })
   }
 
-  // Collect question IDs from formData keys (pattern: answers[{qid}][value|file])
-  const questionMap = new Map<string, { value?: string; file?: File }>()
+  // Collect question IDs from formData keys.
+  // Patterns: answers[{qid}][value] (text), answers[{qid}][file] (single image),
+  //           answers[{qid}][files][] (image_multi, repeated key)
+  const questionMap = new Map<string, { value?: string; file?: File; files?: File[] }>()
 
   for (const [key, val] of formData.entries()) {
-    const match = key.match(/^answers\[([^\]]+)\]\[(value|file)\]$/)
+    const match = key.match(/^answers\[([^\]]+)\]\[(value|file|files)\](\[\])?$/)
     if (!match) continue
     const questionId = match[1]
-    const field = match[2] as 'value' | 'file'
+    const field = match[2] as 'value' | 'file' | 'files'
 
     if (!questionMap.has(questionId)) {
       questionMap.set(questionId, {})
@@ -81,6 +83,8 @@ async function handlePost(req: NextRequest, { params }: Params) {
     const entry = questionMap.get(questionId)!
     if (field === 'file' && val instanceof File && val.size > 0) {
       entry.file = val
+    } else if (field === 'files' && val instanceof File && val.size > 0) {
+      entry.files = [...(entry.files ?? []), val]
     } else if (field === 'value' && typeof val === 'string') {
       entry.value = val
     }
@@ -97,7 +101,17 @@ async function handlePost(req: NextRequest, { params }: Params) {
     let value: string | null = null
     let filePath: string | null = null
 
-    if (entry.file) {
+    if (entry.files && entry.files.length > 0) {
+      try {
+        const paths = await Promise.all(
+          entry.files.map((file) => uploadBriefFile(projectId, questionId, file))
+        )
+        filePath = JSON.stringify(paths)
+      } catch (err) {
+        console.error(`File upload failed for question ${questionId}:`, err)
+        return NextResponse.json({ error: 'File upload failed' }, { status: 500 })
+      }
+    } else if (entry.file) {
       try {
         filePath = await uploadBriefFile(projectId, questionId, entry.file)
       } catch (err) {

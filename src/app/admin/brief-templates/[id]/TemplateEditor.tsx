@@ -9,10 +9,11 @@ const FIELD_TYPE_LABELS: Record<string, string> = {
   textarea: 'Texto largo',
   url: 'Enlace',
   image: 'Imagen',
+  image_multi: 'Imagen (múltiple)',
   boolean: 'Sí/No',
 }
 
-const FIELD_TYPES = ['text', 'textarea', 'url', 'image', 'boolean'] as const
+const FIELD_TYPES = ['text', 'textarea', 'url', 'image', 'image_multi', 'boolean'] as const
 
 interface Props {
   template: BriefTemplate & { brief_template_questions: BriefTemplateQuestion[] }

@@ -40,6 +40,7 @@ const FIELD_TYPE_LABELS: Record<string, string> = {
   textarea: 'Área de texto',
   url: 'URL',
   image: 'Imagen',
+  image_multi: 'Imagen (múltiple)',
   boolean: 'Sí / No',
 }
 
@@ -48,7 +49,19 @@ const FIELD_TYPE_COLORS: Record<string, string> = {
   textarea: 'text-nex-grey bg-white/5 border-white/10',
   url: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
   image: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
+  image_multi: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
   boolean: 'text-purple-400 bg-purple-400/10 border-purple-400/30',
+}
+
+// image_multi answers store their paths as a JSON-encoded array in file_path.
+function parseMultiPaths(filePath: string | null | undefined): string[] {
+  if (!filePath) return []
+  try {
+    const parsed = JSON.parse(filePath)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
 }
 
 interface InlineQuestionForm {
@@ -515,6 +528,19 @@ export function BriefSection({
                                 className="h-16 w-auto rounded border border-white/10 object-contain hover:opacity-80 transition-opacity"
                               />
                             </a>
+                          ) : q.field_type === 'image_multi' && answer.file_path ? (
+                            <div className="flex flex-wrap gap-2">
+                              {parseMultiPaths(answer.file_path).map((url, i) => (
+                                <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={url}
+                                    alt="Respuesta"
+                                    className="h-16 w-16 rounded border border-white/10 object-cover hover:opacity-80 transition-opacity"
+                                  />
+                                </a>
+                              ))}
+                            </div>
                           ) : q.field_type === 'boolean' ? (
                             <p className="font-jost text-sm text-nex-white">
                               {answer.value === 'true' ? 'Sí' : 'No'}

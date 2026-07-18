@@ -69,7 +69,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const validFieldTypes = ['text', 'textarea', 'url', 'image', 'boolean']
+  const validFieldTypes = ['text', 'textarea', 'url', 'image', 'image_multi', 'boolean']
   if (body.field_type && !validFieldTypes.includes(body.field_type)) {
     return NextResponse.json({ error: `field_type must be one of: ${validFieldTypes.join(', ')}` }, { status: 400 })
   }

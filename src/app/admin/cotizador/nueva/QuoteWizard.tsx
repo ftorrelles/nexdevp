@@ -108,23 +108,31 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const [loading,     setLoading]     = useState(false)
   const [customRate,  setCustomRate]  = useState<number | null>(null)
   const [title,       setTitle]       = useState('')
+  const [finalPrice,  setFinalPrice]  = useState<number | null>(null)
 
   // ── Derived ─────────────────────────────────────────────────────────────────
-  const isBundle       = products.length >= 2
-  const ps             = settings.find(s => s.region === region)
-  const hourlyRate     = ps?.hourly_rate ?? 0
-  const effectiveRate  = customRate ?? hourlyRate
+  const isBundle      = products.length >= 2
+  const ps            = settings.find(s => s.region === region)
+  const hourlyRate    = ps?.hourly_rate ?? 0
+  const effectiveRate = customRate ?? hourlyRate
 
-  const baseHours  = items.reduce((acc, i) => acc + (i.hours ?? 0), 0)
-  const pmHours    = Math.round(baseHours * (ps?.overhead_pm ?? 0.12))
-  const qaHours    = Math.round(baseHours * (ps?.overhead_qa ?? 0.15))
-  const cxHours    = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
-  const totalHours = baseHours + pmHours + qaHours + cxHours
-  const basePrice  = totalHours * effectiveRate
-  const discount   = isBundle ? basePrice * BUNDLE_DISCOUNT : 0
-  const totalPrice = basePrice - discount
-  const maintMonth = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
-  const currency   = ps?.currency ?? 'EUR'
+  const billedItems   = items.filter(i => !i.gift)
+  const giftItems     = items.filter(i => i.gift)
+
+  const baseHours     = billedItems.reduce((acc, i) => acc + (i.hours ?? 0), 0)
+  const giftHours     = giftItems.reduce((acc, i) => acc + (i.hours ?? 0), 0)
+  const pmHours       = Math.round(baseHours * (ps?.overhead_pm ?? 0.12))
+  const qaHours       = Math.round(baseHours * (ps?.overhead_qa ?? 0.15))
+  const cxHours       = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
+  const billedHours   = baseHours + pmHours + qaHours + cxHours
+  const totalHours    = billedHours + giftHours
+  const basePrice     = billedHours * effectiveRate
+  const discount      = isBundle ? basePrice * BUNDLE_DISCOUNT : 0
+  const calculatedPrice = basePrice - discount
+  const specialDiscount = finalPrice !== null ? Math.max(0, calculatedPrice - finalPrice) : 0
+  const totalPrice    = finalPrice !== null ? finalPrice : calculatedPrice
+  const maintMonth    = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
+  const currency      = ps?.currency ?? 'EUR'
 
   const fmt = (n: number) =>
     n.toLocaleString('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 })
@@ -258,6 +266,9 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   function updateItemName(idx: number, name: string) {
     setItems(prev => prev.map((it, i) => i === idx ? { ...it, name } : it))
   }
+  function toggleItemGift(idx: number) {
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, gift: !it.gift } : it))
+  }
   function removeItem(idx: number) {
     setItems(prev => prev.filter((_, i) => i !== idx))
   }
@@ -266,6 +277,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
       catalog_id: null, name: 'Nueva funcionalidad', size: 'M',
       hours: sizes.find(s => s.size === 'M')?.hours ?? 20,
       sort_order: prev.length,
+    }])
+  }
+  function addGiftItem() {
+    setItems(prev => [...prev, {
+      catalog_id: null, name: 'Funcionalidad de regalo', size: 'M',
+      hours: sizes.find(s => s.size === 'M')?.hours ?? 20,
+      sort_order: prev.length,
+      gift: true,
     }])
   }
 
@@ -298,17 +317,18 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title:       title || `${productLabel} — cliente`,
+          title:            title || `${productLabel} — cliente`,
           region,
-          hourly_rate: effectiveRate,
-          tipo:        tipo ?? ALL_PRODUCTS.find(ap => ap.value === products[0])?.tipo ?? 'desarrollo',
-          product:     products.join('+'),
+          hourly_rate:      effectiveRate,
+          tipo:             tipo ?? ALL_PRODUCTS.find(ap => ap.value === products[0])?.tipo ?? 'desarrollo',
+          product:          products.join('+'),
           addons,
-          status:      'draft',
-          lead_id:     initialLeadId ?? null,
-          total_hours: totalHours,
-          total_price: totalPrice,
-          maint_month: maintMonth,
+          status:           'draft',
+          lead_id:          initialLeadId ?? null,
+          total_hours:      totalHours,
+          total_price:      totalPrice,
+          special_discount: specialDiscount,
+          maint_month:      maintMonth,
           items,
         }),
       })
@@ -677,33 +697,55 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                     <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">
                       Fases / funcionalidades
                     </h3>
-                    <button
-                      onClick={addBlankItem}
-                      className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
-                    >
-                      + Agregar línea
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={addGiftItem}
+                        className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
+                      >
+                        🎁 Agregar regalo
+                      </button>
+                      <button
+                        onClick={addBlankItem}
+                        className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
+                      >
+                        + Agregar línea
+                      </button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     {items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-3 bg-nex-black border border-white/5 rounded-lg px-4 py-3"
+                        className={[
+                          'flex items-center gap-3 border rounded-lg px-4 py-3',
+                          item.gift
+                            ? 'bg-nex-green/5 border-nex-green/20'
+                            : 'bg-nex-black border-white/5',
+                        ].join(' ')}
                       >
-                        {item.size && (
+                        {item.gift ? (
+                          <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green border-nex-green/40 bg-nex-green/10">
+                            🎁
+                          </span>
+                        ) : item.size ? (
                           <span className={[
                             'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
                             SIZE_COLORS[item.size as QuoteSize],
                           ].join(' ')}>
                             {item.size}
                           </span>
-                        )}
+                        ) : null}
                         <input
                           type="text"
                           value={item.name}
                           onChange={e => updateItemName(idx, e.target.value)}
                           className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none"
                         />
+                        {item.gift && (
+                          <span className="font-dm-mono text-[9px] text-nex-green uppercase tracking-wider shrink-0">
+                            sin cargo
+                          </span>
+                        )}
                         <div className="flex items-center gap-1 shrink-0">
                           <input
                             type="number"
@@ -714,6 +756,16 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                           />
                           <span className="font-dm-mono text-xs text-nex-grey">h</span>
                         </div>
+                        <button
+                          onClick={() => toggleItemGift(idx)}
+                          title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
+                          className={[
+                            'text-sm shrink-0 transition-colors',
+                            item.gift ? 'text-nex-green' : 'text-nex-grey hover:text-nex-green',
+                          ].join(' ')}
+                        >
+                          🎁
+                        </button>
                         <button
                           onClick={() => removeItem(idx)}
                           className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0"
@@ -742,8 +794,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                       <span className="text-nex-white font-dm-mono">{row.hours}h</span>
                     </div>
                   ))}
+                  {giftHours > 0 && (
+                    <div className="flex justify-between font-jost text-sm">
+                      <span className="text-nex-green">🎁 Funcionalidades de regalo</span>
+                      <span className="text-nex-green font-dm-mono">{giftHours}h</span>
+                    </div>
+                  )}
                   <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
-                    <span className="text-nex-white">Total horas</span>
+                    <span className="text-nex-white">Total horas del proyecto</span>
                     <span className="text-nex-green font-dm-mono">{totalHours}h</span>
                   </div>
                 </div>
@@ -760,6 +818,19 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                         </p>
                       </div>
                       <p className="font-dm-mono text-base font-bold text-nex-green">−{fmt(discount)}</p>
+                    </div>
+                  )}
+
+                  {/* Special discount row */}
+                  {specialDiscount > 0 && (
+                    <div className="flex items-center justify-between bg-nex-green/5 border border-nex-green/20 rounded-xl px-5 py-3">
+                      <div>
+                        <p className="font-jost text-sm font-bold text-nex-green">Descuento especial</p>
+                        <p className="font-jost text-xs text-nex-grey mt-0.5">
+                          Precio calculado: <span className="line-through">{fmt(calculatedPrice)}</span>
+                        </p>
+                      </div>
+                      <p className="font-dm-mono text-base font-bold text-nex-green">−{fmt(specialDiscount)}</p>
                     </div>
                   )}
 
@@ -782,6 +853,39 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                         </p>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Final price adjustment */}
+                  <div className="bg-nex-black/40 border border-white/10 rounded-xl p-4">
+                    <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-3">
+                      Ajuste de precio final
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <span className="font-jost text-sm text-nex-grey shrink-0">Precio final al cliente:</span>
+                      <div className="flex items-center gap-1 bg-nex-dark border border-white/10 rounded-lg px-3 py-1.5 focus-within:border-nex-green/50 transition-colors">
+                        <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={finalPrice ?? Math.round(calculatedPrice)}
+                          onChange={e => setFinalPrice(Number(e.target.value))}
+                          className="w-24 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
+                        />
+                      </div>
+                      {finalPrice !== null && (
+                        <button
+                          onClick={() => setFinalPrice(null)}
+                          className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors"
+                        >
+                          reset
+                        </button>
+                      )}
+                      {specialDiscount > 0 && (
+                        <span className="font-jost text-xs text-nex-green">
+                          Descuento de {fmt(specialDiscount)} aplicado
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 

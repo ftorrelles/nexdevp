@@ -67,6 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       size:       it.size ?? null,
       hours:      it.hours,
       sort_order: idx,
+      gift:       it.gift ?? false,
     }))
     const { error: itemsError } = await client.from('quote_items').insert(rows)
     if (itemsError) {

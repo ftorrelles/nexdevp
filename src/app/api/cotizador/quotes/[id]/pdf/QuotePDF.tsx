@@ -59,37 +59,41 @@ function fmtCurrency(n: number, currency: string) {
 }
 
 export interface QuotePDFProps {
-  id:          string
-  title:       string
-  tipo:        string
-  product:     string
-  region:      string
-  hourly_rate: number
-  total_price: number
-  maint_month: number
-  notes:       string | null
-  created_at:  string | null
-  items:       Array<{ name: string; size?: string | null; hours?: number | null }>
-  currency:    string
-  overhead_pm: number
-  overhead_qa: number
-  overhead_cx: number
-  logoUrl:     string
+  id:               string
+  title:            string
+  tipo:             string
+  product:          string
+  region:           string
+  hourly_rate:      number
+  total_price:      number
+  special_discount: number
+  maint_month:      number
+  notes:            string | null
+  created_at:       string | null
+  items:            Array<{ name: string; size?: string | null; hours?: number | null; gift?: boolean }>
+  currency:         string
+  overhead_pm:      number
+  overhead_qa:      number
+  overhead_cx:      number
+  logoUrl:          string
   // Display options
-  showHours:   boolean
-  showRate:    boolean
+  showHours:        boolean
+  showRate:         boolean
 }
 
 export function QuotePDF({
-  id, title, tipo, product, region, total_price, maint_month, hourly_rate,
+  id, title, tipo, product, region, total_price, special_discount, maint_month, hourly_rate,
   notes, created_at, items, currency, overhead_pm, overhead_qa, overhead_cx,
   logoUrl, showHours, showRate,
 }: QuotePDFProps) {
-  const baseHours  = items.reduce((a, i) => a + (i.hours ?? 0), 0)
+  const billedItems = items.filter(i => !i.gift)
+  const giftItems   = items.filter(i => i.gift)
+  const baseHours   = billedItems.reduce((a, i) => a + (i.hours ?? 0), 0)
+  const giftHours   = giftItems.reduce((a, i) => a + (i.hours ?? 0), 0)
   const pmHours    = Math.round(baseHours * overhead_pm)
   const qaHours    = Math.round(baseHours * overhead_qa)
   const cxHours    = Math.round(baseHours * overhead_cx)
-  const totalHours = baseHours + pmHours + qaHours + cxHours
+  const totalHours = baseHours + pmHours + qaHours + cxHours + giftHours
 
   const date = new Date(created_at ?? Date.now()).toLocaleDateString('es-ES', {
     day: '2-digit', month: 'long', year: 'numeric',
@@ -129,12 +133,26 @@ export function QuotePDF({
             <Text style={s.colNameHd}>DESCRIPCIÓN</Text>
             {showHours && <Text style={s.colHrsHd}>HORAS</Text>}
           </View>
-          {items.map((item, idx) => (
+          {billedItems.map((item, idx) => (
             <View key={idx} style={s.tableRow}>
               <Text style={s.colName}>{item.name}</Text>
               {showHours && <Text style={s.colHrs}>{item.hours ?? 0}h</Text>}
             </View>
           ))}
+          {giftItems.length > 0 && (
+            <>
+              <View style={{ ...s.tableRow, marginTop: 6 }}>
+                <Text style={{ ...s.colNameHd, color: BRAND }}>INCLUIDO SIN CARGO</Text>
+                {showHours && <Text style={s.colHrsHd} />}
+              </View>
+              {giftItems.map((item, idx) => (
+                <View key={`g${idx}`} style={{ ...s.tableRow, opacity: 0.8 }}>
+                  <Text style={{ ...s.colName, color: BRAND }}>🎁  {item.name}</Text>
+                  {showHours && <Text style={{ ...s.colHrs, color: BRAND }}>Incluido</Text>}
+                </View>
+              ))}
+            </>
+          )}
         </View>
 
         {/* Overhead — only when showHours is true */}
@@ -152,8 +170,14 @@ export function QuotePDF({
                 <Text style={s.ohValue}>{row.val}</Text>
               </View>
             ))}
+            {giftHours > 0 && (
+              <View style={s.ohRow}>
+                <Text style={{ ...s.ohLabel, color: BRAND }}>Funcionalidades de regalo</Text>
+                <Text style={{ ...s.ohValue, color: BRAND }}>{giftHours}h</Text>
+              </View>
+            )}
             <View style={s.totalRow}>
-              <Text style={s.totalLabel}>Total horas estimadas</Text>
+              <Text style={s.totalLabel}>Total horas del proyecto</Text>
               <Text style={s.totalValue}>{totalHours}h</Text>
             </View>
           </View>

@@ -194,6 +194,7 @@ export interface QuoteItem {
   size:       QuoteSize | null
   hours:      number
   sort_order: number
+  gift?:      boolean
 }
 
 export interface Quote {

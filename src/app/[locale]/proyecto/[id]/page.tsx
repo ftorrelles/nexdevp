@@ -2,10 +2,9 @@ import { redirect, notFound } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
-import { computeProgressPct } from '@/lib/projects'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
-import { DeliverableThread } from './DeliverableThread'
+import { ProjectOverview } from './ProjectOverview'
 
 type BriefSummary = { id: string; status: string } | null
 
@@ -25,32 +24,7 @@ const STATUS_COLORS: Record<string, string> = {
   cerrado: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
 }
 
-const DELIVERABLE_STATUS_LABELS: Record<Locale, Record<string, string>> = {
-  es: {
-    pendiente: 'Por iniciar',
-    en_curso: 'En desarrollo',
-    en_revision: 'En revisión',
-    aprobado: 'Completado',
-    cambios_solicitados: 'Ajustes en curso',
-  },
-  en: {
-    pendiente: 'Not started',
-    en_curso: 'In development',
-    en_revision: 'Under review',
-    aprobado: 'Completed',
-    cambios_solicitados: 'Adjustments in progress',
-  },
-}
-
-const DELIVERABLE_STATUS_COLORS: Record<string, string> = {
-  pendiente: 'text-nex-grey bg-nex-ink/5 border-nex-ink/20',
-  en_curso: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-  en_revision: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
-  aprobado: 'text-nex-green bg-nex-green/10 border-nex-green/30',
-  cambios_solicitados: 'text-red-400 bg-red-400/10 border-red-400/30',
-}
-
-type DeliverableRow = { id: string; name: string; status: string; sort_order: number }
+type DeliverableRow = { id: string; name: string; status: string; hours: number; sort_order: number }
 type CommentRow = { id: string; body: string; kind: string; author_role: string; created_at: string; deliverable_id: string }
 
 export default async function ProyectoDetailPage({ params }: Props): Promise<React.JSX.Element> {
@@ -67,20 +41,12 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
 
   const { data: project } = await db
     .from('projects')
-    .select('id, name, status, vercel_url, project_deliverables(id, name, status, sort_order)')
+    .select('id, name, status, vercel_url, project_deliverables(id, name, status, hours, sort_order)')
     .eq('id', id)
     .eq('client_user_id', user.id)
     .maybeSingle()
 
   if (!project) notFound()
-
-  const { data: progressData } = await db
-    .from('project_deliverables')
-    .select('hours, status')
-    .eq('project_id', id)
-
-  const pct = computeProgressPct(progressData ?? [])
-  const progressColor = pct === 100 ? 'bg-nex-green' : pct >= 50 ? 'bg-blue-400' : 'bg-yellow-400'
 
   const { data: briefData } = await db
     .from('project_briefs')
@@ -132,18 +98,6 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
           ].join(' ')}>
             {STATUS_LABELS[loc][project.status] ?? project.status}
           </span>
-        </div>
-
-        <div>
-          <p className="font-dm-mono text-[10px] uppercase tracking-[0.1em] text-nex-grey mb-2">
-            {loc === 'es' ? 'Progreso general' : 'Overall progress'}
-          </p>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-nex-ink/10 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full ${progressColor} transition-all`} style={{ width: `${pct}%` }} />
-            </div>
-            <span className="font-jost font-bold text-lg text-nex-white">{pct}%</span>
-          </div>
         </div>
 
         {/* Brief status — shown when sent or completed */}
@@ -203,48 +157,12 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
         )}
       </div>
 
-      {/* Deliverables with threads */}
-      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-6 mt-6">
-        <p className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mb-4">
-          {loc === 'es' ? 'Entregables' : 'Deliverables'}
-        </p>
-
-        {deliverables.length === 0 ? (
-          <p className="font-jost text-sm text-nex-grey italic py-4 text-center">
-            {loc === 'es'
-              ? 'Todavía no hay entregables cargados.'
-              : 'No deliverables have been added yet.'}
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {deliverables.map((d: DeliverableRow) => (
-              <div
-                key={d.id}
-                className="bg-nex-black rounded-xl border border-nex-ink/10 overflow-hidden"
-              >
-                {/* Header row */}
-                <div className="flex items-center justify-between gap-4 px-4 py-3">
-                  <p className="font-jost text-sm text-nex-white">{d.name}</p>
-                  <span className={[
-                    'font-dm-mono text-[10px] uppercase tracking-wider rounded-full border px-2.5 py-0.5 shrink-0',
-                    DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
-                  ].join(' ')}>
-                    {DELIVERABLE_STATUS_LABELS[loc][d.status] ?? d.status}
-                  </span>
-                </div>
-
-                {/* Comment thread */}
-                <DeliverableThread
-                  deliverable={d}
-                  projectId={id}
-                  initialComments={commentsByDeliverable[d.id] ?? []}
-                  locale={loc}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <ProjectOverview
+        initialDeliverables={deliverables}
+        projectId={id}
+        commentsByDeliverable={commentsByDeliverable}
+        locale={loc}
+      />
     </main>
   )
 }

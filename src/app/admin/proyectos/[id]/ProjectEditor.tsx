@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { UserRole, BriefTemplate, ProjectBrief, ProjectBriefQuestion, ProjectBriefAnswer } from '@/lib/supabase'
+import { computeProgressPct } from '@/lib/projects'
 import { BriefSection } from './BriefSection'
 
 interface CommentData {
@@ -351,7 +352,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
         {/* Progress bar */}
         <div>
           <p className="font-dm-mono text-[10px] uppercase tracking-[0.1em] text-nex-grey mb-2">Progreso</p>
-          <ProgressBar pct={project.progress_pct} />
+          <ProgressBar pct={computeProgressPct(deliverables)} />
         </div>
       </div>
 

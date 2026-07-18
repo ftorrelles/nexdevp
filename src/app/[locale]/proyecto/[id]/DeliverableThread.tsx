@@ -22,6 +22,7 @@ interface Props {
   projectId: string
   initialComments: CommentData[]
   locale: Locale
+  onStatusChange?: (status: string) => void
 }
 
 const STATUS_BANNERS: Record<Locale, Record<string, string>> = {
@@ -35,7 +36,7 @@ const STATUS_BANNERS: Record<Locale, Record<string, string>> = {
   },
 }
 
-export function DeliverableThread({ deliverable, projectId, initialComments, locale: loc }: Props) {
+export function DeliverableThread({ deliverable, projectId, initialComments, locale: loc, onStatusChange }: Props) {
   const [comments, setComments]       = useState<CommentData[]>(initialComments)
   const [open, setOpen]               = useState(initialComments.length > 0)
   const [body, setBody]               = useState('')
@@ -59,8 +60,8 @@ export function DeliverableThread({ deliverable, projectId, initialComments, loc
       if (res.ok) {
         const created: CommentData = await res.json()
         setComments((prev) => [...prev, created])
-        if (kind === 'aprobacion') setCurrentStatus('aprobado')
-        if (kind === 'cambios')    setCurrentStatus('cambios_solicitados')
+        if (kind === 'aprobacion') { setCurrentStatus('aprobado'); onStatusChange?.('aprobado') }
+        if (kind === 'cambios')    { setCurrentStatus('cambios_solicitados'); onStatusChange?.('cambios_solicitados') }
         if (kind === 'comentario') setBody('')
       }
     } finally {

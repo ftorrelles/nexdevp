@@ -246,8 +246,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   }, [products])
 
   // ── Item helpers ─────────────────────────────────────────────────────────────
+  function sizeFromHours(h: number): QuoteSize {
+    const sorted = [...sizes].sort((a, b) => a.hours - b.hours)
+    return (sorted.find(s => h <= s.hours)?.size ?? sorted[sorted.length - 1]?.size ?? 'XL') as QuoteSize
+  }
+
   function updateItemHours(idx: number, hours: number) {
-    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours } : it))
+    const size = sizeFromHours(hours)
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours, size } : it))
   }
   function updateItemName(idx: number, name: string) {
     setItems(prev => prev.map((it, i) => i === idx ? { ...it, name } : it))

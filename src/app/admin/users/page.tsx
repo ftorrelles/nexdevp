@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
-import type { AdminUser, UserRole } from '@/lib/supabase'
+import { STAFF_ROLES, type AdminUser, type UserRole } from '@/lib/supabase'
 import { UserManager } from './UserManager'
 import { AdminNav } from '../AdminNav'
 
@@ -15,9 +15,10 @@ export default async function UsersPage() {
   const adminClient = createServiceClient()
   const { data: { users } } = await adminClient.auth.admin.listUsers()
 
-  // The staff user manager only lists staff; applicants live in /admin/applicants.
+  // The staff user manager only lists staff; applicants live in /admin/applicants
+  // and clients are managed per-project via the "invite client" flow.
   const adminUsers: AdminUser[] = users
-    .filter((u) => (u.app_metadata?.role ?? 'vendor') !== 'applicant')
+    .filter((u) => STAFF_ROLES.includes((u.app_metadata?.role ?? 'vendor') as UserRole))
     .map((u) => ({
       id: u.id,
       email: u.email ?? '',

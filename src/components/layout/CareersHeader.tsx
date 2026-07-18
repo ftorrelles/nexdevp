@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import { UserMenu } from '@/components/theme/UserMenu'
+import { BrandLogo } from '@/components/theme/BrandLogo'
 
 interface Props {
   locale:     Locale
@@ -32,8 +33,7 @@ export function CareersHeader({ locale, isLoggedIn, email }: Props) {
 
         {/* Brand */}
         <Link href="/careers" className="flex items-center gap-3" aria-label="nexdevp careers">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-dark.svg" alt="nexdevp" style={{ height: '36px', width: 'auto' }} />
+          <BrandLogo className="h-9" />
           <span className="hidden sm:inline font-dm-mono text-[10px] tracking-[0.2em] uppercase text-nex-green border border-nex-green/30 rounded px-2 py-0.5">
             Careers
           </span>

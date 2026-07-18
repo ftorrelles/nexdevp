@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { ProyectoUserMenu } from './ProyectoLogout'
+import { BrandLogo } from '@/components/theme/BrandLogo'
 
 export default async function ProyectoLayout({
   children,
@@ -24,7 +25,7 @@ export default async function ProyectoLayout({
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">
       <header className="border-b border-nex-ink/10 px-4 sm:px-6 py-4 flex items-center justify-between">
-        <img src="/brand/logo-dark.svg" alt="nexdevp" className="h-9 w-auto" />
+        <BrandLogo />
         <ProyectoUserMenu email={user.email ?? ''} locale={locale === 'en' ? 'en' : 'es'} />
       </header>
       {children}

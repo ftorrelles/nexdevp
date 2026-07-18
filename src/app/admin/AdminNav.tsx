@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import type { UserRole } from '@/lib/supabase'
 import { UserMenu } from '@/components/theme/UserMenu'
+import { BrandLogo } from '@/components/theme/BrandLogo'
 
 interface Props {
   role: UserRole
@@ -131,7 +131,7 @@ export function AdminNav({ role, currentPath, email }: Props) {
     <header className="border-b border-nex-ink/10">
       <div className="px-4 sm:px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Image src="/brand/logo-dark.svg" alt="nexdevp" width={140} height={36} className="h-9 w-auto" priority />
+          <BrandLogo />
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">

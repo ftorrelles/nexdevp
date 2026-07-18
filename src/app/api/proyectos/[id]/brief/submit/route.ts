@@ -73,13 +73,20 @@ async function handlePost(_req: NextRequest, { params }: Params) {
   type QuestionRow = {
     id: string
     required: boolean
-    project_brief_answers: Array<{ id: string; value: string | null; file_path: string | null }>
+    project_brief_answers: Array<{ id: string; value: string | null; file_path: string | null }> | { id: string; value: string | null; file_path: string | null } | null
+  }
+
+  type AnswerItem = { id: string; value: string | null; file_path: string | null }
+  const toAnswerArray = (val: QuestionRow['project_brief_answers']): AnswerItem[] => {
+    if (!val) return []
+    if (Array.isArray(val)) return val
+    return [val]
   }
 
   const missing: string[] = []
   for (const q of (questions ?? []) as QuestionRow[]) {
     if (!q.required) continue
-    const answers = q.project_brief_answers ?? []
+    const answers = toAnswerArray(q.project_brief_answers)
     const hasAnswer = answers.some((a) => {
       const hasValue = a.value !== null && a.value.trim() !== ''
       const hasFile = a.file_path !== null && a.file_path.trim() !== ''

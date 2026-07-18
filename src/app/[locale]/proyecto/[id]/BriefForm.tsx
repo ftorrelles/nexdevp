@@ -437,6 +437,20 @@ export function BriefForm({ projectId, brief, locale }: Props) {
               : `Please fill in the ${missingRequired.length} required field${missingRequired.length > 1 ? 's' : ''} marked above.`}
           </p>
         )}
+
+        {/* Success state, repeated here so it's visible next to the button that triggered it */}
+        {submitStatus === 'done' && (
+          <div className="bg-nex-green/10 border border-nex-green/30 rounded-xl px-4 py-3 flex items-center gap-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green shrink-0" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <p className="font-jost text-sm text-nex-white font-semibold">
+              {loc === 'es'
+                ? '¡Brief enviado! El equipo de nexdevp recibirá una notificación.'
+                : 'Brief submitted! The nexdevp team will receive a notification.'}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

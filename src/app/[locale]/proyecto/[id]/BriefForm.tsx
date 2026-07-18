@@ -35,10 +35,29 @@ function getInitialAnswer(q: QuestionRow): string {
   return a.value ?? ''
 }
 
+// Convention: an `image` question is conditional when the immediately
+// preceding question (by sort_order) is a `boolean`. It only renders
+// when the boolean answer is 'true'.
+function buildConditionalMap(questions: QuestionRow[]): Map<string, string> {
+  const sorted = [...questions].sort((a, b) => a.sort_order - b.sort_order)
+  const map = new Map<string, string>() // image qid → boolean qid
+  for (let i = 1; i < sorted.length; i++) {
+    if (
+      sorted[i].field_type === 'image' &&
+      sorted[i - 1].field_type === 'boolean'
+    ) {
+      map.set(sorted[i].id, sorted[i - 1].id)
+    }
+  }
+  return map
+}
+
 export function BriefForm({ projectId, brief, locale }: Props) {
   const loc = locale
+  const alreadySubmitted = brief.status === 'completed'
 
-  // Text/url/textarea answers keyed by question id
+  const conditionalMap = buildConditionalMap(brief.project_brief_questions)
+
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {}
     for (const q of brief.project_brief_questions) {
@@ -49,10 +68,8 @@ export function BriefForm({ projectId, brief, locale }: Props) {
     return init
   })
 
-  // File inputs keyed by question id
   const [files, setFiles] = useState<Record<string, File>>({})
 
-  // Existing image URLs (from props) keyed by question id
   const existingImages: Record<string, string | null> = {}
   for (const q of brief.project_brief_questions) {
     if (q.field_type === 'image') {
@@ -60,8 +77,8 @@ export function BriefForm({ projectId, brief, locale }: Props) {
     }
   }
 
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'confirming' | 'submitting' | 'done' | 'error'>('idle')
+  const [saveStatus,   setSaveStatus]   = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
   const [missingRequired, setMissingRequired] = useState<string[]>([])
 
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({})
@@ -75,92 +92,66 @@ export function BriefForm({ projectId, brief, locale }: Props) {
     setFiles((prev) => ({ ...prev, [questionId]: file }))
   }
 
-  async function handleSave() {
+  async function save(): Promise<boolean> {
     setSaveStatus('saving')
-    setMissingRequired([])
-
     const formData = new FormData()
-
     for (const q of brief.project_brief_questions) {
       if (q.field_type === 'image') {
         const file = files[q.id]
-        if (file) {
-          formData.append(`answers[${q.id}][file]`, file)
-        }
+        if (file) formData.append(`answers[${q.id}][file]`, file)
       } else {
-        const val = answers[q.id] ?? ''
-        formData.append(`answers[${q.id}][value]`, val)
+        formData.append(`answers[${q.id}][value]`, answers[q.id] ?? '')
       }
     }
-
     try {
       const res = await fetch(`/api/proyectos/${projectId}/brief/answers`, {
         method: 'POST',
         body: formData,
       })
-
       if (res.ok) {
         setSaveStatus('saved')
         setTimeout(() => setSaveStatus('idle'), 3000)
-      } else {
-        setSaveStatus('error')
+        return true
       }
+      setSaveStatus('error')
+      return false
     } catch {
       setSaveStatus('error')
+      return false
     }
+  }
+
+  async function handleSave() {
+    await save()
   }
 
   async function handleSubmit() {
-    if (submitStatus === 'confirming') {
-      setSubmitStatus('submitting')
-      setMissingRequired([])
+    setMissingRequired([])
+    // Auto-save before submit so the server has the latest answers
+    const saved = await save()
+    if (!saved) return
 
-      try {
-        const res = await fetch(`/api/proyectos/${projectId}/brief/submit`, {
-          method: 'POST',
-        })
-
-        if (res.ok) {
-          setSubmitStatus('done')
-        } else if (res.status === 422) {
-          const body = await res.json()
-          setMissingRequired(body.missing ?? [])
-          setSubmitStatus('idle')
-        } else {
-          setSubmitStatus('error')
-        }
-      } catch {
+    setSubmitStatus('submitting')
+    try {
+      const res = await fetch(`/api/proyectos/${projectId}/brief/submit`, {
+        method: 'POST',
+      })
+      if (res.ok) {
+        setSubmitStatus('done')
+      } else if (res.status === 422) {
+        const body = await res.json()
+        setMissingRequired(body.missing ?? [])
+        setSubmitStatus('idle')
+      } else {
         setSubmitStatus('error')
       }
-    } else {
-      setSubmitStatus('confirming')
+    } catch {
+      setSubmitStatus('error')
     }
   }
 
-  function cancelSubmit() {
-    setSubmitStatus('idle')
-  }
-
-  // Submitted: show completion state
-  if (submitStatus === 'done') {
-    return (
-      <div className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-4">
-        <div className="bg-nex-green/10 border border-nex-green/30 rounded-xl p-4 flex items-center gap-3">
-          <span className="text-nex-green text-xl" aria-hidden="true">✓</span>
-          <div>
-            <p className="font-jost font-semibold text-nex-green text-sm">
-              {loc === 'es' ? 'Brief enviado' : 'Brief submitted'}
-            </p>
-            <p className="font-jost text-xs text-nex-grey mt-0.5">
-              {loc === 'es'
-                ? 'Gracias. El equipo ya recibió toda la información.'
-                : 'Thank you. The team has received all the information.'}
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const inputClass =
+    'w-full bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 font-jost text-sm text-nex-white placeholder:text-nex-grey/60 focus:outline-none focus:border-nex-green/50 transition-colors'
 
   return (
     <div className="bg-nex-dark border border-white/10 rounded-xl p-6 space-y-6">
@@ -172,14 +163,46 @@ export function BriefForm({ projectId, brief, locale }: Props) {
         </h1>
         <p className="font-jost text-sm text-nex-grey mt-2">
           {loc === 'es'
-            ? 'Completá la información para que podamos avanzar con tu proyecto.'
-            : 'Fill in the information so we can move forward with your project.'}
+            ? 'Completá la información para que podamos avanzar con tu proyecto. Podés guardar y volver más tarde.'
+            : 'Fill in the information so we can move forward with your project. You can save and come back later.'}
         </p>
       </div>
+
+      {/* Already submitted banner */}
+      {alreadySubmitted && submitStatus !== 'done' && (
+        <div className="bg-nex-green/5 border border-nex-green/20 rounded-xl px-4 py-3 flex items-center gap-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green shrink-0" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <p className="font-jost text-sm text-nex-grey">
+            {loc === 'es'
+              ? 'Ya enviaste este brief. Podés editar tus respuestas y volver a enviarlo cuando quieras.'
+              : 'You already submitted this brief. You can edit your answers and resubmit at any time.'}
+          </p>
+        </div>
+      )}
+
+      {/* Success state (inline, not replacing the form) */}
+      {submitStatus === 'done' && (
+        <div className="bg-nex-green/10 border border-nex-green/30 rounded-xl px-4 py-3 flex items-center gap-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-nex-green shrink-0" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <p className="font-jost text-sm text-nex-white font-semibold">
+            {loc === 'es'
+              ? '¡Brief enviado! El equipo de nexdevp recibirá una notificación.'
+              : 'Brief submitted! The nexdevp team will receive a notification.'}
+          </p>
+        </div>
+      )}
 
       {/* Questions */}
       <div className="space-y-6">
         {brief.project_brief_questions.map((q) => {
+          // Conditional: image after boolean — only show when boolean is true
+          const parentBooleanId = conditionalMap.get(q.id)
+          if (parentBooleanId && answers[parentBooleanId] !== 'true') return null
+
           const isMissing = missingRequired.includes(q.id)
           return (
             <div
@@ -205,14 +228,13 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                 </p>
               )}
 
-              {/* Input by field_type */}
               {q.field_type === 'text' && (
                 <input
                   id={`q-${q.id}`}
                   type="text"
                   value={answers[q.id] ?? ''}
                   onChange={(e) => handleTextChange(q.id, e.target.value)}
-                  className="w-full bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 font-jost text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors"
+                  className={inputClass}
                   placeholder={q.label}
                 />
               )}
@@ -223,7 +245,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                   rows={4}
                   value={answers[q.id] ?? ''}
                   onChange={(e) => handleTextChange(q.id, e.target.value)}
-                  className="w-full bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 font-jost text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors resize-y"
+                  className={`${inputClass} resize-y`}
                   placeholder={q.label}
                 />
               )}
@@ -234,7 +256,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                   type="url"
                   value={answers[q.id] ?? ''}
                   onChange={(e) => handleTextChange(q.id, e.target.value)}
-                  className="w-full bg-nex-black border border-white/10 rounded-lg px-4 py-2.5 font-jost text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors"
+                  className={inputClass}
                   placeholder="https://"
                 />
               )}
@@ -253,9 +275,7 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                           : 'bg-nex-black text-nex-grey border-white/10 hover:border-nex-green/40',
                       ].join(' ')}
                     >
-                      {val === 'true'
-                        ? (loc === 'es' ? 'Sí' : 'Yes')
-                        : (loc === 'es' ? 'No' : 'No')}
+                      {val === 'true' ? (loc === 'es' ? 'Sí' : 'Yes') : 'No'}
                     </button>
                   ))}
                 </div>
@@ -263,7 +283,6 @@ export function BriefForm({ projectId, brief, locale }: Props) {
 
               {q.field_type === 'image' && (
                 <div className="space-y-3">
-                  {/* Show existing image thumbnail if no new file selected */}
                   {existingImages[q.id] && !files[q.id] && (
                     <div className="relative inline-block">
                       <img
@@ -276,7 +295,6 @@ export function BriefForm({ projectId, brief, locale }: Props) {
                       </p>
                     </div>
                   )}
-                  {/* Show new file preview */}
                   {files[q.id] && (
                     <div className="relative inline-block">
                       <img
@@ -304,9 +322,8 @@ export function BriefForm({ projectId, brief, locale }: Props) {
         })}
       </div>
 
-      {/* Action buttons */}
-      <div className="border-t border-white/10 pt-6 space-y-3">
-        {/* Save button */}
+      {/* Actions */}
+      <div className="border-t border-white/10 pt-6 flex flex-col gap-3">
         <button
           type="button"
           onClick={handleSave}
@@ -314,53 +331,28 @@ export function BriefForm({ projectId, brief, locale }: Props) {
           className="w-full py-2.5 rounded-lg font-jost font-semibold text-sm border border-white/20 text-nex-white bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50"
         >
           {saveStatus === 'saving'
-            ? (loc === 'es' ? 'Guardando...' : 'Saving...')
+            ? (loc === 'es' ? 'Guardando…' : 'Saving…')
             : saveStatus === 'saved'
-            ? (loc === 'es' ? '✓ Respuestas guardadas' : '✓ Answers saved')
+            ? (loc === 'es' ? '✓ Guardado' : '✓ Saved')
             : saveStatus === 'error'
-            ? (loc === 'es' ? 'Error al guardar. Intentá de nuevo.' : 'Save failed. Please try again.')
+            ? (loc === 'es' ? 'Error al guardar. Intentá de nuevo.' : 'Save failed. Try again.')
             : (loc === 'es' ? 'Guardar respuestas' : 'Save answers')}
         </button>
 
-        {/* Submit brief */}
-        {submitStatus === 'confirming' ? (
-          <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-xl p-4 space-y-3">
-            <p className="font-jost text-sm text-nex-white font-semibold">
-              {loc === 'es'
-                ? '¿Confirmar envío? No podrás editar tus respuestas.'
-                : "Confirm submission? You won't be able to edit your answers."}
-            </p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="flex-1 py-2.5 rounded-lg font-jost font-semibold text-sm bg-nex-green text-nex-black hover:bg-nex-green/90 transition-colors"
-              >
-                {loc === 'es' ? 'Confirmar envío' : 'Confirm submission'}
-              </button>
-              <button
-                type="button"
-                onClick={cancelSubmit}
-                className="px-5 py-2.5 rounded-lg font-jost text-sm text-nex-grey border border-white/10 hover:border-white/30 transition-colors"
-              >
-                {loc === 'es' ? 'Cancelar' : 'Cancel'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={submitStatus === 'submitting'}
-            className="w-full py-2.5 rounded-lg font-jost font-semibold text-sm bg-nex-green text-nex-black hover:bg-nex-green/90 transition-colors disabled:opacity-50"
-          >
-            {submitStatus === 'submitting'
-              ? (loc === 'es' ? 'Enviando...' : 'Submitting...')
-              : submitStatus === 'error'
-              ? (loc === 'es' ? 'Error al enviar. Intentá de nuevo.' : 'Submit failed. Please try again.')
-              : (loc === 'es' ? 'Enviar brief' : 'Submit brief')}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitStatus === 'submitting' || saveStatus === 'saving'}
+          className="w-full py-2.5 rounded-lg font-jost font-semibold text-sm bg-nex-green text-nex-black hover:bg-nex-green/90 transition-colors disabled:opacity-50"
+        >
+          {submitStatus === 'submitting'
+            ? (loc === 'es' ? 'Enviando…' : 'Submitting…')
+            : submitStatus === 'error'
+            ? (loc === 'es' ? 'Error. Intentá de nuevo.' : 'Error. Try again.')
+            : alreadySubmitted
+            ? (loc === 'es' ? 'Actualizar brief' : 'Update brief')
+            : (loc === 'es' ? 'Enviar brief' : 'Submit brief')}
+        </button>
 
         {missingRequired.length > 0 && (
           <p className="font-jost text-xs text-red-400 text-center">

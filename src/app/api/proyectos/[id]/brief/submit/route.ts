@@ -43,7 +43,7 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Brief not found' }, { status: 404 })
   }
 
-  if (brief.status !== 'sent') {
+  if (brief.status !== 'sent' && brief.status !== 'completed') {
     return NextResponse.json(
       { error: `Cannot submit a brief with status '${brief.status}'` },
       { status: 409 }

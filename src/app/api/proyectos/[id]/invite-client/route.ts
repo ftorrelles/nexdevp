@@ -34,8 +34,8 @@ export async function POST(
     return NextResponse.json({ error: 'Lead has no email address' }, { status: 422 })
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  const redirectTo = `${siteUrl}/auth/callback?next=/proyecto`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
+  const redirectTo = `${siteUrl}/auth/setup`
 
   // Re-invite path
   if (project.client_user_id) {

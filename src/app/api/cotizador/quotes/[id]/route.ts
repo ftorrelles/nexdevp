@@ -71,6 +71,7 @@ export async function PUT(
       size:       it.size ?? null,
       hours:      it.hours,
       sort_order: idx,
+      gift:       it.gift ?? false,
     }))
     const { error: itemsError } = await client.from('quote_items').insert(rows)
     if (itemsError) console.error('quote_items replace error:', itemsError)

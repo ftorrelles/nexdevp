@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   const adminClient = createServiceClient()
   const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${siteUrl}/auth/callback?next=/admin/profile`,
+    redirectTo: `${siteUrl}/auth/setup`,
   })
 
   if (error) {

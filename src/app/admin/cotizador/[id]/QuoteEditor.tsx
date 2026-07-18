@@ -31,20 +31,21 @@ const STATUS_OPTIONS: { value: QuoteStatus; label: string }[] = [
 ]
 
 interface QuoteRow {
-  id:              string
-  lead_id:         string | null
-  title:           string
-  tipo:            string
-  product:         string
-  region:          string
-  hourly_rate:     number
-  status:          QuoteStatus
-  total_hours:     number
-  total_price:     number
-  maint_month:     number
-  addons:          string[]
-  notes:           string | null
-  commission_type: CommissionType
+  id:               string
+  lead_id:          string | null
+  title:            string
+  tipo:             string
+  product:          string
+  region:           string
+  hourly_rate:      number
+  status:           QuoteStatus
+  total_hours:      number
+  total_price:      number
+  special_discount: number
+  maint_month:      number
+  addons:           string[]
+  notes:            string | null
+  commission_type:  CommissionType
 }
 
 interface Props {
@@ -75,12 +76,15 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const [leadId,         setLeadId]         = useState<string>(quote.lead_id ?? '')
   const [leads,          setLeads]          = useState<LeadOption[]>([])
   const [commissionType, setCommissionType] = useState<CommissionType>(quote.commission_type)
-  const [saving,         setSaving]         = useState(false)
+  const [specialDiscount, setSpecialDiscount] = useState(quote.special_discount ?? 0)
+  const [maintMonth,      setMaintMonth]      = useState(quote.maint_month)
+  const [saving,          setSaving]          = useState(false)
 
   // PDF options panel
-  const [pdfOpen,     setPdfOpen]     = useState(false)
-  const [pdfShowHrs,  setPdfShowHrs]  = useState(true)
-  const [pdfShowRate, setPdfShowRate] = useState(false)
+  const [pdfOpen,      setPdfOpen]      = useState(false)
+  const [pdfShowHrs,   setPdfShowHrs]   = useState(true)
+  const [pdfShowRate,  setPdfShowRate]  = useState(false)
+  const [pdfShowMaint, setPdfShowMaint] = useState(true)
   const pdfRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -113,13 +117,18 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const ps       = settings.find(s => s.region === quote.region)
   const currency = ps?.currency ?? 'EUR'
 
-  const baseHours  = items.reduce((acc, i) => acc + (i.hours ?? 0), 0)
-  const pmHours    = Math.round(baseHours * (ps?.overhead_pm ?? 0.12))
-  const qaHours    = Math.round(baseHours * (ps?.overhead_qa ?? 0.15))
-  const cxHours    = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
-  const totalHours = baseHours + pmHours + qaHours + cxHours
-  const totalPrice = totalHours * rate
-  const maintMonth = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
+  const billedItems     = items.filter(i => !i.gift)
+  const giftItems       = items.filter(i => i.gift)
+  const baseHours       = billedItems.reduce((acc, i) => acc + (i.hours ?? 0), 0)
+  const giftHours       = giftItems.reduce((acc, i) => acc + (i.hours ?? 0), 0)
+  const pmHours         = Math.round(baseHours * (ps?.overhead_pm ?? 0.12))
+  const qaHours         = Math.round(baseHours * (ps?.overhead_qa ?? 0.15))
+  const cxHours         = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
+  const billedHours     = baseHours + pmHours + qaHours + cxHours
+  const totalHours      = billedHours + giftHours
+  const calculatedPrice    = billedHours * rate
+  const totalPrice         = Math.max(0, calculatedPrice - specialDiscount)
+  const suggestedMaintMonth = Math.round((totalPrice * (ps?.maint_rate ?? 0.175)) / 12)
 
   const commissionAmount = commissionType
     ? totalPrice * COMMISSION_RATES[commissionType]
@@ -130,8 +139,9 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
 
   function pdfUrl() {
     const params = new URLSearchParams()
-    if (!pdfShowHrs)  params.set('show_hours', '0')
-    if (!pdfShowRate) params.set('show_rate',  '0')
+    if (!pdfShowHrs)   params.set('show_hours', '0')
+    if (!pdfShowRate)  params.set('show_rate',  '0')
+    if (!pdfShowMaint) params.set('show_maint', '0')
     const qs = params.toString()
     return `/api/cotizador/quotes/${quote.id}/pdf${qs ? `?${qs}` : ''}`
   }
@@ -148,6 +158,12 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   function addItem() {
     setItems(prev => [...prev, { catalog_id: null, name: 'Nueva funcionalidad', size: sizeFromHours(20), hours: 20, sort_order: prev.length }])
   }
+  function toggleGift(idx: number) {
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, gift: !it.gift } : it))
+  }
+  function addGiftItem() {
+    setItems(prev => [...prev, { catalog_id: null, name: 'Funcionalidad de regalo', size: sizeFromHours(10), hours: 10, sort_order: prev.length, gift: true }])
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -158,13 +174,14 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         body: JSON.stringify({
           title,
           status,
-          notes:           notes || null,
-          lead_id:         leadId || null,
-          hourly_rate:     rate,
-          total_hours:     totalHours,
-          total_price:     totalPrice,
-          maint_month:     maintMonth,
-          commission_type: commissionType,
+          notes:            notes || null,
+          lead_id:          leadId || null,
+          hourly_rate:      rate,
+          total_hours:      totalHours,
+          total_price:      totalPrice,
+          special_discount: specialDiscount,
+          maint_month:      maintMonth,
+          commission_type:  commissionType,
           items,
         }),
       })
@@ -275,26 +292,41 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       <div className="bg-nex-dark border border-white/10 rounded-xl p-5 space-y-3">
         <div className="flex items-center justify-between mb-1">
           <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Fases / funcionalidades</h3>
-          <button onClick={addItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
-            + Agregar
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={addGiftItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
+              🎁 Agregar regalo
+            </button>
+            <button onClick={addItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
+              + Agregar
+            </button>
+          </div>
         </div>
         {items.map((item, idx) => (
-          <div key={idx} className="flex items-center gap-3 bg-nex-black border border-white/5 rounded-lg px-4 py-3">
-            {item.size && (
+          <div key={idx} className={[
+            'flex items-center gap-3 border rounded-lg px-4 py-3',
+            item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-white/5',
+          ].join(' ')}>
+            {item.gift ? (
+              <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green bg-nex-green/10 border-nex-green/30">
+                🎁
+              </span>
+            ) : item.size ? (
               <span className={[
                 'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
                 SIZE_COLORS[item.size as QuoteSize],
               ].join(' ')}>
                 {item.size}
               </span>
-            )}
+            ) : null}
             <input
               type="text"
               value={item.name}
               onChange={e => updateName(idx, e.target.value)}
               className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none"
             />
+            {item.gift && (
+              <span className="font-jost text-xs text-nex-green shrink-0">sin cargo</span>
+            )}
             <div className="flex items-center gap-1 shrink-0">
               <input
                 type="number"
@@ -305,6 +337,13 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
               />
               <span className="font-dm-mono text-xs text-nex-grey">h</span>
             </div>
+            <button
+              onClick={() => toggleGift(idx)}
+              title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
+              className={['text-sm transition-colors shrink-0', item.gift ? 'opacity-100' : 'opacity-30 hover:opacity-70'].join(' ')}
+            >
+              🎁
+            </button>
             <button onClick={() => removeItem(idx)} className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0" aria-label="Eliminar">×</button>
           </div>
         ))}
@@ -324,6 +363,12 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             <span className="text-nex-white font-dm-mono">{r.val}h</span>
           </div>
         ))}
+        {giftHours > 0 && (
+          <div className="flex justify-between font-jost text-sm">
+            <span className="text-nex-green">Funcionalidades de regalo (sin cargo)</span>
+            <span className="text-nex-green font-dm-mono">{giftHours}h</span>
+          </div>
+        )}
         <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
           <span className="text-nex-white">Total horas</span>
           <span className="text-nex-green font-dm-mono">{totalHours}h</span>
@@ -332,16 +377,61 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
 
       {/* Price summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: 'Precio del proyecto', value: fmt(totalPrice), big: true  },
-          { label: 'Mantenimiento / mes', value: fmt(maintMonth), big: false },
-          { label: 'Total horas',          value: `${totalHours}h`, big: false },
-        ].map(card => (
-          <div key={card.label} className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
-            <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">{card.label}</p>
-            <p className={['font-jost font-bold', card.big ? 'text-2xl text-nex-green' : 'text-xl text-nex-white'].join(' ')}>{card.value}</p>
+        <div className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
+          <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Precio del proyecto</p>
+          <p className="font-jost font-bold text-2xl text-nex-green">{fmt(totalPrice)}</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
+          <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Mantenimiento / mes</p>
+          <div className="flex items-baseline gap-1">
+            <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+            <input
+              type="number"
+              min={0}
+              value={maintMonth}
+              onChange={e => setMaintMonth(Math.max(0, Number(e.target.value)))}
+              className="flex-1 bg-transparent font-jost font-bold text-xl text-nex-white outline-none w-full"
+            />
           </div>
-        ))}
+          {maintMonth !== suggestedMaintMonth && (
+            <button
+              onClick={() => setMaintMonth(suggestedMaintMonth)}
+              className="font-jost text-[10px] text-nex-grey hover:text-nex-green mt-1 transition-colors block"
+            >
+              Sugerido: {fmt(suggestedMaintMonth)}
+            </button>
+          )}
+        </div>
+        <div className="rounded-xl border border-white/10 bg-nex-black/40 p-4">
+          <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Total horas</p>
+          <p className="font-jost font-bold text-xl text-nex-white">{totalHours}h</p>
+        </div>
+      </div>
+
+      {/* Special discount / price rounding */}
+      <div className="bg-nex-dark border border-white/10 rounded-xl p-5 space-y-3">
+        <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Ajuste de precio final</h3>
+        <div className="flex justify-between font-jost text-sm">
+          <span className="text-nex-grey">Precio calculado</span>
+          <span className="text-nex-white font-dm-mono">{fmt(calculatedPrice)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-jost text-sm text-nex-grey">Descuento especial</span>
+          <div className="flex items-center gap-1 bg-nex-black border border-white/10 rounded-lg px-3 py-1.5">
+            <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+            <input
+              type="number"
+              min={0}
+              value={specialDiscount}
+              onChange={e => setSpecialDiscount(Math.max(0, Number(e.target.value)))}
+              className="w-16 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
+            />
+          </div>
+        </div>
+        <div className="border-t border-white/10 pt-2 flex justify-between font-jost text-sm font-bold">
+          <span className="text-nex-white">Precio final al cliente</span>
+          <span className="text-nex-green font-dm-mono">{fmt(totalPrice)}</span>
+        </div>
       </div>
 
       {/* Commission — auto-derived from lead canal, shown when accepted */}
@@ -404,8 +494,9 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
                 <p className="font-dm-mono text-[10px] text-nex-grey uppercase tracking-[0.15em]">Opciones del PDF</p>
 
                 {[
-                  { label: 'Mostrar horas por fase',  state: pdfShowHrs,  set: setPdfShowHrs  },
-                  { label: 'Mostrar tarifa por hora', state: pdfShowRate, set: setPdfShowRate },
+                  { label: 'Mostrar horas por fase',        state: pdfShowHrs,   set: setPdfShowHrs   },
+                  { label: 'Mostrar tarifa por hora',       state: pdfShowRate,  set: setPdfShowRate  },
+                  { label: 'Incluir mantenimiento mensual', state: pdfShowMaint, set: setPdfShowMaint },
                 ].map(({ label, state, set }) => (
                   <label key={label} className="flex items-center gap-3 cursor-pointer group">
                     <div

@@ -79,12 +79,13 @@ export interface QuotePDFProps {
   // Display options
   showHours:        boolean
   showRate:         boolean
+  showMaint:        boolean
 }
 
 export function QuotePDF({
   id, title, tipo, product, region, total_price, special_discount, maint_month, hourly_rate,
   notes, created_at, items, currency, overhead_pm, overhead_qa, overhead_cx,
-  logoUrl, showHours, showRate,
+  logoUrl, showHours, showRate, showMaint,
 }: QuotePDFProps) {
   const billedItems = items.filter(i => !i.gift)
   const giftItems   = items.filter(i => i.gift)
@@ -147,7 +148,7 @@ export function QuotePDF({
               </View>
               {giftItems.map((item, idx) => (
                 <View key={`g${idx}`} style={{ ...s.tableRow, opacity: 0.8 }}>
-                  <Text style={{ ...s.colName, color: BRAND }}>🎁  {item.name}</Text>
+                  <Text style={{ ...s.colName, color: BRAND }}>{item.name}</Text>
                   {showHours && <Text style={{ ...s.colHrs, color: BRAND }}>Incluido</Text>}
                 </View>
               ))}
@@ -183,23 +184,45 @@ export function QuotePDF({
           </View>
         )}
 
-        {/* Price cards */}
-        <View style={s.cards}>
-          <View style={s.cardMain}>
-            <Text style={s.cardLabel}>INVERSIÓN DEL PROYECTO</Text>
-            <Text style={s.cardMainV}>{fmt(total_price)}</Text>
+        {/* Invoice-style price summary */}
+        <View style={{ ...s.section, borderWidth: 1, borderColor: '#333333', borderRadius: 8, padding: 16 }}>
+          <Text style={{ ...s.sectionHd, marginBottom: 12 }}>RESUMEN DE INVERSIÓN</Text>
+
+          <View style={s.ohRow}>
+            <Text style={s.ohLabel}>Precio base calculado</Text>
+            <Text style={s.ohValue}>{fmt(total_price + special_discount)}</Text>
           </View>
-          <View style={s.cardSec}>
-            <Text style={s.cardLabel}>MANTENIMIENTO / MES</Text>
-            <Text style={s.cardSecV}>{fmt(maint_month)}</Text>
-          </View>
-          {showRate && (
-            <View style={s.cardSec}>
-              <Text style={s.cardLabel}>TARIFA HORA</Text>
-              <Text style={s.cardSecV}>{fmt(hourly_rate)}/h</Text>
+
+          {special_discount > 0 && (
+            <View style={s.ohRow}>
+              <Text style={{ ...s.ohLabel, color: BRAND }}>Descuento aplicado</Text>
+              <Text style={{ ...s.ohValue, color: BRAND }}>- {fmt(special_discount)}</Text>
             </View>
           )}
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#444444', marginTop: 6, paddingTop: 10 }}>
+            <Text style={{ fontSize: 12, color: WHITE, fontFamily: 'Helvetica-Bold' }}>INVERSIÓN TOTAL</Text>
+            <Text style={{ fontSize: 14, color: BRAND, fontFamily: 'Helvetica-Bold' }}>{fmt(total_price)}</Text>
+          </View>
         </View>
+
+        {/* Secondary info row */}
+        {(showMaint || showRate) && (
+          <View style={{ ...s.cards, marginBottom: 24 }}>
+            {showMaint && (
+              <View style={s.cardSec}>
+                <Text style={s.cardLabel}>MANTENIMIENTO / MES</Text>
+                <Text style={s.cardSecV}>{fmt(maint_month)}</Text>
+              </View>
+            )}
+            {showRate && (
+              <View style={s.cardSec}>
+                <Text style={s.cardLabel}>TARIFA HORA</Text>
+                <Text style={s.cardSecV}>{fmt(hourly_rate)}/h</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Notes */}
         {notes && (

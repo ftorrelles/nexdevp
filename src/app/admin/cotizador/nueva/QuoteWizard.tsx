@@ -234,7 +234,17 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
             sort_order: order++,
           })
         }
-        setItems(merged)
+        // Preserve gift flags for catalog items that survived the template reload
+        setItems(prev => {
+          const prevGifts = new Map(
+            prev.filter(it => it.gift && it.catalog_id != null)
+                .map(it => [it.catalog_id!, true])
+          )
+          return merged.map(it => ({
+            ...it,
+            gift: it.catalog_id != null ? (prevGifts.get(it.catalog_id) ?? false) : false,
+          }))
+        })
         setCustomRate(null)
       } finally {
         if (!cancelled) setLoading(false)

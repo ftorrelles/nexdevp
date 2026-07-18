@@ -21,6 +21,7 @@ export async function GET(
   const url = new URL(req.url)
   const showHours = url.searchParams.get('show_hours') !== '0'
   const showRate  = url.searchParams.get('show_rate')  !== '0'
+  const showMaint = url.searchParams.get('show_maint') !== '0'
 
   const client = createServiceClient()
   const [quoteRes, itemsRes, settingsRes] = await Promise.all([
@@ -67,6 +68,7 @@ export async function GET(
     overhead_cx: ps?.overhead_cx ?? 0.10,
     showHours,
     showRate,
+    showMaint,
   })
 
   const buffer = await renderToBuffer(element)

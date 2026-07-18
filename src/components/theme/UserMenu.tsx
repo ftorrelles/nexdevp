@@ -74,14 +74,14 @@ export function UserMenu({ email, onLogout, accountHref, locale = 'es' }: Props)
             <span>{loc === 'es' ? 'Modo oscuro' : 'Dark mode'}</span>
             <span
               className={[
-                'w-9 h-5 rounded-full relative transition-colors shrink-0',
+                'inline-flex w-9 h-5 rounded-full relative transition-colors shrink-0',
                 theme === 'dark' ? 'bg-nex-green' : 'bg-nex-ink/15',
               ].join(' ')}
             >
               <span
                 className={[
-                  'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
-                  theme === 'dark' ? 'translate-x-0.5' : 'translate-x-4',
+                  'absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
+                  theme === 'dark' ? 'translate-x-0' : 'translate-x-4',
                 ].join(' ')}
               />
             </span>

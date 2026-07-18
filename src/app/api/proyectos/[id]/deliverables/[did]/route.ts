@@ -33,6 +33,17 @@ export async function PATCH(
     const body = await req.json()
     const allowed: Record<string, string | number | null> = {}
 
+    // Only the owner (or the client, via the comments/approve endpoint) can mark
+    // a deliverable as approved or as needing changes — supervisor can move it
+    // through every other status but not make the final call.
+    if (
+      body.status !== undefined &&
+      ['aprobado', 'cambios_solicitados'].includes(body.status) &&
+      role !== 'owner'
+    ) {
+      return NextResponse.json({ error: 'Only the owner can approve or request changes' }, { status: 403 })
+    }
+
     if (body.name !== undefined) allowed.name = body.name
     if (body.hours !== undefined) allowed.hours = body.hours
     if (body.status !== undefined) allowed.status = body.status

@@ -77,6 +77,8 @@ const DELIVERABLE_STATUS_COLORS: Record<string, string> = {
 }
 
 const canEdit = (role: UserRole) => role === 'owner' || role === 'supervisor'
+// Only the owner (or the client, from their own view) can make the final approve/reject call.
+const canApprove = (role: UserRole) => role === 'owner'
 const STATUS_COLORS: Record<string, string> = {
   activo: 'text-nex-green bg-nex-green/10 border-nex-green/30',
   pausado: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
@@ -117,6 +119,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
   const [newHours, setNewHours] = useState('')
 
   const isEditable = canEdit(role)
+  const isApprover = canApprove(role)
 
   async function updateProject(field: string, value: string) {
     setSaving('project')
@@ -390,7 +393,9 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                         DELIVERABLE_STATUS_COLORS[d.status] ?? DELIVERABLE_STATUS_COLORS.pendiente,
                       ].join(' ')}
                     >
-                      {DELIVERABLE_STATUS_OPTIONS.map((opt) => (
+                      {DELIVERABLE_STATUS_OPTIONS
+                        .filter((opt) => isApprover || !['aprobado', 'cambios_solicitados'].includes(opt) || opt === d.status)
+                        .map((opt) => (
                         <option key={opt} value={opt} className="bg-nex-dark text-nex-white">
                           {DELIVERABLE_STATUS_LABELS[opt]}
                         </option>

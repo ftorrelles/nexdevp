@@ -33,8 +33,10 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const kind = bodyJson.kind as string
   const body = bodyJson.body as string | undefined
 
-  if (role === 'developer' && kind !== 'comentario') {
-    return NextResponse.json({ error: 'Developer can only post kind=comentario' }, { status: 403 })
+  // Only the client (for their own project) or the owner can approve/request changes.
+  // Supervisor and developer are restricted to plain comments.
+  if (role !== 'client' && role !== 'owner' && kind !== 'comentario') {
+    return NextResponse.json({ error: 'Only the client or the owner can approve or request changes' }, { status: 403 })
   }
 
   if (!body || !body.trim()) {
@@ -47,10 +49,13 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   const client = createServiceClient()
 
-  if (role === 'client') {
-    // Client branch
+  if (role === 'client' || role === 'owner') {
+    // Client/owner branch — both can approve or request changes
     const project = await getProject(client, id)
-    if (!project || project.client_user_id !== user.id) {
+    if (!project) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+    if (role === 'client' && project.client_user_id !== user.id) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
@@ -86,7 +91,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       .insert({
         deliverable_id: did,
         author_user_id: user.id,
-        author_role: 'client',
+        author_role: role,
         body: body.trim(),
         kind,
       })
@@ -97,11 +102,11 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
       return NextResponse.json({ error: insertErr?.message ?? 'Failed to insert' }, { status: 500 })
     }
 
-    // Best-effort email notification to owner/supervisor
+    // Best-effort email notification to owner/supervisor (excluding whoever just acted)
     try {
       const { data: { users } } = await client.auth.admin.listUsers()
       const adminEmails = (users ?? [])
-        .filter((u) => ['owner', 'supervisor'].includes(u.app_metadata?.role ?? ''))
+        .filter((u) => ['owner', 'supervisor'].includes(u.app_metadata?.role ?? '') && u.id !== user.id)
         .map((u) => u.email)
         .filter(Boolean) as string[]
 
@@ -122,9 +127,9 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
     return NextResponse.json(comment, { status: 201 })
   }
 
-  // Owner/supervisor branch
+  // Supervisor/developer branch — comments only, no approve/request-changes
   if (kind !== 'comentario') {
-    return NextResponse.json({ error: 'Admin can only post kind=comentario' }, { status: 400 })
+    return NextResponse.json({ error: 'Only the client or the owner can approve or request changes' }, { status: 400 })
   }
 
   const project = await getProject(client, id)

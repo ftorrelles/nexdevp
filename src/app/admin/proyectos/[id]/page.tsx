@@ -16,7 +16,7 @@ export default async function ProyectoDetailPage({
   if (!user) redirect('/admin/login')
 
   const role = (user.app_metadata?.role ?? 'vendor') as UserRole
-  if (!['owner', 'supervisor', 'vendor'].includes(role)) redirect('/admin')
+  if (!['owner', 'supervisor', 'vendor', 'developer'].includes(role)) redirect('/admin')
 
   const { id } = await params
   const client = createServiceClient()
@@ -36,6 +36,18 @@ export default async function ProyectoDetailPage({
     redirect('/admin/proyectos')
   }
 
+  // Developer: verify they have at least one deliverable assigned in this project
+  if (role === 'developer') {
+    const { data: assigned } = await client
+      .from('project_deliverables')
+      .select('id')
+      .eq('project_id', id)
+      .eq('assigned_to', user.id)
+      .limit(1)
+      .maybeSingle()
+    if (!assigned) redirect('/admin/proyectos')
+  }
+
   const { data: deliverables } = await client
     .from('project_deliverables')
     .select('*')
@@ -44,13 +56,13 @@ export default async function ProyectoDetailPage({
 
   const progressPct = computeProgressPct(deliverables ?? [])
 
-  // Fetch vendor users for assigned_to dropdown (owner/supervisor only)
-  let vendorUsers: { id: string; email: string }[] = []
+  // Fetch assignable users for the dropdown (owner/supervisor only can assign)
+  let vendorUsers: { id: string; email: string; role: string }[] = []
   if (role === 'owner' || role === 'supervisor') {
     const { data: { users } } = await client.auth.admin.listUsers()
     vendorUsers = (users ?? [])
-      .filter((u) => ['owner', 'supervisor', 'vendor'].includes(u.app_metadata?.role ?? ''))
-      .map((u) => ({ id: u.id, email: u.email ?? u.id }))
+      .filter((u) => ['owner', 'supervisor', 'developer', 'vendor'].includes(u.app_metadata?.role ?? ''))
+      .map((u) => ({ id: u.id, email: u.email ?? u.id, role: u.app_metadata?.role ?? '' }))
       .sort((a, b) => a.email.localeCompare(b.email))
   }
 

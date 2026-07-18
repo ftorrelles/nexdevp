@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthServerClient } from '@/lib/supabase-server'
 
-const STAFF_ROLES = ['owner', 'supervisor', 'vendor']
+const STAFF_ROLES = ['owner', 'supervisor', 'developer', 'vendor']
 
 async function getUser() {
   const supabase = await createAuthServerClient()
@@ -27,6 +27,15 @@ export async function GET() {
 
   if (role === 'vendor') {
     query = query.eq('leads.assigned_to', user.id)
+  } else if (role === 'developer') {
+    // Only projects where this developer has at least one assigned deliverable
+    const { data: assigned } = await client
+      .from('project_deliverables')
+      .select('project_id')
+      .eq('assigned_to', user.id)
+    const projectIds = [...new Set((assigned ?? []).map((d) => d.project_id))]
+    if (projectIds.length === 0) return NextResponse.json([])
+    query = query.in('id', projectIds)
   }
 
   const { data, error } = await query

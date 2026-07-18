@@ -38,7 +38,7 @@ type BriefWithQuestions = ProjectBrief & {
 interface Props {
   project: ProjectData
   role: UserRole
-  vendorUsers: { id: string; email: string }[]
+  vendorUsers: { id: string; email: string; role: string }[]
   clientEmail: string | null
   leadEmail: string | null
   initialBrief: BriefWithQuestions | null
@@ -414,7 +414,9 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                     >
                       <option value="" className="bg-nex-dark text-nex-grey">Sin asignar</option>
                       {vendorUsers.map((u) => (
-                        <option key={u.id} value={u.id} className="bg-nex-dark text-nex-white">{u.email}</option>
+                        <option key={u.id} value={u.id} className="bg-nex-dark text-nex-white">
+                          {u.email} ({u.role})
+                        </option>
                       ))}
                     </select>
                   )}

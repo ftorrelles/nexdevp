@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import type { Career } from '@/lib/supabase'
 
-const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+const MAX_CV_SIZE_BYTES = 4 * 1024 * 1024 // 4 MB (Vercel serverless limit is 4.5 MB)
 const ALLOWED_CV_EXT = ['pdf', 'doc', 'docx']
 
 interface Props {
@@ -109,7 +109,14 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
         body: data,
       })
 
-      const json = await res.json()
+      // Parse JSON separately — if the server returns HTML (e.g. Vercel 413)
+      // res.json() would throw and we'd lose the status code.
+      let json: { error?: string } = {}
+      try {
+        json = await res.json()
+      } catch {
+        // Non-JSON response (payload too large, gateway error, etc.)
+      }
 
       if (res.ok) {
         setSuccessMsg(t('submitSuccess'))
@@ -121,6 +128,8 @@ export function CareersListing({ careers, locale, currentUser }: Props): React.J
           red_ventas: '',
         })
         setCvFile(null)
+      } else if (res.status === 413) {
+        setErrorMsg(locale === 'es' ? 'El archivo es demasiado grande. Máximo 4 MB.' : 'File too large. Maximum 4 MB.')
       } else {
         setErrorMsg(json.error || t('submitError'))
       }

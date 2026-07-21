@@ -8,7 +8,7 @@ const ALLOWED_CV_MIME_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]
-const MAX_CV_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+const MAX_CV_SIZE_BYTES = 4 * 1024 * 1024 // 4 MB (Vercel serverless limit is 4.5 MB)
 const ALLOWED_RED_VENTAS = ['red', 'experiencia', 'principiante']
 
 export async function GET(): Promise<NextResponse> {

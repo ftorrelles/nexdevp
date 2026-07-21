@@ -36,7 +36,7 @@ export async function About() {
             <div key={founder.key} className="bg-nex-dark rounded-xl border border-white/5 p-6 flex flex-col gap-5">
               <div className="relative w-16 h-16 rounded-full overflow-hidden bg-nex-dark border border-white/10">
                 <Image
-                  src="/brand/logo-light.png"
+                  src="/brand/Logo.png"
                   alt={founder.imageAlt}
                   width={64}
                   height={64}

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -52,16 +53,14 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/admin/auth/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${siteUrl}/auth/reset-password`,
       })
-      if (res.ok) {
-        setForgotSent(true)
+      if (resetError) {
+        setError(resetError.message)
       } else {
-        const data = await res.json()
-        setError(data.error ?? 'No se pudo enviar el email')
+        setForgotSent(true)
       }
     } catch {
       setError('Error de conexión')

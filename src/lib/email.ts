@@ -15,18 +15,31 @@ const SUBJECTS: Record<Decision, string> = {
 
 function buildHtml(name: string, decision: Decision): string {
   const greeting = `Hola ${name},`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
+
   const body =
     decision === 'accepted'
       ? `¡Tenemos excelentes noticias! Fuiste <strong>seleccionado</strong> para sumarte al equipo de nexdevp.
-         Ya activamos tu acceso: ingresá con tu cuenta para empezar.`
+         Ya activamos tu acceso — usá el botón de abajo para ingresar con la cuenta con la que te registraste.`
       : `Gracias por postularte a nexdevp y por el tiempo que dedicaste al proceso.
          En esta oportunidad <strong>no avanzamos</strong> con tu candidatura, pero guardamos tu perfil para futuras búsquedas.`
+
+  const cta =
+    decision === 'accepted'
+      ? `<p style="margin-top:24px;">
+           <a href="${siteUrl}/admin/login"
+              style="display:inline-block; background:#22b561; color:#0a0a0a; text-decoration:none; font-weight:bold; font-size:14px; padding:10px 20px; border-radius:8px;">
+             Ingresar al panel
+           </a>
+         </p>`
+      : ''
 
   return `
     <div style="font-family: Arial, Helvetica, sans-serif; background:#0a0a0a; color:#e8e8e8; padding:32px; border-radius:12px; max-width:520px; margin:0 auto;">
       <h1 style="color:#22b561; font-size:20px; margin:0 0 16px;">nexdevp</h1>
       <p style="font-size:15px; line-height:1.6;">${greeting}</p>
       <p style="font-size:15px; line-height:1.6;">${body}</p>
+      ${cta}
       <p style="font-size:13px; color:#8a8c8b; margin-top:24px;">— El equipo de nexdevp</p>
     </div>
   `

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { CustomCursor } from '@/components/ui/CustomCursor'
 
 type Step = 'loading' | 'set-password' | 'success' | 'error'
 
@@ -74,6 +75,7 @@ export default function AuthSetupPage() {
 
   return (
     <div className="min-h-screen bg-nex-black flex items-center justify-center px-4">
+      <CustomCursor />
       <div className="w-full max-w-sm">
 
         {step === 'loading' && (

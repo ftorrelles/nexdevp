@@ -20,14 +20,28 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setStep(prev => (prev === 'loading' ? 'error' : prev))
-    }, 6000)
+    }, 8000)
+
+    async function init() {
+      // PKCE flow: Supabase sends ?code= in the URL instead of #access_token.
+      // We must exchange it for a session before onAuthStateChange fires.
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get('code')
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        if (error) {
+          clearTimeout(timeout)
+          setStep('error')
+          return
+        }
+      }
+    }
+
+    init()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       clearTimeout(timeout)
-      if (event === 'PASSWORD_RECOVERY' && session?.user) {
-        setStep('set-password')
-      } else if (event === 'SIGNED_IN' && session?.user) {
-        // Some Supabase versions fire SIGNED_IN instead of PASSWORD_RECOVERY
+      if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session?.user) {
         setStep('set-password')
       } else if (!session) {
         setStep('error')

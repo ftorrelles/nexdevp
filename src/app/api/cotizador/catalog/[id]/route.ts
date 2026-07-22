@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { bumpConfigVersion } from '@/lib/config-version'
 
 export async function PUT(
   req: NextRequest,
@@ -28,6 +29,8 @@ export async function PUT(
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await bumpConfigVersion(client, 'catalog')
   return NextResponse.json({ item: data })
 }
 
@@ -49,5 +52,7 @@ export async function DELETE(
   const { error } = await client.from('quote_catalog').delete().eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await bumpConfigVersion(client, 'catalog')
   return new NextResponse(null, { status: 204 })
 }

@@ -15,7 +15,8 @@ export default async function AdminPage() {
   const client = createServiceClient()
 
   const query = client.from('leads').select('*').order('created_at', { ascending: false })
-  if (role === 'vendor') query.eq('assigned_to', user.id)
+  // A vendor sees leads assigned to him OR created by him.
+  if (role === 'vendor') query.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`)
 
   const { data: leads, error } = await query
   if (error) console.error('Failed to fetch leads:', error)

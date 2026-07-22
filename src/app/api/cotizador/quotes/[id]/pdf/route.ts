@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { getActor } from '@/lib/auth-server'
+import { canViewQuote } from '@/lib/permissions'
+import { effectiveQuoteView } from '@/lib/quote-calc'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import React from 'react'
 import { QuotePDF } from './QuotePDF'
 
-const REGION_CURRENCY: Record<string, string> = { españa: 'EUR', eeuu: 'USD', latam: 'USD' }
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await createAuthServerClient()
-  const { data: { user } } = await auth.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const actor = await getActor()
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
   const url = new URL(req.url)
@@ -24,21 +23,28 @@ export async function GET(
   const showMaint = url.searchParams.get('show_maint') !== '0'
 
   const client = createServiceClient()
-  const [quoteRes, itemsRes, settingsRes] = await Promise.all([
+  const [quoteRes, itemsRes] = await Promise.all([
     client.from('quotes').select('*').eq('id', id).single(),
     client.from('quote_items').select('*').eq('quote_id', id).order('sort_order'),
-    client.from('pricing_settings').select('*'),
   ])
 
   if (quoteRes.error || !quoteRes.data) {
     return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
   }
 
-  const quote    = quoteRes.data
-  const items    = itemsRes.data ?? []
-  const settings = settingsRes.data ?? []
-  const ps       = settings.find((s: { region: string }) => s.region === quote.region)
-  const currency = REGION_CURRENCY[quote.region] ?? 'EUR'
+  const quote = quoteRes.data
+  const items = itemsRes.data ?? []
+
+  // Ownership check (a vendor cannot export another vendor's quote).
+  const lead = quote.lead_id
+    ? (await client.from('leads').select('assigned_to, created_by').eq('id', quote.lead_id).maybeSingle()).data
+    : null
+  if (!canViewQuote(actor.role, actor.id, quote, lead)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
+  // Render from the FROZEN snapshot, never from current pricing settings.
+  const view = effectiveQuoteView(quote)
 
   const logoPath   = join(process.cwd(), 'public', 'brand', 'Logo.png')
   const logoBase64 = `data:image/png;base64,${readFileSync(logoPath).toString('base64')}`
@@ -50,10 +56,10 @@ export async function GET(
     tipo:        quote.tipo,
     product:     quote.product,
     region:      quote.region,
-    hourly_rate: quote.hourly_rate,
-    total_price:      quote.total_price,
+    hourly_rate: view.hourly_rate,
+    total_price:      view.total,
     special_discount: quote.special_discount ?? 0,
-    maint_month:      quote.maint_month,
+    maint_month:      view.maint_month,
     notes:            quote.notes ?? null,
     created_at:       quote.created_at ?? null,
     items:            items.map((i: { name: string; size?: string; hours?: number; gift?: boolean }) => ({
@@ -62,10 +68,10 @@ export async function GET(
       hours: i.hours,
       gift:  i.gift ?? false,
     })),
-    currency,
-    overhead_pm: ps?.overhead_pm ?? 0.12,
-    overhead_qa: ps?.overhead_qa ?? 0.15,
-    overhead_cx: ps?.overhead_cx ?? 0.10,
+    currency:    view.currency,
+    overhead_pm: view.pm_percentage,
+    overhead_qa: view.qa_percentage,
+    overhead_cx: view.cx_percentage,
     showHours,
     showRate,
     showMaint,

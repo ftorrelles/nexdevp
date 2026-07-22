@@ -13,6 +13,9 @@ export function createServiceClient() {
   )
 }
 
+export type LeadCanal  = 'form' | 'whatsapp' | 'cal' | 'chatbot' | 'maps' | 'vendedor' | 'referral' | 'outbound'
+export type LeadEstado = 'nuevo' | 'contactado' | 'calificado' | 'negociacion' | 'cerrado' | 'perdido'
+
 export interface Lead {
   id?: string
   nombre: string
@@ -20,10 +23,11 @@ export interface Lead {
   telefono?: string
   tipo_negocio?: string
   mensaje?: string
-  canal?: 'form' | 'whatsapp' | 'cal' | 'chatbot' | 'maps' | 'vendedor'
-  estado?: 'nuevo' | 'contactado' | 'negociacion' | 'cerrado' | 'perdido'
+  canal?: LeadCanal
+  estado?: LeadEstado
   notas?: string
   assigned_to?: string | null
+  created_by?: string | null
   created_at?: string
 }
 
@@ -196,6 +200,26 @@ export interface QuoteItem {
   hours:      number
   sort_order: number
   gift?:      boolean
+  // Snapshot fields (frozen at save time, independent of catalog edits)
+  description?:      string | null
+  category?:         string | null
+  calculated_price?: number | null
+  is_custom?:        boolean
+  catalog_version?:  number | null
+}
+
+// How the vendor's commission for a quote is classified.
+//  nexdevp_pool → lead came from the company pool (15%)
+//  own_lead     → vendor brought the lead himself  (20%)
+export type CommissionType   = 'nexdevp_pool' | 'own_lead'
+export type CommissionStatus = 'pending' | 'approved' | 'paid' | 'cancelled'
+
+// Legacy column still stored on `quotes` (kept for backward compatibility).
+export type LegacyCommissionType = 'pool' | 'vendor_own' | null
+
+export const COMMISSION_PERCENTAGE: Record<CommissionType, number> = {
+  nexdevp_pool: 0.15,
+  own_lead:     0.20,
 }
 
 export interface Quote {
@@ -215,6 +239,99 @@ export interface Quote {
   created_by?: string
   created_at?: string
   items?:      QuoteItem[]
+
+  // ── Versioning snapshot (see src/lib/quote-calc.ts) ──────────────────────────
+  catalog_version?:             number | null
+  pricing_version?:             number | null
+  currency?:                    string | null
+  hourly_rate_snapshot?:        number | null
+  pm_percentage_snapshot?:      number | null
+  qa_percentage_snapshot?:      number | null
+  cx_percentage_snapshot?:      number | null
+  maint_percentage_snapshot?:   number | null
+  development_hours_snapshot?:  number | null
+  pm_hours_snapshot?:           number | null
+  qa_hours_snapshot?:           number | null
+  contingency_hours_snapshot?:  number | null
+  subtotal_snapshot?:           number | null
+  total_snapshot?:              number | null
+  annual_maintenance_snapshot?: number | null
+  selected_items_snapshot?:     QuoteItemSnapshot[] | null
+  calculation_snapshot?:        QuoteCalculationSnapshot | null
+  commission_type?:             LegacyCommissionType
+  approved_by?:                 string | null
+  approved_at?:                 string | null
+  sent_at?:                     string | null
+}
+
+// Immutable copy of each selected line item, stored on the quote as JSONB.
+export interface QuoteItemSnapshot {
+  catalog_id:       string | null
+  name:             string
+  description:      string | null
+  category:         string | null
+  size:             QuoteSize | null
+  hours:            number
+  calculated_price: number
+  is_custom:        boolean
+  catalog_version:  number | null
+}
+
+// Full math trace stored on the quote as JSONB (calculation_snapshot).
+export interface QuoteCalculationSnapshot {
+  region:             QuoteRegion
+  currency:           string
+  hourly_rate:        number
+  pm_percentage:      number
+  qa_percentage:      number
+  cx_percentage:      number
+  maint_percentage:   number
+  development_hours:  number
+  pm_hours:           number
+  qa_hours:           number
+  contingency_hours:  number
+  total_hours:        number
+  subtotal:           number
+  bundle_discount:    number
+  total:              number
+  annual_maintenance: number
+  maint_month:        number
+  catalog_version:    number
+  pricing_version:    number
+  calculated_at:      string
+}
+
+// ── lead_activities ────────────────────────────────────────────────────────────
+export type LeadActivityType =
+  | 'note' | 'contacted' | 'call' | 'whatsapp' | 'email' | 'status_change' | 'quote_sent'
+
+// Activity types that count as a "first response" for the response-time metric.
+export const CONTACT_ACTIVITY_TYPES: LeadActivityType[] = ['contacted', 'call', 'whatsapp', 'email']
+
+export interface LeadActivity {
+  id?:        string
+  lead_id:    string
+  user_id?:   string | null
+  type:       LeadActivityType
+  notes?:     string | null
+  created_at?: string
+}
+
+// ── quote_commissions ───────────────────────────────────────────────────────────
+export interface QuoteCommission {
+  id?:                            string
+  quote_id:                       string
+  lead_id:                        string | null
+  vendor_id:                      string | null
+  commission_type:                CommissionType
+  commission_percentage_snapshot: number
+  quote_total_snapshot:           number
+  commission_amount_snapshot:     number
+  currency:                       string
+  status:                         CommissionStatus
+  created_at?:                    string
+  approved_at?:                   string | null
+  paid_at?:                       string | null
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

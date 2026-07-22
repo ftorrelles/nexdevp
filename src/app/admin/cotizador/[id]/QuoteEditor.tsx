@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { PricingSettings, QuoteItem, QuoteSize, QuoteStatus } from '@/lib/supabase'
+import { computeQuoteTotals, bundleDiscountRateFor } from '@/lib/quote-calc'
 
 interface LeadOption { id: string; nombre: string; email: string; estado: string; canal?: string }
 
@@ -41,6 +42,7 @@ interface QuoteRow {
   status:           QuoteStatus
   total_hours:      number
   total_price:      number
+  total_snapshot:   number | null
   special_discount: number
   maint_month:      number
   addons:           string[]
@@ -115,7 +117,11 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   }, [pdfOpen])
 
   const ps       = settings.find(s => s.region === quote.region)
-  const currency = ps?.currency ?? 'EUR'
+  const currency = ps?.currency ?? (quote.region === 'españa' ? 'EUR' : 'USD')
+
+  // A quote that has left 'draft' is FROZEN: its price comes from the saved
+  // snapshot and is never recalculated, even if the catalog or rates change.
+  const frozen = quote.status !== 'draft'
 
   const billedItems     = items.filter(i => !i.gift)
   const giftItems       = items.filter(i => i.gift)
@@ -125,9 +131,11 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const qaHours         = Math.round(baseHours * (ps?.overhead_qa ?? 0.15))
   const cxHours         = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
   const billedHours     = baseHours + pmHours + qaHours + cxHours
-  const totalHours      = billedHours + giftHours
-  const calculatedPrice    = billedHours * rate
-  const totalPrice         = Math.max(0, calculatedPrice - specialDiscount)
+  const calculatedTotal = billedHours + giftHours
+  const calculatedPrice = Math.max(0, (billedHours * rate) - (quote.special_discount ?? 0))
+
+  const totalHours = frozen ? quote.total_hours : calculatedTotal
+  const totalPrice = frozen ? (quote.total_snapshot ?? quote.total_price) : calculatedPrice
   const suggestedMaintMonth = Math.round((totalPrice * (ps?.maint_rate ?? 0.175)) / 12)
 
   const commissionAmount = commissionType
@@ -272,6 +280,18 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
         )}
       </div>
 
+      {/* Frozen notice */}
+      {frozen && (
+        <div className="flex items-center gap-2 bg-amber-400/10 border border-amber-400/30 rounded-lg px-4 py-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-400 shrink-0">
+            <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <p className="font-jost text-xs text-amber-200/90">
+            Presupuesto congelado ({quote.status}). El precio refleja el snapshot guardado y no se recalcula aunque cambien tarifas o catálogo.
+          </p>
+        </div>
+      )}
+
       {/* Rate */}
       <div className="flex items-center gap-3">
         <span className="font-jost text-sm text-nex-grey">Tarifa/hora:</span>
@@ -281,8 +301,9 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             type="number"
             min={1}
             value={rate}
+            disabled={frozen}
             onChange={e => setRate(Number(e.target.value))}
-            className="w-16 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
+            className="w-16 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right disabled:opacity-50"
           />
           <span className="font-dm-mono text-xs text-nex-grey">/h</span>
         </div>
@@ -292,14 +313,16 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
       <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 space-y-3">
         <div className="flex items-center justify-between mb-1">
           <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Fases / funcionalidades</h3>
-          <div className="flex items-center gap-2">
-            <button onClick={addGiftItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
-              🎁 Agregar regalo
-            </button>
-            <button onClick={addItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
-              + Agregar
-            </button>
-          </div>
+          {!frozen && (
+            <div className="flex items-center gap-2">
+              <button onClick={addGiftItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
+                🎁 Agregar regalo
+              </button>
+              <button onClick={addItem} className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors">
+                + Agregar
+              </button>
+            </div>
+          )}
         </div>
         {items.map((item, idx) => (
           <div key={idx} className={[
@@ -321,8 +344,9 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
             <input
               type="text"
               value={item.name}
+              disabled={frozen}
               onChange={e => updateName(idx, e.target.value)}
-              className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none"
+              className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none disabled:opacity-60"
             />
             {item.gift && (
               <span className="font-jost text-xs text-nex-green shrink-0">sin cargo</span>
@@ -332,19 +356,24 @@ export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
                 type="number"
                 min={1}
                 value={item.hours}
+                disabled={frozen}
                 onChange={e => updateHours(idx, Number(e.target.value))}
-                className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
-              />
-              <span className="font-dm-mono text-xs text-nex-grey">h</span>
-            </div>
-            <button
-              onClick={() => toggleGift(idx)}
-              title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
-              className={['text-sm transition-colors shrink-0', item.gift ? 'opacity-100' : 'opacity-30 hover:opacity-70'].join(' ')}
-            >
-              🎁
-            </button>
-            <button onClick={() => removeItem(idx)} className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0" aria-label="Eliminar">×</button>
+              className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none disabled:opacity-60"
+            />
+            <span className="font-dm-mono text-xs text-nex-grey">h</span>
+          </div>
+          {!frozen && (
+            <>
+              <button
+                onClick={() => toggleGift(idx)}
+                title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
+                className={['text-sm transition-colors shrink-0', item.gift ? 'opacity-100' : 'opacity-30 hover:opacity-70'].join(' ')}
+              >
+                🎁
+              </button>
+              <button onClick={() => removeItem(idx)} className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0" aria-label="Eliminar">×</button>
+            </>
+          )}
           </div>
         ))}
       </div>

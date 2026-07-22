@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { bumpConfigVersion } from '@/lib/config-version'
 
 export async function GET() {
   const auth = await createAuthServerClient()
@@ -41,5 +42,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await bumpConfigVersion(client, 'catalog')
   return NextResponse.json({ item: data }, { status: 201 })
 }

@@ -1,48 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
-import { createAuthServerClient } from '@/lib/supabase-server'
+import { getActor } from '@/lib/auth-server'
+import { canEditLead, canDeleteLead, canAssignLead, type LeadOwnership } from '@/lib/permissions'
+import type { LeadEstado } from '@/lib/supabase'
+
+const VALID_ESTADOS: LeadEstado[] = ['nuevo', 'contactado', 'calificado', 'cerrado', 'perdido']
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createAuthServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const role = user.app_metadata?.role ?? 'vendor'
+  const actor = await getActor()
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const { id } = await params
     const body = await req.json()
     const { estado, notas, assigned_to } = body
 
-    const validEstados = ['nuevo', 'contactado', 'negociacion', 'cerrado', 'perdido']
-    if (estado && !validEstados.includes(estado)) {
+    if (estado && !VALID_ESTADOS.includes(estado)) {
       return NextResponse.json({ error: 'Invalid estado value' }, { status: 400 })
+    }
+
+    const client = createServiceClient()
+
+    // Load ownership for authorization (cannot be derived from the request body).
+    const { data: lead } = await client
+      .from('leads')
+      .select('assigned_to, created_by, estado')
+      .eq('id', id)
+      .maybeSingle()
+    if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+
+    if (!canEditLead(actor.role, actor.id, lead as LeadOwnership)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const updates: Record<string, string | null> = {}
     if (estado) updates.estado = estado
     if (notas !== undefined) updates.notas = notas
-    if (assigned_to !== undefined && role === 'owner') updates.assigned_to = assigned_to
-
-    const client = createServiceClient()
-
-    // Vendors can only update leads assigned to them
-    const query = client.from('leads').update(updates).eq('id', id)
-    if (role === 'vendor') {
-      query.eq('assigned_to', user.id)
+    // Reassignment is owner-only — silently ignored for everyone else.
+    if (assigned_to !== undefined) {
+      if (!canAssignLead(actor.role)) {
+        return NextResponse.json({ error: 'No autorizado para reasignar leads.' }, { status: 403 })
+      }
+      updates.assigned_to = assigned_to
     }
 
-    const { error } = await query
-
+    const { error } = await client.from('leads').update(updates).eq('id', id)
     if (error) {
       console.error('Supabase update error:', error)
       return NextResponse.json({ error: 'Failed to update lead' }, { status: 500 })
+    }
+
+    // Log the first contact for the response-time metric.
+    if (estado === 'contactado' && lead.estado !== 'contactado') {
+      await client.from('lead_activities').insert({
+        lead_id: id,
+        user_id: actor.id,
+        type: 'contacted',
+        notes: 'Estado cambiado a contactado',
+      })
     }
 
     return NextResponse.json({ success: true })
@@ -56,12 +74,12 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createAuthServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const actor = await getActor()
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const role = user.app_metadata?.role ?? 'vendor'
-  if (role !== 'owner') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!canDeleteLead(actor.role)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   const { id } = await params
   const client = createServiceClient()

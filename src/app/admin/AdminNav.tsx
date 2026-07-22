@@ -112,7 +112,13 @@ export function AdminNav({ role, currentPath, email, name }: Props) {
       label: 'Ventas',
       items: [
         { href: '/admin', label: 'Leads' },
+        ...(['owner', 'supervisor'].includes(role)
+          ? [{ href: '/admin/dashboard', label: 'Métricas' }]
+          : []),
         { href: '/admin/cotizador', label: 'Cotizador' },
+        ...(['owner', 'supervisor', 'vendor', 'developer'].includes(role)
+          ? [{ href: '/admin/capacitacion', label: 'Capacitación' }]
+          : []),
         ...(['owner', 'supervisor', 'vendor'].includes(role)
           ? [{ href: '/admin/comisiones', label: 'Comisiones' }]
           : []),

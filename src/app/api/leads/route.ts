@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
+import { getActor } from '@/lib/auth-server'
 
+// POST /api/leads
+// Dual-purpose endpoint:
+//   • Public website capture (no session) → anonymous insert, as before.
+//   • Staff creating a manual lead (authenticated) → stamps created_by, and for
+//     a vendor also auto-assigns the lead to himself so he owns it.
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -10,20 +16,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'nombre and email are required' }, { status: 400 })
     }
 
+    const actor = await getActor() // null for public, anonymous submissions
     const client = createServiceClient()
-    const { data, error } = await client
-      .from('leads')
-      .insert({
-        nombre,
-        email,
-        telefono: telefono || null,
-        tipo_negocio: tipo_negocio || null,
-        mensaje: mensaje || null,
-        canal: canal || 'form',
-        estado: 'nuevo',
-      })
-      .select('id')
-      .single()
+
+    const insert: Record<string, unknown> = {
+      nombre,
+      email,
+      telefono: telefono || null,
+      tipo_negocio: tipo_negocio || null,
+      mensaje: mensaje || null,
+      canal: canal || 'form',
+      estado: 'nuevo',
+    }
+
+    if (actor) {
+      insert.created_by = actor.id
+      // A vendor's manually-created lead belongs to that vendor.
+      if (actor.role === 'vendor') insert.assigned_to = actor.id
+    }
+
+    const { data, error } = await client.from('leads').insert(insert).select('id').single()
 
     if (error) {
       console.error('Supabase insert error:', error)

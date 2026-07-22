@@ -16,10 +16,24 @@ export default async function CotizadorListPage(): Promise<React.JSX.Element> {
   if (!['owner', 'supervisor', 'vendor'].includes(role)) redirect('/admin')
 
   const client = createServiceClient()
-  const { data } = await client
+  let query = client
     .from('quotes')
     .select('id, title, tipo, product, region, status, total_hours, total_price, maint_month, created_at, lead_id, leads(nombre, email)')
     .order('created_at', { ascending: false })
+
+  // Vendors only see quotes they created or whose lead they own.
+  if (role === 'vendor') {
+    const { data: ownLeads } = await client
+      .from('leads')
+      .select('id')
+      .or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`)
+    const leadIds = (ownLeads ?? []).map((l: { id: string }) => l.id)
+    const parts = [`created_by.eq.${user.id}`]
+    if (leadIds.length) parts.push(`lead_id.in.(${leadIds.join(',')})`)
+    query = query.or(parts.join(','))
+  }
+
+  const { data } = await query
 
   return (
     <div className="min-h-screen bg-nex-black text-nex-white">

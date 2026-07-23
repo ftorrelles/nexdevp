@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { getActor } from '@/lib/auth-server'
+import { notifyOwnersOfNewLead } from '@/lib/notify'
 
 // POST /api/leads
 // Dual-purpose endpoint:
@@ -41,6 +42,18 @@ export async function POST(req: NextRequest) {
       console.error('Supabase insert error:', error)
       return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 })
     }
+
+    let sourceLabel = 'Agregado desde el formulario de la página.'
+    if (actor) {
+      const { data: actorUser } = await client.auth.admin.getUserById(actor.id)
+      const actorName =
+        (actorUser?.user?.user_metadata?.full_name as string | undefined)?.trim() ||
+        actorUser?.user?.email ||
+        'un miembro del equipo'
+      const roleLabel = actor.role === 'vendor' ? 'el vendedor' : 'el equipo'
+      sourceLabel = `Agregado por ${roleLabel} ${actorName}.`
+    }
+    await notifyOwnersOfNewLead(client, nombre, sourceLabel, actor?.id)
 
     return NextResponse.json({ success: true, id: data.id })
   } catch (err) {

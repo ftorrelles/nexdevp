@@ -191,6 +191,71 @@ export async function sendBriefCompletedEmail(
   }
 }
 
+export async function sendNewLeadEmail(
+  to: string[],
+  leadName: string,
+  sourceLabel: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || to.length === 0) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;background:#0a0a0a;color:#e8e8e8;padding:32px;border-radius:12px;max-width:520px;margin:0 auto;">
+      <h1 style="color:#22b561;font-size:20px;margin:0 0 16px;">nexdevp</h1>
+      <p style="font-size:15px;line-height:1.6;">Llegó un nuevo lead: <strong>${leadName}</strong>.</p>
+      <p style="font-size:15px;line-height:1.6;color:#8a8c8b;">${sourceLabel}</p>
+      <p style="margin-top:24px;">
+        <a href="${siteUrl}/admin" style="display:inline-block;background:#22b561;color:#0a0a0a;text-decoration:none;font-weight:bold;font-size:14px;padding:10px 20px;border-radius:8px;">Ver leads</a>
+      </p>
+      <p style="font-size:13px;color:#8a8c8b;margin-top:24px;">— nexdevp</p>
+    </div>
+  `
+
+  try {
+    const res = await fetch(RESEND_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to, subject: `Nuevo lead — ${leadName}`, html }),
+    })
+    if (!res.ok) console.error('sendNewLeadEmail failed:', res.status, await res.text())
+  } catch (err) {
+    console.error('sendNewLeadEmail error:', err)
+  }
+}
+
+export async function sendNewVendorApplicationEmail(
+  to: string[],
+  applicantName: string,
+  careerTitle: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || to.length === 0) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;background:#0a0a0a;color:#e8e8e8;padding:32px;border-radius:12px;max-width:520px;margin:0 auto;">
+      <h1 style="color:#22b561;font-size:20px;margin:0 0 16px;">nexdevp</h1>
+      <p style="font-size:15px;line-height:1.6;"><strong>${applicantName}</strong> se postuló a la posición <strong>${careerTitle}</strong>.</p>
+      <p style="margin-top:24px;">
+        <a href="${siteUrl}/admin/applicants" style="display:inline-block;background:#22b561;color:#0a0a0a;text-decoration:none;font-weight:bold;font-size:14px;padding:10px 20px;border-radius:8px;">Ver postulaciones</a>
+      </p>
+      <p style="font-size:13px;color:#8a8c8b;margin-top:24px;">— nexdevp</p>
+    </div>
+  `
+
+  try {
+    const res = await fetch(RESEND_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to, subject: `Nueva postulación — ${applicantName}`, html }),
+    })
+    if (!res.ok) console.error('sendNewVendorApplicationEmail failed:', res.status, await res.text())
+  } catch (err) {
+    console.error('sendNewVendorApplicationEmail error:', err)
+  }
+}
+
 export async function sendDeliverableActivityEmail(
   to: string[],
   projectName: string,

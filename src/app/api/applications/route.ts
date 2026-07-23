@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, withSignedCvUrls, type CareerApplication } from '@/lib/supabase'
+import { sendNewVendorApplicationEmail } from '@/lib/email'
 
 const ALLOWED_CV_EXTENSIONS = ['pdf', 'doc', 'docx']
 const ALLOWED_CV_MIME_TYPES = [
@@ -139,6 +140,31 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       console.error('Database insert error for application:', insertError)
       await client.storage.from('cvs').remove([filePath])
       return NextResponse.json({ error: 'Failed to save application' }, { status: 500 })
+    }
+
+    // Best-effort email notification to owners/supervisors about the new application.
+    try {
+      const { data: career } = await client
+        .from('careers')
+        .select('title_es')
+        .eq('id', career_id)
+        .maybeSingle()
+
+      const { data: { users } } = await client.auth.admin.listUsers()
+      const adminEmails = (users ?? [])
+        .filter((u) => ['owner', 'supervisor'].includes(u.app_metadata?.role ?? ''))
+        .map((u) => u.email)
+        .filter(Boolean) as string[]
+
+      if (adminEmails.length > 0) {
+        await sendNewVendorApplicationEmail(
+          adminEmails,
+          nombre,
+          career?.title_es ?? 'una posición',
+        )
+      }
+    } catch (err) {
+      console.error('Failed to send new-application notification email:', err)
     }
 
     return NextResponse.json({ success: true, application: appData })

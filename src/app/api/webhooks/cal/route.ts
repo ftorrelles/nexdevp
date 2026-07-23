@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
+import { notifyOwnersOfNewLead } from '@/lib/notify'
 import { createHmac } from 'crypto'
 
 export async function POST(req: NextRequest) {
@@ -73,6 +74,8 @@ async function handleEvent(payload: Record<string, unknown>) {
     console.error('Cal webhook — lead insert error:', error)
     return NextResponse.json({ error: 'Failed to create lead' }, { status: 500 })
   }
+
+  await notifyOwnersOfNewLead(client, attendee.name, 'Agregado desde una reserva de Cal.com.')
 
   return NextResponse.json({ ok: true, lead_id: data.id })
 }

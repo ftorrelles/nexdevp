@@ -80,13 +80,16 @@ async function saveWhatsAppLead(
   aiResponse: { text: string; qualified: boolean }
 ) {
   const { createServiceClient } = await import('@/lib/supabase')
+  const { notifyOwnersOfNewLead } = await import('@/lib/notify')
   const client = createServiceClient()
+  const telefono = phone.replace('@c.us', '')
   await client.from('leads').insert({
     nombre: 'Lead WhatsApp',
     email: '',
-    telefono: phone.replace('@c.us', ''),
+    telefono,
     canal: 'whatsapp',
     estado: 'negociacion',
     mensaje: aiResponse.text,
   })
+  await notifyOwnersOfNewLead(client, `Lead WhatsApp (${telefono})`, 'Agregado desde WhatsApp.')
 }

@@ -70,7 +70,7 @@ function buildActivityHtml(
         <strong>${clientEmail}</strong> ${kindLabel} <strong>${deliverableName}</strong> del proyecto <strong>${projectName}</strong>.
       </p>
       <p style="margin-top:24px;">
-        <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/admin/proyectos/${projectId}"
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'}/admin/proyectos/${projectId}"
            style="display:inline-block; background:#22b561; color:#0a0a0a; text-decoration:none; font-weight:bold; font-size:14px; padding:10px 20px; border-radius:8px;">
           Ver proyecto
         </a>
@@ -128,7 +128,7 @@ export async function sendBriefSentEmail(
       : `Your brief for ${projectName} is ready`
 
   const ctaLabel = locale === 'es' ? 'Completar brief' : 'Fill out brief'
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
   const briefUrl = `${siteUrl}/${locale}/proyecto/${projectId}/brief`
 
   const html = `
@@ -167,7 +167,7 @@ export async function sendBriefCompletedEmail(
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey || to.length === 0) return
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.nexdevp.com'
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;background:#0a0a0a;color:#e8e8e8;padding:32px;border-radius:12px;max-width:520px;margin:0 auto;">
       <h1 style="color:#22b561;font-size:20px;margin:0 0 16px;">nexdevp</h1>

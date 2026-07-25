@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import type { QuoteSize } from '@/lib/supabase'
+import type { QuoteSize, QuoteCategory, QuoteComplexity } from '@/lib/supabase'
 
 interface CatalogItem {
-  id:            string
-  name:          string
-  tipo:          string
-  product:       string
-  size:          QuoteSize
-  default_hours: number
-  description:   string | null
+  id:          string
+  name:        string
+  category:    QuoteCategory
+  size:        QuoteSize
+  base_hours:  number
+  complexity:  QuoteComplexity | null
+  description: string | null
+  sort_order:  number
 }
 
 const SIZE_STYLES: Record<QuoteSize, string> = {
@@ -22,8 +23,30 @@ const SIZE_STYLES: Record<QuoteSize, string> = {
 
 const SIZES: QuoteSize[] = ['S', 'M', 'L', 'XL']
 
+const CATEGORIES: { value: QuoteCategory; label: string; hint: string }[] = [
+  { value: 'base',   label: 'Base',   hint: 'Trabajo técnico que siempre va' },
+  { value: 'modulo', label: 'Módulo', hint: 'Una lógica funcional del producto' },
+  { value: 'cierre', label: 'Cierre', hint: 'Pulido y validación con el cliente' },
+  { value: 'addon',  label: 'Add-on', hint: 'Opcional, se ofrece en el resultado' },
+]
+
+const CATEGORY_STYLES: Record<QuoteCategory, string> = {
+  base:   'text-nex-grey     border-nex-ink/20',
+  modulo: 'text-nex-green    border-nex-green/40',
+  cierre: 'text-amber-400    border-amber-400/40',
+  addon:  'text-sky-400      border-sky-400/40',
+}
+
+const COMPLEXITIES: { value: QuoteComplexity; label: string }[] = [
+  { value: 'simple',   label: 'Simple' },
+  { value: 'estandar', label: 'Estándar' },
+  { value: 'complejo', label: 'Complejo' },
+  { value: 'critico',  label: 'Crítico' },
+]
+
 const EMPTY: Omit<CatalogItem, 'id'> = {
-  name: '', tipo: 'Desarrollo', product: '', size: 'M', default_hours: 20, description: null,
+  name: '', category: 'modulo', size: 'M', base_hours: 16,
+  complexity: null, description: null, sort_order: 999,
 }
 
 export function CatalogEditor({ initialItems, canEdit }: { initialItems: CatalogItem[]; canEdit: boolean }) {
@@ -34,6 +57,7 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
   const [newItem, setNewItem] = useState<Omit<CatalogItem, 'id'>>(EMPTY)
   const [saving,  setSaving]  = useState(false)
   const [filter,  setFilter]  = useState('')
+  const [catFilter, setCatFilter] = useState<QuoteCategory | 'all'>('all')
 
   function startEdit(item: CatalogItem) {
     setEditing(item.id)
@@ -60,13 +84,13 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este ítem del catálogo?')) return
+    if (!confirm('¿Retirar este ítem del catálogo? Los presupuestos ya guardados no cambian.')) return
     const res = await fetch(`/api/cotizador/catalog/${id}`, { method: 'DELETE' })
     if (res.ok) setItems(prev => prev.filter(x => x.id !== id))
   }
 
   async function handleAdd() {
-    if (!newItem.name || !newItem.product) return
+    if (!newItem.name) return
     setSaving(true)
     const res = await fetch('/api/cotizador/catalog', {
       method: 'POST',
@@ -82,25 +106,42 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
     setSaving(false)
   }
 
-  const visible = filter
-    ? items.filter(i =>
-        i.name.toLowerCase().includes(filter.toLowerCase()) ||
-        i.tipo.toLowerCase().includes(filter.toLowerCase()) ||
-        i.product.toLowerCase().includes(filter.toLowerCase())
-      )
-    : items
+  const visible = items.filter(i => {
+    if (catFilter !== 'all' && i.category !== catFilter) return false
+    if (!filter) return true
+    const q = filter.toLowerCase()
+    return i.name.toLowerCase().includes(q) || (i.description ?? '').toLowerCase().includes(q)
+  })
 
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3">
-        <input
-          type="text"
-          placeholder="Filtrar ítems…"
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          className="flex-1 max-w-xs bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors"
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            placeholder="Filtrar ítems…"
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            className="w-48 bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-2 text-sm text-nex-white placeholder:text-nex-grey focus:outline-none focus:border-nex-green/50 transition-colors"
+          />
+          <div className="flex gap-1">
+            {([{ value: 'all' as const, label: 'Todos' }, ...CATEGORIES]).map(c => (
+              <button
+                key={c.value}
+                onClick={() => setCatFilter(c.value)}
+                className={[
+                  'font-jost text-xs px-2.5 py-1.5 rounded-lg border transition-colors',
+                  catFilter === c.value
+                    ? 'border-nex-green bg-nex-green/10 text-nex-green'
+                    : 'border-nex-ink/10 text-nex-grey hover:border-nex-ink/25',
+                ].join(' ')}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {canEdit && !adding && (
           <button
             onClick={() => { setAdding(true); setEditing(null) }}
@@ -120,7 +161,7 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
             <button onClick={() => setAdding(false)} className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">Cancelar</button>
             <button
               onClick={handleAdd}
-              disabled={saving || !newItem.name || !newItem.product}
+              disabled={saving || !newItem.name}
               className="font-jost text-sm font-bold bg-nex-green text-nex-black py-1.5 px-4 rounded-lg disabled:opacity-40 hover:bg-nex-green/90 transition-colors"
             >
               {saving ? 'Guardando…' : 'Guardar'}
@@ -133,9 +174,9 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
       <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
         <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-4 py-2.5 border-b border-nex-ink/5">
           <span>Nombre</span>
+          <span className="text-center px-3">Rol</span>
           <span className="text-center px-3">Talla</span>
           <span className="text-right px-3">Horas</span>
-          <span className="px-3">Tipo · Producto</span>
           {canEdit && <span />}
         </div>
 
@@ -160,12 +201,19 @@ export function CatalogEditor({ initialItems, canEdit }: { initialItems: Catalog
             </div>
           ) : (
             <div key={item.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 items-center border-b border-nex-ink/5 px-4 py-3 hover:bg-white/[0.02] transition-colors">
-              <span className="font-jost text-sm text-nex-white truncate pr-3">{item.name}</span>
+              <div className="pr-3 min-w-0">
+                <p className="font-jost text-sm text-nex-white truncate">{item.name}</p>
+                {item.description && (
+                  <p className="font-jost text-[11px] text-nex-grey truncate">{item.description}</p>
+                )}
+              </div>
+              <span className={['font-dm-mono text-[9px] uppercase border rounded px-1.5 py-0.5 text-center mx-3', CATEGORY_STYLES[item.category]].join(' ')}>
+                {item.category}
+              </span>
               <span className={['font-dm-mono text-[10px] font-bold border rounded px-1.5 text-center', SIZE_STYLES[item.size]].join(' ')}>
                 {item.size}
               </span>
-              <span className="font-dm-mono text-xs text-nex-grey text-right px-3">{item.default_hours}h</span>
-              <span className="font-jost text-xs text-nex-grey px-3 hidden sm:block">{item.tipo} · {item.product}</span>
+              <span className="font-dm-mono text-xs text-nex-white text-right px-3">{item.base_hours}h</span>
               {canEdit && (
                 <div className="flex items-center gap-2 pl-3">
                   <button onClick={() => startEdit(item)} className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors">Editar</button>
@@ -189,65 +237,74 @@ function ItemForm({
   item: Partial<Omit<CatalogItem, 'id'>>
   onChange: (d: Partial<Omit<CatalogItem, 'id'>>) => void
 }) {
+  const inputClass =
+    'w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors'
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-      <div className="col-span-2 sm:col-span-3">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="col-span-2 sm:col-span-4">
         <label className="block font-jost text-xs text-nex-grey mb-1">Nombre</label>
         <input
           type="text"
           value={item.name ?? ''}
           onChange={e => onChange({ name: e.target.value })}
-          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className={inputClass}
         />
       </div>
       <div>
-        <label className="block font-jost text-xs text-nex-grey mb-1">Tipo</label>
+        <label className="block font-jost text-xs text-nex-grey mb-1">Rol en el producto</label>
         <select
-          value={item.tipo ?? ''}
-          onChange={e => onChange({ tipo: e.target.value })}
-          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          value={item.category ?? 'modulo'}
+          onChange={e => onChange({ category: e.target.value as QuoteCategory })}
+          className={inputClass}
         >
-          {['Desarrollo', 'Marketing Digital', 'IA & Automatización', 'Paquete'].map(t => (
-            <option key={t} value={t}>{t}</option>
-          ))}
+          {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
-      </div>
-      <div>
-        <label className="block font-jost text-xs text-nex-grey mb-1">Producto</label>
-        <input
-          type="text"
-          value={item.product ?? ''}
-          onChange={e => onChange({ product: e.target.value })}
-          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
-        />
+        <p className="font-jost text-[10px] text-nex-grey/70 mt-1">
+          {CATEGORIES.find(c => c.value === (item.category ?? 'modulo'))?.hint}
+        </p>
       </div>
       <div>
         <label className="block font-jost text-xs text-nex-grey mb-1">Talla</label>
         <select
           value={item.size ?? 'M'}
           onChange={e => onChange({ size: e.target.value as QuoteSize })}
-          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className={inputClass}
         >
           {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
+        <p className="font-jost text-[10px] text-nex-grey/70 mt-1">Solo etiqueta visual</p>
       </div>
       <div>
         <label className="block font-jost text-xs text-nex-grey mb-1">Horas base</label>
         <input
           type="number"
           min={1}
-          value={item.default_hours ?? 0}
-          onChange={e => onChange({ default_hours: parseInt(e.target.value) || 0 })}
-          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          value={item.base_hours ?? 0}
+          onChange={e => onChange({ base_hours: parseInt(e.target.value) || 0 })}
+          className={inputClass}
         />
+        <p className="font-jost text-[10px] text-nex-grey/70 mt-1">Lo que realmente cuesta</p>
       </div>
-      <div className="col-span-2">
+      <div>
+        <label className="block font-jost text-xs text-nex-grey mb-1">Complejidad</label>
+        <select
+          value={item.complexity ?? ''}
+          onChange={e => onChange({ complexity: (e.target.value || null) as QuoteComplexity | null })}
+          className={inputClass}
+        >
+          <option value="">—</option>
+          {COMPLEXITIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+        </select>
+        <p className="font-jost text-[10px] text-nex-grey/70 mt-1">Solo módulos genéricos</p>
+      </div>
+      <div className="col-span-2 sm:col-span-4">
         <label className="block font-jost text-xs text-nex-grey mb-1">Descripción (opcional)</label>
         <input
           type="text"
           value={item.description ?? ''}
           onChange={e => onChange({ description: e.target.value || null })}
-          className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
+          className={inputClass}
         />
       </div>
     </div>

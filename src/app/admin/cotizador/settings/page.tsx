@@ -19,7 +19,7 @@ export default async function CotizadorSettingsPage(): Promise<React.JSX.Element
   const client = createServiceClient()
   const [settingsRes, catalogRes] = await Promise.all([
     client.from('pricing_settings').select('*').order('region'),
-    client.from('quote_catalog').select('*').order('tipo').order('product').order('size').order('name'),
+    client.from('quote_catalog').select('*').eq('active', true).order('sort_order').order('name'),
   ])
 
   const canEditPricing = role === 'owner'

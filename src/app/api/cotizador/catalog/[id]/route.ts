@@ -18,12 +18,20 @@ export async function PUT(
 
   const { id } = await params
   const body = await req.json()
-  const { name, tipo, product, size, default_hours, description } = body
+  const { name, category, size, base_hours, complexity, description, sort_order } = body
 
   const client = createServiceClient()
   const { data, error } = await client
     .from('quote_catalog')
-    .update({ name, tipo, product, size, default_hours, description: description ?? null })
+    .update({
+      name,
+      category,
+      size,
+      base_hours,
+      complexity:  complexity || null,
+      description: description ?? null,
+      ...(sort_order !== undefined ? { sort_order } : {}),
+    })
     .eq('id', id)
     .select()
     .single()
@@ -49,7 +57,13 @@ export async function DELETE(
 
   const { id } = await params
   const client = createServiceClient()
-  const { error } = await client.from('quote_catalog').delete().eq('id', id)
+  // Soft delete: already-saved quotes still reference this row through
+  // quote_items.catalog_id, so the row has to survive. Retiring it just hides
+  // it from the catalog and from every product template.
+  const { error } = await client
+    .from('quote_catalog')
+    .update({ active: false })
+    .eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

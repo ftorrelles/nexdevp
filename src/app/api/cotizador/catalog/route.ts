@@ -12,7 +12,8 @@ export async function GET() {
   const { data, error } = await client
     .from('quote_catalog')
     .select('*')
-    .order('tipo').order('product').order('size').order('name')
+    .eq('active', true)
+    .order('sort_order').order('name')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ items: data })
@@ -29,15 +30,24 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { name, tipo, product, size, default_hours, description } = body
-  if (!name || !tipo || !product || !size) {
-    return NextResponse.json({ error: 'name, tipo, product, size required' }, { status: 400 })
+  const { name, category, size, base_hours, complexity, description, sort_order } = body
+  if (!name || !category || !size) {
+    return NextResponse.json({ error: 'name, category, size required' }, { status: 400 })
   }
 
   const client = createServiceClient()
   const { data, error } = await client
     .from('quote_catalog')
-    .insert({ name, tipo, product, size, default_hours: default_hours ?? 0, description: description ?? null })
+    .insert({
+      name,
+      category,
+      size,
+      base_hours:  base_hours ?? 0,
+      complexity:  complexity || null,
+      description: description ?? null,
+      sort_order:  sort_order ?? 999,
+      active:      true,
+    })
     .select()
     .single()
 

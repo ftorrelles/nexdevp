@@ -184,12 +184,26 @@ export interface QuoteSizeMap {
   description: string
 }
 
+// Role an item plays inside a product:
+//   base   → technical groundwork, always present
+//   modulo → a functional "lógica" — what actually defines the product
+//   cierre → client polish / handoff, always present
+//   addon  → optional, offered only for products it is coherent with
+export type QuoteCategory   = 'base' | 'modulo' | 'addon' | 'cierre'
+export type QuoteComplexity = 'simple' | 'estandar' | 'complejo' | 'critico'
+
 export interface QuoteCatalogItem {
-  id:         string
-  category:   string
-  size:       QuoteSize
-  name:       string
-  sort_order: number
+  id:           string
+  category:     QuoteCategory | string
+  size:         QuoteSize
+  name:         string
+  description?: string | null
+  /** Catalog default. `hours` is what the product actually charges. */
+  base_hours?:  number | null
+  complexity?:  QuoteComplexity | string | null
+  /** Resolved hours for this product (template override ?? base_hours). */
+  hours?:       number
+  sort_order:   number
 }
 
 export interface QuoteItem {
@@ -200,6 +214,10 @@ export interface QuoteItem {
   hours:      number
   sort_order: number
   gift?:      boolean
+  /** Product this line belongs to — drives grouping in multi-product quotes. */
+  product?:   string | null
+  /** Complexity tier, only set on generic "módulo funcional" lines. */
+  complexity?: QuoteComplexity | string | null
   // Snapshot fields (frozen at save time, independent of catalog edits)
   description?:      string | null
   category?:         string | null
@@ -270,6 +288,7 @@ export interface QuoteItemSnapshot {
   name:             string
   description:      string | null
   category:         string | null
+  product?:         string | null
   size:             QuoteSize | null
   hours:            number
   calculated_price: number

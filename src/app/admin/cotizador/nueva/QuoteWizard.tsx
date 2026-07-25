@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import type {
   PricingSettings, QuoteSizeMap, QuoteCatalogItem,
@@ -16,50 +16,15 @@ const TIPOS: { value: QuoteTipo; label: string }[] = [
 ]
 
 const ALL_PRODUCTS: { value: string; label: string; icon: string; tipo: QuoteTipo; desc: string }[] = [
-  { value: 'app-web',   label: 'Aplicación web a medida', icon: '🛠️', tipo: 'desarrollo', desc: 'Gestión a medida — login, dashboard y PWA incluidos' },
-  { value: 'ecommerce', label: 'E-commerce',              icon: '🛒', tipo: 'desarrollo', desc: 'Tienda online — carrito y pasarela de pago incluidos' },
+  { value: 'app-web',   label: 'Aplicación web a medida', icon: '🛠️', tipo: 'desarrollo', desc: 'Base técnica + los módulos que definas' },
+  { value: 'ecommerce', label: 'E-commerce',              icon: '🛒', tipo: 'desarrollo', desc: 'Tienda online — carrito, checkout y pagos' },
   { value: 'app-movil', label: 'App móvil (tiendas)',     icon: '📱', tipo: 'desarrollo', desc: 'App nativa publicada en App Store + Play Store' },
   { value: 'agente-ia', label: 'Agente IA / Chatbot',     icon: '🤖', tipo: 'chatbot',    desc: 'Responde, califica y agenda 24/7 — 1 canal incluido' },
-  { value: 'crm',       label: 'CRM + ventas',            icon: '📊', tipo: 'chatbot',    desc: 'Pipeline, asignación de leads y notificaciones' },
+  { value: 'crm',       label: 'CRM + ventas',            icon: '📊', tipo: 'chatbot',    desc: 'Pipeline, asignación de leads y seguimiento' },
   { value: 'landing',   label: 'Landing page',            icon: '🎯', tipo: 'marketing',  desc: 'Página de conversión con captura de leads' },
   { value: 'web',       label: 'Web corporativa',         icon: '🌐', tipo: 'marketing',  desc: 'Sitio corporativo multi-página' },
   { value: 'redes',     label: 'Gestión de redes & Ads',  icon: '📣', tipo: 'marketing',  desc: 'Setup de marca y contenido — fee y pauta mensual aparte' },
 ]
-
-// Add-ons por producto — solo extras REALES y opcionales.
-// Lo obvio (login en un software a medida, formulario en una landing) ya viene en la plantilla base.
-const ADDONS_BY_PRODUCT: Record<string, string[]> = {
-  'app-web':   ['Pasarela de pago', 'Integración WhatsApp API', 'Tiempo real', 'PWA / offline', 'Notificaciones push', 'Multi-idioma (i18n)'],
-  ecommerce:   ['Multi-idioma (i18n)', 'Integración WhatsApp API', 'Tiempo real', 'PWA / offline'],
-  'app-movil': ['Pasarela de pago', 'Tiempo real', 'Multi-idioma (i18n)'],
-  'agente-ia': ['Canal adicional: WhatsApp', 'Canal adicional: web', 'Canal adicional: Instagram/Messenger', 'Escalado a humano', 'Entrenamiento con docs propios', 'Base de conocimiento', 'Multi-idioma (i18n)'],
-  crm:         ['Integración WhatsApp API', 'Tiempo real', 'Carga de archivos', 'Multi-idioma (i18n)'],
-  landing:     ['Multi-idioma (i18n)', 'Integración WhatsApp API', 'Analytics'],
-  web:         ['Blog / CMS', 'Multi-idioma (i18n)', 'Analytics', 'Integración WhatsApp API'],
-  redes:       ['Analytics'],
-}
-
-// Cada add-on suma horas reales al presupuesto como línea propia.
-// name = cómo aparece en el desglose · size = tamaño default (editable en el resultado)
-const ADDON_ITEMS: Record<string, { name: string; size: QuoteSize }> = {
-  'Notificaciones email':           { name: 'Notificaciones por email (transaccionales)', size: 'S' },
-  'Multi-idioma (i18n)':            { name: 'Multi-idioma (i18n)',                        size: 'S' },
-  'Analytics':                      { name: 'Analytics (GA4 + eventos de conversión)',    size: 'S' },
-  'Notificaciones push':            { name: 'Notificaciones push',                        size: 'M' },
-  'Blog / CMS':                     { name: 'Blog / CMS autoadministrable',               size: 'M' },
-  'Carga de archivos':              { name: 'Carga y gestión de archivos',                size: 'M' },
-  'Escalado a humano':              { name: 'Escalado a humano (handoff en vivo)',        size: 'M' },
-  'Entrenamiento con docs propios': { name: 'Entrenamiento IA con documentos propios',    size: 'M' },
-  'Base de conocimiento':           { name: 'Base de conocimiento (RAG)',                 size: 'M' },
-  'Dashboard / reportes':           { name: 'Dashboard con reportes y métricas',          size: 'L' },
-  'Tiempo real':                    { name: 'Sincronización en tiempo real',              size: 'L' },
-  'Pasarela de pago':               { name: 'Pasarela de pago',                           size: 'L' },
-  'PWA / offline':                  { name: 'PWA / funcionalidad offline-first',          size: 'L' },
-  'Integración WhatsApp API':       { name: 'Integración WhatsApp Business API',          size: 'L' },
-  'Canal adicional: WhatsApp':      { name: 'Canal adicional: WhatsApp Business API',     size: 'L' },
-  'Canal adicional: web':           { name: 'Canal adicional: widget web',                size: 'L' },
-  'Canal adicional: Instagram/Messenger': { name: 'Canal adicional: Instagram / Messenger', size: 'L' },
-}
 
 const BUNDLE_DISCOUNT = 0.10 // 10% cuando se seleccionan 2+ productos
 
@@ -76,13 +41,26 @@ const SIZE_COLORS: Record<QuoteSize, string> = {
   XL: 'text-purple-400 bg-purple-400/10 border-purple-400/30',
 }
 
-type Step = 1 | 2 | 3 | 4 | 5
+const CATEGORY_LABEL: Record<string, string> = {
+  base:   'Base',
+  modulo: 'Módulo',
+  cierre: 'Cierre',
+  addon:  'Add-on',
+}
+
+/** Key used for the shared group holding work that two products would duplicate. */
+const SHARED = '__shared__'
+
+type Step = 1 | 2 | 3 | 4
 
 interface TemplateResponse {
   settings: PricingSettings[]
   sizes:    QuoteSizeMap[]
   items:    QuoteCatalogItem[]
+  addons:   QuoteCatalogItem[]
 }
+
+const productLabel = (p: string) => ALL_PRODUCTS.find(ap => ap.value === p)?.label ?? p
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -96,19 +74,22 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   // Selections
   const [tipo,     setTipo]     = useState<QuoteTipo | null>(null)
   const [products, setProducts] = useState<string[]>([])
-  const [addons,   setAddons]   = useState<string[]>([])
   const [region,   setRegion]   = useState<QuoteRegion>('españa')
   // Scope for "Aplicación web a medida": MVP loads a trimmed template
   const [appScope, setAppScope] = useState<'full' | 'mvp'>('full')
 
   // Template data
-  const [settings,    setSettings]    = useState<PricingSettings[]>([])
-  const [sizes,       setSizes]       = useState<QuoteSizeMap[]>([])
-  const [items,       setItems]       = useState<QuoteItem[]>([])
-  const [loading,     setLoading]     = useState(false)
-  const [customRate,  setCustomRate]  = useState<number | null>(null)
-  const [title,       setTitle]       = useState('')
-  const [finalPrice,  setFinalPrice]  = useState<number | null>(null)
+  const [settings,   setSettings]   = useState<PricingSettings[]>([])
+  const [sizes,      setSizes]      = useState<QuoteSizeMap[]>([])
+  const [items,      setItems]      = useState<QuoteItem[]>([])
+  const [addonsByProduct, setAddonsByProduct] = useState<Record<string, QuoteCatalogItem[]>>({})
+  const [loading,    setLoading]    = useState(false)
+  const [customRate, setCustomRate] = useState<number | null>(null)
+  const [title,      setTitle]      = useState('')
+  const [finalPrice, setFinalPrice] = useState<number | null>(null)
+
+  // Which group currently has its "add" panel open
+  const [addPanel, setAddPanel] = useState<string | null>(null)
 
   // ── Derived ─────────────────────────────────────────────────────────────────
   const isBundle      = products.length >= 2
@@ -137,10 +118,22 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const fmt = (n: number) =>
     n.toLocaleString('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 })
 
-  // Available add-ons = union of all selected products' add-on lists
-  const availableAddons = Array.from(
-    new Set(products.flatMap(p => ADDONS_BY_PRODUCT[p] ?? []))
-  )
+  /**
+   * Line items grouped for display: shared work first (only exists when two or
+   * more products would otherwise duplicate it), then one group per product.
+   */
+  const groups = useMemo(() => {
+    const order = [SHARED, ...products]
+    return order
+      .map(key => ({
+        key,
+        label: key === SHARED ? 'Base compartida' : productLabel(key),
+        entries: items
+          .map((item, idx) => ({ item, idx }))
+          .filter(({ item }) => (item.product ?? SHARED) === key),
+      }))
+      .filter(g => g.entries.length > 0 || (g.key !== SHARED && products.includes(g.key)))
+  }, [items, products])
 
   // Estimated recurring costs the CLIENT pays directly to providers (informational only)
   const recurringCosts: { label: string; value: string }[] = []
@@ -165,9 +158,9 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
     return res.json()
   }, [])
 
-  // When products array changes, reload merged template
+  // When the product selection changes, reload and merge the templates.
   useEffect(() => {
-    if (products.length === 0) { setItems([]); return }
+    if (products.length === 0) { setItems([]); setAddonsByProduct({}); return }
 
     let cancelled = false
     setLoading(true)
@@ -181,17 +174,20 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
             return fetchTemplate(t, param)
           })
         )
-
         if (cancelled) return
 
-        // Use settings/sizes from the first result (same for all regions)
+        // Settings and the size map are global — take them from the first response.
         const first = results[0]
         setSettings(first.settings ?? [])
         setSizes(first.sizes ?? [])
 
-        // Count catalog_id occurrences across templates: an item shared by 2+
-        // products (setup, login, emails…) is ONE piece of work — include it once,
-        // without product prefix. Product-specific items keep their prefix.
+        setAddonsByProduct(
+          Object.fromEntries(products.map((p, i) => [p, results[i]?.addons ?? []]))
+        )
+
+        // An item present in two or more selected products (setup, login, the
+        // data model…) is ONE piece of work: it is charged once and moved to
+        // the shared group instead of being repeated under each product.
         const idCount = new Map<string, number>()
         for (const result of results) {
           for (const ci of (result.items ?? [])) {
@@ -200,50 +196,48 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
         }
 
         const merged: QuoteItem[] = []
-        const seen = new Set<string>()
+        const seenShared = new Set<string>()
         let order = 0
         for (const [i, result] of results.entries()) {
-          const productLabel = ALL_PRODUCTS.find(ap => ap.value === products[i])?.label ?? products[i]
-          const isMulti = results.length > 1
           for (const ci of (result.items ?? [])) {
-            if (seen.has(ci.id)) continue
-            seen.add(ci.id)
-            const shared = (idCount.get(ci.id) ?? 1) > 1
+            // Cierre stays per product on purpose: every product gets its own
+            // polish pass with the client, so it is never merged away — and it
+            // keeps that product's own hours (12h on an app, 6h on a landing).
+            const perProduct = ci.category === 'cierre' || (idCount.get(ci.id) ?? 1) === 1
+            if (!perProduct) {
+              if (seenShared.has(ci.id)) continue
+              seenShared.add(ci.id)
+            }
             merged.push({
               catalog_id: ci.id,
-              name:       isMulti && !shared ? `[${productLabel}] ${ci.name}` : ci.name,
+              name:       ci.name,
               size:       ci.size,
-              hours:      first.sizes.find(s => s.size === ci.size)?.hours ?? 0,
+              hours:      ci.hours ?? 0,
+              category:   ci.category,
+              complexity: ci.complexity ?? null,
+              product:    perProduct ? products[i] : null,
               sort_order: order++,
             })
           }
         }
 
-        // Add-ons add real hours: one line each, skipping anything the
-        // templates already cover (matched by resulting item name).
-        const mergedNames = new Set(merged.map(m => m.name.replace(/^\[[^\]]+\]\s*/, '')))
-        for (const addon of addons) {
-          const def = ADDON_ITEMS[addon]
-          if (!def || mergedNames.has(def.name)) continue
-          mergedNames.add(def.name)
-          merged.push({
-            catalog_id: null,
-            name:       def.name,
-            size:       def.size,
-            hours:      first.sizes.find(s => s.size === def.size)?.hours ?? 0,
-            sort_order: order++,
-          })
-        }
-        // Preserve gift flags for catalog items that survived the template reload
+        // Keep gift flags and any manually added lines across a template reload.
         setItems(prev => {
-          const prevGifts = new Map(
-            prev.filter(it => it.gift && it.catalog_id != null)
-                .map(it => [it.catalog_id!, true])
+          // Keyed by product too: the same catalog row can now appear once per
+          // product (cierre), and gifting one must not gift the others.
+          const giftKey = (it: QuoteItem) => `${it.product ?? ''}|${it.catalog_id}`
+          const prevGifts = new Set(
+            prev.filter(it => it.gift && it.catalog_id != null).map(giftKey)
           )
-          return merged.map(it => ({
+          const manual = prev
+            .filter(it => it.catalog_id == null || it.category === 'addon')
+            .filter(it => !it.product || products.includes(it.product))
+
+          const rebuilt = merged.map(it => ({
             ...it,
-            gift: it.catalog_id != null ? (prevGifts.get(it.catalog_id) ?? false) : false,
+            gift: it.catalog_id != null && prevGifts.has(giftKey(it)),
           }))
+          return [...rebuilt, ...manual.map((it, i) => ({ ...it, sort_order: order + i }))]
         })
         setCustomRate(null)
       } finally {
@@ -253,15 +247,9 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
 
     load()
     return () => { cancelled = true }
-  }, [products, addons, appScope, tipo, fetchTemplate])
+  }, [products, appScope, tipo, fetchTemplate])
 
   useEffect(() => { setCustomRate(null) }, [region])
-
-  // Remove add-ons that are no longer relevant when products change
-  useEffect(() => {
-    setAddons(prev => prev.filter(a => availableAddons.includes(a)))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products])
 
   // ── Item helpers ─────────────────────────────────────────────────────────────
   function sizeFromHours(h: number): QuoteSize {
@@ -270,8 +258,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   }
 
   function updateItemHours(idx: number, hours: number) {
-    const size = sizeFromHours(hours)
-    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours, size } : it))
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, hours, size: sizeFromHours(hours) } : it))
   }
   function updateItemName(idx: number, name: string) {
     setItems(prev => prev.map((it, i) => i === idx ? { ...it, name } : it))
@@ -282,24 +269,40 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   function removeItem(idx: number) {
     setItems(prev => prev.filter((_, i) => i !== idx))
   }
-  function addBlankItem() {
+
+  /** Appends a catalog add-on to a product group. */
+  function addCatalogItem(product: string, addon: QuoteCatalogItem, gift = false) {
     setItems(prev => [...prev, {
-      catalog_id: null, name: 'Nueva funcionalidad', size: 'M',
-      hours: sizes.find(s => s.size === 'M')?.hours ?? 20,
+      catalog_id: addon.id,
+      name:       addon.name,
+      size:       addon.size,
+      hours:      addon.hours ?? addon.base_hours ?? 0,
+      category:   addon.category,
+      complexity: addon.complexity ?? null,
+      product:    product === SHARED ? null : product,
       sort_order: prev.length,
+      gift,
     }])
+    setAddPanel(null)
   }
-  function addGiftItem() {
+
+  /** Appends an empty, freely editable line — the escape hatch for one-offs. */
+  function addFreeItem(product: string, gift = false) {
     setItems(prev => [...prev, {
-      catalog_id: null, name: 'Funcionalidad de regalo', size: 'M',
-      hours: sizes.find(s => s.size === 'M')?.hours ?? 20,
+      catalog_id: null,
+      name:       gift ? 'Funcionalidad de regalo' : 'Nueva funcionalidad',
+      size:       'M',
+      hours:      sizes.find(s => s.size === 'M')?.hours ?? 16,
+      category:   'addon',
+      product:    product === SHARED ? null : product,
       sort_order: prev.length,
-      gift: true,
+      gift,
     }])
+    setAddPanel(null)
   }
 
   // ── Navigation ───────────────────────────────────────────────────────────────
-  function goNext() { setStep(s => Math.min(s + 1, 5) as Step) }
+  function goNext() { setStep(s => Math.min(s + 1, 4) as Step) }
   function goBack() { setStep(s => Math.max(s - 1, 1) as Step) }
 
   function selectTipo(t: QuoteTipo) {
@@ -310,29 +313,24 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   }
 
   function toggleProduct(p: string) {
-    setProducts(prev =>
-      prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
-    )
+    setProducts(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])
   }
 
   // ── Save ─────────────────────────────────────────────────────────────────────
   async function handleSave() {
     setSaving(true)
     try {
-      const productLabel = products
-        .map(p => ALL_PRODUCTS.find(ap => ap.value === p)?.label ?? p)
-        .join(' + ')
-
+      const label = products.map(productLabel).join(' + ')
       const res = await fetch('/api/cotizador/quotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title:            title || `${productLabel} — cliente`,
+          title:            title || `${label} — cliente`,
           region,
           hourly_rate:      effectiveRate,
           tipo:             tipo ?? ALL_PRODUCTS.find(ap => ap.value === products[0])?.tipo ?? 'desarrollo',
           product:          products.join('+'),
-          addons,
+          addons:           items.filter(i => i.category === 'addon').map(i => i.name),
           status:           'draft',
           lead_id:          initialLeadId ?? null,
           total_hours:      totalHours,
@@ -343,20 +341,15 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
         }),
       })
       const json = await res.json()
-      if (res.ok) {
-        router.push('/admin/cotizador')
-      } else {
-        alert(json.error ?? 'Error al guardar.')
-      }
+      if (res.ok) router.push('/admin/cotizador')
+      else alert(json.error ?? 'Error al guardar.')
     } finally {
       setSaving(false)
     }
   }
 
-  // ── Step labels ───────────────────────────────────────────────────────────────
-  const stepLabels = ['Tipo', 'Productos', 'Add-ons', 'Región', 'Resultado']
+  const stepLabels = ['Tipo', 'Productos', 'Región', 'Resultado']
 
-  // Products to show in step 2: current tipo first, others below
   const mainProducts  = ALL_PRODUCTS.filter(p => p.tipo === tipo)
   const otherProducts = ALL_PRODUCTS.filter(p => p.tipo !== tipo)
 
@@ -395,7 +388,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
         })}
       </div>
 
-      {/* Card */}
       <div className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-6 sm:p-8">
 
         {/* ── STEP 1: Tipo ── */}
@@ -411,9 +403,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                   onClick={() => selectTipo(t.value)}
                   className={[
                     'p-5 rounded-xl border text-left transition-all',
-                    tipo === t.value
-                      ? 'border-nex-green bg-nex-green/10'
-                      : 'border-nex-ink/10 hover:border-nex-ink/25',
+                    tipo === t.value ? 'border-nex-green bg-nex-green/10' : 'border-nex-ink/10 hover:border-nex-ink/25',
                   ].join(' ')}
                 >
                   <div className="font-jost font-bold text-nex-white text-sm">{t.label}</div>
@@ -443,11 +433,11 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                 ¿Qué productos incluye?
               </h2>
               <p className="font-jost text-sm text-nex-grey mt-1">
-                Podés elegir más de uno — si combinás dos o más se aplica un {Math.round(BUNDLE_DISCOUNT * 100)}% de descuento.
+                Cada producto trae sus entregables base. Los extras se agregan en el resultado.
+                Si combinás dos o más se aplica un {Math.round(BUNDLE_DISCOUNT * 100)}% de descuento.
               </p>
             </div>
 
-            {/* Bundle badge */}
             {isBundle && (
               <div className="flex items-center gap-2 bg-nex-green/10 border border-nex-green/30 rounded-lg px-4 py-2.5">
                 <span className="font-dm-mono text-xs text-nex-green uppercase tracking-wider">Bundle activado</span>
@@ -455,7 +445,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               </div>
             )}
 
-            {/* Main tipo products */}
             <div>
               <p className="font-dm-mono text-[10px] text-nex-grey uppercase tracking-[0.15em] mb-3">
                 {TIPOS.find(t2 => t2.value === tipo)?.label}
@@ -484,7 +473,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               </div>
             </div>
 
-            {/* Scope selector for custom web app */}
             {products.includes('app-web') && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-nex-black/40 border border-nex-ink/10 rounded-xl px-4 py-3">
                 <span className="font-jost text-xs text-nex-grey shrink-0">Alcance de la aplicación:</span>
@@ -510,7 +498,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               </div>
             )}
 
-            {/* Cross-tipo products */}
             <div>
               <p className="font-dm-mono text-[10px] text-nex-grey uppercase tracking-[0.15em] mb-3">
                 Complementos de otros servicios
@@ -557,59 +544,8 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
           </div>
         )}
 
-        {/* ── STEP 3: Add-ons (contextual) ── */}
+        {/* ── STEP 3: Región ── */}
         {step === 3 && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="font-jost font-bold text-xl text-nex-white">
-                ¿Qué funcionalidades extra incluye?
-              </h2>
-              <p className="font-jost text-sm text-nex-grey mt-1">
-                Opcional — cada add-on suma su línea de horas al estimado. Lo esencial (login, formularios, base del producto) ya viene incluido en la plantilla.
-              </p>
-            </div>
-
-            {availableAddons.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {availableAddons.map(a => {
-                  const on = addons.includes(a)
-                  return (
-                    <button
-                      key={a}
-                      onClick={() => setAddons(prev => on ? prev.filter(x => x !== a) : [...prev, a])}
-                      className={[
-                        'px-3 py-2.5 rounded-lg border text-xs font-jost text-left transition-all',
-                        on ? 'border-nex-green bg-nex-green/10 text-nex-green'
-                           : 'border-nex-ink/10 text-nex-grey hover:border-nex-ink/25',
-                      ].join(' ')}
-                    >
-                      {a}
-                    </button>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="font-jost text-sm text-nex-grey italic">
-                No hay add-ons definidos para los productos seleccionados.
-              </p>
-            )}
-
-            <div className="flex justify-between">
-              <button onClick={goBack} className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors">
-                ← Atrás
-              </button>
-              <button
-                onClick={goNext}
-                className="bg-nex-green text-nex-black font-jost font-bold text-sm py-2.5 px-6 rounded-lg hover:bg-nex-green/90 transition-colors"
-              >
-                Siguiente →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 4: Región ── */}
-        {step === 4 && (
           <div className="space-y-6">
             <h2 className="font-jost font-bold text-xl text-nex-white">
               ¿Dónde está el cliente?
@@ -623,9 +559,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                     onClick={() => setRegion(r.value)}
                     className={[
                       'p-5 rounded-xl border text-left transition-all',
-                      region === r.value
-                        ? 'border-nex-green bg-nex-green/10'
-                        : 'border-nex-ink/10 hover:border-nex-ink/25',
+                      region === r.value ? 'border-nex-green bg-nex-green/10' : 'border-nex-ink/10 hover:border-nex-ink/25',
                     ].join(' ')}
                   >
                     <div className="font-jost font-bold text-nex-white text-base">{r.label}</div>
@@ -652,8 +586,8 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
           </div>
         )}
 
-        {/* ── STEP 5: Resultado ── */}
-        {step === 5 && (
+        {/* ── STEP 4: Resultado ── */}
+        {step === 4 && (
           <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -685,12 +619,11 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               </div>
             </div>
 
-            {/* Title */}
             <div>
               <label className="block font-jost text-xs text-nex-grey mb-1.5">Nombre del presupuesto</label>
               <input
                 type="text"
-                placeholder={`${products.map(p => ALL_PRODUCTS.find(ap => ap.value === p)?.label ?? p).join(' + ')} — cliente`}
+                placeholder={`${products.map(productLabel).join(' + ')} — cliente`}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 className="w-full bg-nex-black border border-nex-ink/10 rounded-lg px-3.5 py-2 text-sm text-nex-white focus:outline-none focus:border-nex-green/50 transition-colors"
@@ -701,91 +634,174 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               <p className="text-nex-grey text-sm animate-pulse">Cargando plantilla…</p>
             ) : (
               <>
-                {/* Line items */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">
-                      Fases / funcionalidades
-                    </h3>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={addGiftItem}
-                        className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
-                      >
-                        🎁 Agregar regalo
-                      </button>
-                      <button
-                        onClick={addBlankItem}
-                        className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
-                      >
-                        + Agregar línea
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={[
-                          'flex items-center gap-3 border rounded-lg px-4 py-3',
-                          item.gift
-                            ? 'bg-nex-green/5 border-nex-green/20'
-                            : 'bg-nex-black border-nex-ink/5',
-                        ].join(' ')}
-                      >
-                        {item.gift ? (
-                          <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green border-nex-green/40 bg-nex-green/10">
-                            🎁
-                          </span>
-                        ) : item.size ? (
-                          <span className={[
-                            'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
-                            SIZE_COLORS[item.size as QuoteSize],
-                          ].join(' ')}>
-                            {item.size}
-                          </span>
-                        ) : null}
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={e => updateItemName(idx, e.target.value)}
-                          className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none"
-                        />
-                        {item.gift && (
-                          <span className="font-dm-mono text-[9px] text-nex-green uppercase tracking-wider shrink-0">
-                            sin cargo
-                          </span>
+                {/* Line items, grouped by product */}
+                <div className="space-y-6">
+                  <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">
+                    Fases / funcionalidades
+                  </h3>
+
+                  {groups.map(group => {
+                    const groupHours = group.entries.reduce((acc, e) => acc + (e.item.hours ?? 0), 0)
+                    const available  = group.key === SHARED ? [] : (addonsByProduct[group.key] ?? [])
+                    const usedIds    = new Set(items.map(i => i.catalog_id).filter(Boolean))
+                    const isOpen     = addPanel === group.key
+
+                    return (
+                      <div key={group.key} className="space-y-2">
+                        {/* Group header — only meaningful when more than one group exists */}
+                        {groups.length > 1 && (
+                          <div className="flex items-center gap-3 pt-1">
+                            <span className="font-jost font-bold text-sm text-nex-white">{group.label}</span>
+                            <span className="font-dm-mono text-[10px] text-nex-grey">{groupHours}h</span>
+                            <div className="flex-1 h-px bg-nex-ink/10" />
+                          </div>
                         )}
-                        <div className="flex items-center gap-1 shrink-0">
-                          <input
-                            type="number"
-                            min={1}
-                            value={item.hours}
-                            onChange={e => updateItemHours(idx, Number(e.target.value))}
-                            className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
-                          />
-                          <span className="font-dm-mono text-xs text-nex-grey">h</span>
-                        </div>
-                        <button
-                          onClick={() => toggleItemGift(idx)}
-                          title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
-                          className={[
-                            'text-sm shrink-0 transition-colors',
-                            item.gift ? 'text-nex-green' : 'text-nex-grey hover:text-nex-green',
-                          ].join(' ')}
-                        >
-                          🎁
-                        </button>
-                        <button
-                          onClick={() => removeItem(idx)}
-                          className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0"
-                          aria-label="Eliminar"
-                        >
-                          ×
-                        </button>
+
+                        {group.entries.map(({ item, idx }) => (
+                          <div
+                            key={idx}
+                            className={[
+                              'flex items-center gap-3 border rounded-lg px-4 py-3',
+                              item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-nex-ink/5',
+                            ].join(' ')}
+                          >
+                            {item.gift ? (
+                              <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green border-nex-green/40 bg-nex-green/10">
+                                🎁
+                              </span>
+                            ) : item.size ? (
+                              <span className={[
+                                'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
+                                SIZE_COLORS[item.size as QuoteSize],
+                              ].join(' ')}>
+                                {item.size}
+                              </span>
+                            ) : null}
+
+                            {item.category && CATEGORY_LABEL[item.category] && (
+                              <span className="hidden sm:inline font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey/70 shrink-0">
+                                {CATEGORY_LABEL[item.category]}
+                              </span>
+                            )}
+
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={e => updateItemName(idx, e.target.value)}
+                              className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none min-w-0"
+                            />
+                            {item.gift && (
+                              <span className="font-dm-mono text-[9px] text-nex-green uppercase tracking-wider shrink-0">
+                                sin cargo
+                              </span>
+                            )}
+                            <div className="flex items-center gap-1 shrink-0">
+                              <input
+                                type="number"
+                                min={1}
+                                value={item.hours}
+                                onChange={e => updateItemHours(idx, Number(e.target.value))}
+                                className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none"
+                              />
+                              <span className="font-dm-mono text-xs text-nex-grey">h</span>
+                            </div>
+                            <button
+                              onClick={() => toggleItemGift(idx)}
+                              title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
+                              className={[
+                                'text-sm shrink-0 transition-colors',
+                                item.gift ? 'text-nex-green' : 'text-nex-grey hover:text-nex-green',
+                              ].join(' ')}
+                            >
+                              🎁
+                            </button>
+                            <button
+                              onClick={() => removeItem(idx)}
+                              className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0"
+                              aria-label="Eliminar"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Add panel — only the add-ons that make sense for this product */}
+                        {group.key !== SHARED && (
+                          <div className="relative">
+                            <button
+                              onClick={() => setAddPanel(isOpen ? null : group.key)}
+                              className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
+                            >
+                              {isOpen ? '× Cerrar' : `+ Agregar a ${group.label}`}
+                            </button>
+
+                            {isOpen && (
+                              <div className="mt-2 bg-nex-black border border-nex-ink/10 rounded-xl p-3 space-y-1 max-h-72 overflow-y-auto">
+                                {available.length > 0 ? (
+                                  available.map(addon => {
+                                    const already = usedIds.has(addon.id)
+                                    return (
+                                      <div
+                                        key={addon.id}
+                                        className={[
+                                          'flex items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+                                          already ? 'opacity-40' : 'hover:bg-nex-dark',
+                                        ].join(' ')}
+                                      >
+                                        <button
+                                          disabled={already}
+                                          onClick={() => addCatalogItem(group.key, addon)}
+                                          className="flex-1 flex items-center gap-2 text-left disabled:cursor-not-allowed min-w-0"
+                                        >
+                                          <span className={[
+                                            'font-dm-mono text-[9px] font-bold uppercase rounded border px-1.5 py-0.5 shrink-0',
+                                            SIZE_COLORS[addon.size],
+                                          ].join(' ')}>
+                                            {addon.size}
+                                          </span>
+                                          <span className="font-jost text-xs text-nex-white truncate">{addon.name}</span>
+                                          <span className="font-dm-mono text-[10px] text-nex-grey shrink-0 ml-auto">
+                                            {addon.hours ?? addon.base_hours}h
+                                          </span>
+                                        </button>
+                                        <button
+                                          disabled={already}
+                                          onClick={() => addCatalogItem(group.key, addon, true)}
+                                          title="Agregar como regalo"
+                                          className="text-xs shrink-0 text-nex-grey hover:text-nex-green transition-colors disabled:cursor-not-allowed"
+                                        >
+                                          🎁
+                                        </button>
+                                      </div>
+                                    )
+                                  })
+                                ) : (
+                                  <p className="font-jost text-xs text-nex-grey italic px-3 py-2">
+                                    Sin add-ons definidos para este producto.
+                                  </p>
+                                )}
+
+                                <div className="border-t border-nex-ink/10 pt-2 mt-2 flex gap-4 px-3">
+                                  <button
+                                    onClick={() => addFreeItem(group.key)}
+                                    className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
+                                  >
+                                    ✎ Línea libre
+                                  </button>
+                                  <button
+                                    onClick={() => addFreeItem(group.key, true)}
+                                    className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
+                                  >
+                                    🎁 Regalo libre
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
+                    )
+                  })}
                 </div>
 
                 {/* Overhead */}
@@ -818,7 +834,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
 
                 {/* Price summary */}
                 <div className="space-y-3">
-                  {/* Bundle discount row */}
                   {isBundle && (
                     <div className="flex items-center justify-between bg-nex-green/5 border border-nex-green/20 rounded-xl px-5 py-3">
                       <div>
@@ -831,7 +846,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                     </div>
                   )}
 
-                  {/* Special discount row */}
                   {specialDiscount > 0 && (
                     <div className="flex items-center justify-between bg-nex-green/5 border border-nex-green/20 rounded-xl px-5 py-3">
                       <div>
@@ -865,7 +879,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                     ))}
                   </div>
 
-                  {/* Final price adjustment */}
                   <div className="bg-nex-black/40 border border-nex-ink/10 rounded-xl p-4">
                     <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-3">
                       Ajuste de precio final
@@ -899,20 +912,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                   </div>
                 </div>
 
-                {addons.length > 0 && (
-                  <div>
-                    <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-2">Add-ons incluidos</p>
-                    <div className="flex flex-wrap gap-2">
-                      {addons.map(a => (
-                        <span key={a} className="font-jost text-xs px-3 py-1 rounded-full border border-nex-green/30 bg-nex-green/5 text-nex-green">
-                          {a}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Recurring costs the client pays directly to providers */}
                 {recurringCosts.length > 0 && (
                   <div className="bg-nex-black/40 border border-nex-ink/5 rounded-xl p-4">
                     <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-1">

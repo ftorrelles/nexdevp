@@ -120,7 +120,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     catalog_id:  it.catalog_id ?? null,
     name:        it.name,
     description: it.description ?? null,
-    category:    it.category ?? tipo,
+    category:    it.category ?? null,
+    product:     it.product ?? null,
     size:        it.size ?? null,
     hours:       it.hours,
   }))
@@ -168,6 +169,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       hours:            it.hours,
       description:      it.description,
       category:         it.category,
+      product:          it.product ?? null,
       calculated_price: it.calculated_price,
       is_custom:        it.is_custom,
       catalog_version:  it.catalog_version,

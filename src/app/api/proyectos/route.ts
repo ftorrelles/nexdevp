@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { createAuthServerClient } from '@/lib/supabase-server'
+import { resolveCommissionType } from '@/lib/quote-commission'
+import { resolveBudgetRates, DEFAULT_BUDGET_SETTINGS } from '@/lib/budget'
 
 const STAFF_ROLES = ['owner', 'supervisor', 'developer', 'vendor']
 
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
     // 1. Validate lead exists and is closed
     const { data: lead, error: leadErr } = await client
       .from('leads')
-      .select('id, nombre, estado')
+      .select('id, nombre, estado, canal')
       .eq('id', lead_id)
       .single()
 
@@ -96,14 +98,25 @@ export async function POST(req: NextRequest) {
     // 3. Find latest accepted quote
     const { data: quote } = await client
       .from('quotes')
-      .select('id, title')
+      .select('id, title, commission_type, total_snapshot, total_price')
       .eq('lead_id', lead_id)
       .eq('status', 'accepted')
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()
 
-    // 4. Create project
+    // 4. Create project, freezing how its money will be divided. Changing the
+    //    company margin later must not rewrite what someone already earned.
+    const { data: budget } = await client
+      .from('budget_settings')
+      .select('commission_pool_rate, commission_own_lead_rate, company_margin_rate')
+      .eq('id', 1)
+      .maybeSingle()
+
+    const commissionType = resolveCommissionType(quote?.commission_type, lead.canal)
+    const rates = resolveBudgetRates(budget ?? DEFAULT_BUDGET_SETTINGS, commissionType)
+    const contractValue = Number(quote?.total_snapshot ?? quote?.total_price ?? 0)
+
     const projectName = quote?.title ?? lead.nombre
     const { data: project, error: projErr } = await client
       .from('projects')
@@ -112,6 +125,10 @@ export async function POST(req: NextRequest) {
         quote_id: quote?.id ?? null,
         name: projectName,
         created_by: user.id,
+        contract_value:               contractValue,
+        commission_type_snapshot:     commissionType,
+        commission_rate_snapshot:     rates.commission_rate,
+        company_margin_rate_snapshot: rates.margin_rate,
       })
       .select()
       .single()

@@ -81,11 +81,46 @@ export async function PATCH(
 
   try {
     const body = await req.json()
-    const allowed: Record<string, string | null> = {}
+    const allowed: Record<string, string | number | null> = {}
 
     if (body.name !== undefined) allowed.name = body.name
     if (body.status !== undefined) allowed.status = body.status
     if (body.vercel_url !== undefined) allowed.vercel_url = body.vercel_url
+
+    // Per-project money split. Only the owner may reshape a deal, and only
+    // this project is affected — the global default stays untouched.
+    const MONEY_FIELDS = ['contract_value', 'commission_rate_snapshot', 'company_margin_rate_snapshot'] as const
+    const touchesMoney = MONEY_FIELDS.some(f => body[f] !== undefined)
+    if (touchesMoney) {
+      if (role !== 'owner') {
+        return NextResponse.json(
+          { error: 'Solo el owner puede cambiar el reparto de un proyecto.' }, { status: 403 },
+        )
+      }
+      for (const field of MONEY_FIELDS) {
+        if (body[field] === undefined) continue
+        const value = Number(body[field])
+        const isRate = field !== 'contract_value'
+        if (!Number.isFinite(value) || value < 0 || (isRate && value > 1)) {
+          return NextResponse.json({ error: `Valor inválido en ${field}.` }, { status: 400 })
+        }
+        allowed[field] = value
+      }
+
+      const { data: current } = await client
+        .from('projects')
+        .select('commission_rate_snapshot, company_margin_rate_snapshot')
+        .eq('id', id)
+        .maybeSingle()
+
+      const commission = Number(allowed.commission_rate_snapshot ?? current?.commission_rate_snapshot ?? 0)
+      const margin     = Number(allowed.company_margin_rate_snapshot ?? current?.company_margin_rate_snapshot ?? 0)
+      if (commission + margin >= 1) {
+        return NextResponse.json(
+          { error: 'La comisión más el margen no dejan nada para desarrollo.' }, { status: 400 },
+        )
+      }
+    }
 
     if (Object.keys(allowed).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })

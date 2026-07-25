@@ -106,6 +106,10 @@ export function AdminNav({ role, currentPath, email, name }: Props) {
         ...(['owner', 'supervisor'].includes(role)
           ? [{ href: '/admin/brief-templates', label: 'Templates' }]
           : []),
+        // Developers land here to see what their delivered phases earned.
+        ...(['owner', 'supervisor', 'developer'].includes(role)
+          ? [{ href: '/admin/budget', label: 'Budget' }]
+          : []),
       ],
     },
     {

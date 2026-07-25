@@ -73,6 +73,7 @@ export async function PUT(
     commission_type = null,
     special_discount,
     maint_month,
+    total_price,
   } = body as {
     items: QuoteItem[]
     title?: string
@@ -83,6 +84,7 @@ export async function PUT(
     commission_type?: 'pool' | 'vendor_own' | null
     special_discount?: number
     maint_month?: number | null
+    total_price?: number
   }
 
   const client = createServiceClient()
@@ -121,6 +123,8 @@ export async function PUT(
   if (commission_type !== undefined) updates.commission_type = commission_type
   if (special_discount !== undefined) updates.special_discount = special_discount
   if (maint_month !== undefined)      updates.maint_month = maint_month
+  if (total_price !== undefined)      updates.total_price = total_price
+  if (total_price !== undefined)      updates.total_snapshot = total_price
   updates.status = nextStatus
 
   // ── Pricing: recompute ONLY while the quote is a draft. A sent/accepted/

@@ -54,6 +54,10 @@ const CATEGORY_LABEL: Record<string, string> = {
 const CATEGORY_RANK: Record<string, number> = { base: 0, modulo: 1, addon: 2, cierre: 3 }
 const rankOf = (categoria?: string | null) => CATEGORY_RANK[categoria ?? 'modulo'] ?? 1
 
+/** Lowercased and stripped of accents, so "modulo" matches "Módulo". */
+const norm = (s: string) =>
+  s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+
 /** Key used for the shared group holding work that two products would duplicate. */
 const SHARED = '__shared__'
 
@@ -94,8 +98,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const [title,      setTitle]      = useState('')
   const [finalPrice, setFinalPrice] = useState<number | null>(null)
 
-  // Which group currently has its "add" panel open
+  // Which group currently has its "add" panel open, and its search box
   const [addPanel, setAddPanel] = useState<string | null>(null)
+  const [addQuery, setAddQuery] = useState('')
+
+  function openAddPanel(key: string | null) {
+    setAddPanel(key)
+    setAddQuery('')
+  }
   // Line indexes whose breakdown is expanded
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
 
@@ -354,14 +364,17 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
       gift,
     }))
     setExpanded(new Set())
-    setAddPanel(null)
+    openAddPanel(null)
   }
 
-  /** Adds an empty, freely editable line — the escape hatch for one-offs. */
-  function addFreeItem(product: string, gift = false) {
+  /**
+   * Adds an empty, freely editable line — the escape hatch for one-offs. If the
+   * search found nothing, whatever was typed becomes the line's name.
+   */
+  function addFreeItem(product: string, gift = false, name?: string) {
     setItems(prev => insertOrdered(prev, {
       catalog_id: null,
-      name:       gift ? 'Funcionalidad de regalo' : 'Nueva funcionalidad',
+      name:       name?.trim() || (gift ? 'Funcionalidad de regalo' : 'Nueva funcionalidad'),
       size:       'M',
       hours:      sizes.find(s => s.size === 'M')?.hours ?? 16,
       category:   'addon',
@@ -370,7 +383,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
       gift,
     }))
     setExpanded(new Set())
-    setAddPanel(null)
+    openAddPanel(null)
   }
 
   // ── Navigation ───────────────────────────────────────────────────────────────
@@ -721,6 +734,22 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                     const usedIds    = new Set(items.map(i => i.catalog_id).filter(Boolean))
                     const isOpen     = addPanel === group.key
 
+                    // The search reaches into the breakdown too, so "PDF" finds
+                    // the quoting module through its "Exportación a PDF" part.
+                    const q = norm(addQuery.trim())
+                    const matches = q
+                      ? available
+                          .map(addon => ({
+                            addon,
+                            viaPart: (addon.parts ?? []).find(p => norm(p).includes(q)) ?? null,
+                          }))
+                          .filter(({ addon, viaPart }) =>
+                            norm(addon.name).includes(q) ||
+                            norm(addon.description ?? '').includes(q) ||
+                            viaPart !== null
+                          )
+                      : available.map(addon => ({ addon, viaPart: null as string | null }))
+
                     return (
                       <div key={group.key} className="space-y-2">
                         {/* Group header — only meaningful when more than one group exists */}
@@ -856,16 +885,35 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                         {group.key !== SHARED && (
                           <div className="relative">
                             <button
-                              onClick={() => setAddPanel(isOpen ? null : group.key)}
+                              onClick={() => openAddPanel(isOpen ? null : group.key)}
                               className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
                             >
                               {isOpen ? '× Cerrar' : `+ Agregar a ${group.label}`}
                             </button>
 
                             {isOpen && (
-                              <div className="mt-2 bg-nex-black border border-nex-ink/10 rounded-xl p-3 space-y-1 max-h-72 overflow-y-auto">
-                                {available.length > 0 ? (
-                                  available.map(addon => {
+                              <div className="mt-2 bg-nex-black border border-nex-ink/10 rounded-xl">
+                                {/* Search stays pinned; only the list scrolls */}
+                                <div className="p-3 pb-2.5 border-b border-nex-ink/10">
+                                  <input
+                                    type="text"
+                                    autoFocus
+                                    value={addQuery}
+                                    onChange={e => setAddQuery(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Escape') openAddPanel(null) }}
+                                    placeholder="Buscar… (también busca dentro del desglose)"
+                                    className="w-full bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-1.5 font-jost text-xs text-nex-white placeholder:text-nex-grey/60 focus:outline-none focus:border-nex-green/50 transition-colors"
+                                  />
+                                  {q && (
+                                    <p className="font-dm-mono text-[10px] text-nex-grey/60 mt-1.5">
+                                      {matches.length} de {available.length}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="p-3 space-y-1 max-h-64 overflow-y-auto">
+                                {matches.length > 0 ? (
+                                  matches.map(({ addon, viaPart }) => {
                                     const already = !addon.repeatable && usedIds.has(addon.id)
                                     return (
                                       <div
@@ -895,7 +943,13 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                                               {addon.hours ?? addon.base_hours}h
                                             </span>
                                           </span>
-                                          {addon.description && (
+                                          {/* When the hit came from the breakdown, show which
+                                              part matched so the result is not a mystery. */}
+                                          {viaPart ? (
+                                            <span className="block font-jost text-[10px] text-nex-green/70 mt-0.5 pl-8 truncate">
+                                              incluye: {viaPart}
+                                            </span>
+                                          ) : addon.description && (
                                             <span className="block font-jost text-[10px] text-nex-grey/70 mt-0.5 pl-8 truncate">
                                               {addon.description}
                                             </span>
@@ -914,19 +968,22 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                                   })
                                 ) : (
                                   <p className="font-jost text-xs text-nex-grey italic px-3 py-2">
-                                    Sin add-ons definidos para este producto.
+                                    {q
+                                      ? `Nada coincide con "${addQuery.trim()}". Podés agregarlo como línea libre.`
+                                      : 'Sin add-ons definidos para este producto.'}
                                   </p>
                                 )}
+                                </div>
 
-                                <div className="border-t border-nex-ink/10 pt-2 mt-2 flex gap-4 px-3">
+                                <div className="border-t border-nex-ink/10 py-2.5 flex gap-4 px-3">
                                   <button
-                                    onClick={() => addFreeItem(group.key)}
+                                    onClick={() => addFreeItem(group.key, false, addQuery)}
                                     className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
                                   >
                                     ✎ Línea libre
                                   </button>
                                   <button
-                                    onClick={() => addFreeItem(group.key, true)}
+                                    onClick={() => addFreeItem(group.key, true, addQuery)}
                                     className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors"
                                   >
                                     🎁 Regalo libre

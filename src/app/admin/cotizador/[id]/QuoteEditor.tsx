@@ -434,6 +434,32 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
         </div>
       </div>
 
+      {/* Special discount / price rounding */}
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 space-y-3">
+        <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Ajuste de precio final</h3>
+        <div className="flex justify-between font-jost text-sm">
+          <span className="text-nex-grey">Precio calculado</span>
+          <span className="text-nex-white font-dm-mono">{fmt(calculatedPrice)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-jost text-sm text-nex-grey">Descuento especial</span>
+          <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5">
+            <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+            <input
+              type="number"
+              min={0}
+              value={specialDiscount}
+              onChange={e => setSpecialDiscount(Math.max(0, Number(e.target.value)))}
+              className="w-16 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
+            />
+          </div>
+        </div>
+        <div className="border-t border-nex-ink/10 pt-2 flex justify-between font-jost text-sm font-bold">
+          <span className="text-nex-white">Precio final al cliente</span>
+          <span className="text-nex-green font-dm-mono">{fmt(totalPrice)}</span>
+        </div>
+      </div>
+
       {/* Price summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-xl border border-nex-ink/10 bg-nex-black/40 p-4">
@@ -464,32 +490,6 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
         <div className="rounded-xl border border-nex-ink/10 bg-nex-black/40 p-4">
           <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">Total horas</p>
           <p className="font-jost font-bold text-xl text-nex-white">{totalHours}h</p>
-        </div>
-      </div>
-
-      {/* Special discount / price rounding */}
-      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 space-y-3">
-        <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Ajuste de precio final</h3>
-        <div className="flex justify-between font-jost text-sm">
-          <span className="text-nex-grey">Precio calculado</span>
-          <span className="text-nex-white font-dm-mono">{fmt(calculatedPrice)}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-jost text-sm text-nex-grey">Descuento especial</span>
-          <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5">
-            <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
-            <input
-              type="number"
-              min={0}
-              value={specialDiscount}
-              onChange={e => setSpecialDiscount(Math.max(0, Number(e.target.value)))}
-              className="w-16 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
-            />
-          </div>
-        </div>
-        <div className="border-t border-nex-ink/10 pt-2 flex justify-between font-jost text-sm font-bold">
-          <span className="text-nex-white">Precio final al cliente</span>
-          <span className="text-nex-green font-dm-mono">{fmt(totalPrice)}</span>
         </div>
       </div>
 

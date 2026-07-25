@@ -1,17 +1,14 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import type { UserRole } from '@/lib/supabase'
 import { AdminNav } from '@/app/admin/AdminNav'
+import { loadBudgetSettings, resolveBudgetRates } from '@/lib/budget'
+import { resolveCommissionType } from '@/lib/quote-commission'
 
-const COMMISSION_RATES: Record<string, number> = {
-  pool:       0.15,
-  vendor_own: 0.20,
-}
-const COMMISSION_LABELS: Record<string, string> = {
-  pool:       'Pool nexdevp (15%)',
-  vendor_own: 'Lead propio (20%)',
-}
+// Rates come from budget_settings, so the commission a vendor sees here is the
+// same one the project budget pays out. They used to be hardcoded in this file.
 const CANAL_LABELS: Record<string, string> = {
   form:     'Formulario web',
   whatsapp: 'WhatsApp',
@@ -30,6 +27,7 @@ type QuoteRow = {
   id:              string
   title:           string
   total_price:     number
+  total_snapshot:  number | null
   commission_type: string
   created_at:      string
   region:          string
@@ -56,12 +54,30 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
 
   const client = createServiceClient()
 
-  const { data: allQuotes } = await client
-    .from('quotes')
-    .select('id, title, total_price, commission_type, created_at, region, leads(nombre, email, canal, assigned_to)')
-    .eq('status', 'accepted')
-    .not('commission_type', 'is', null)
-    .order('created_at', { ascending: false })
+  const [settings, { data: allQuotes }] = await Promise.all([
+    loadBudgetSettings(client),
+    client
+      .from('quotes')
+      .select('id, title, total_price, total_snapshot, commission_type, created_at, region, leads(nombre, email, canal, assigned_to)')
+      .eq('status', 'accepted')
+      .not('commission_type', 'is', null)
+      .order('created_at', { ascending: false }),
+  ])
+
+  /** Commission for a quote, using the current rates and how the lead arrived. */
+  const commissionOf = (q: QuoteRow) => {
+    const type = resolveCommissionType(
+      q.commission_type as 'pool' | 'vendor_own' | null,
+      q.leads?.canal,
+    )
+    const rate = resolveBudgetRates(settings, type).commission_rate
+    return { type, rate, amount: (q.total_snapshot ?? q.total_price ?? 0) * rate }
+  }
+
+  const COMMISSION_LABELS: Record<string, string> = {
+    nexdevp_pool: `Pool nexdevp (${Math.round(settings.commission_pool_rate * 100)}%)`,
+    own_lead:     `Lead propio (${Math.round(settings.commission_own_lead_rate * 100)}%)`,
+  }
 
   let rows = (allQuotes ?? []) as unknown as QuoteRow[]
 
@@ -91,15 +107,14 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
       const vendorId = q.leads?.assigned_to ?? 'sin-asignar'
       const email    = vendorId === 'sin-asignar' ? 'Sin asignar' : (vendorMap[vendorId] ?? vendorId)
       const currency = REGION_CURRENCY[q.region] ?? 'EUR'
-      const amount   = q.total_price * (COMMISSION_RATES[q.commission_type] ?? 0)
+      const amount   = commissionOf(q).amount
       if (!byVendor[vendorId]) byVendor[vendorId] = { email, total: 0, count: 0, currency }
       byVendor[vendorId].total += amount
       byVendor[vendorId].count += 1
     }
   }
 
-  const totalCommission = rows.reduce((acc, q) =>
-    acc + q.total_price * (COMMISSION_RATES[q.commission_type] ?? 0), 0)
+  const totalCommission = rows.reduce((acc, q) => acc + commissionOf(q).amount, 0)
 
   const selectedVendorEmail = vendorFilter ? (vendorMap[vendorFilter] ?? vendorFilter) : null
 
@@ -146,12 +161,12 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
                 Filtrar
               </button>
               {vendorFilter && (
-                <a
+                <Link
                   href="/admin/comisiones"
                   className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors underline"
                 >
                   Limpiar
-                </a>
+                </Link>
               )}
             </form>
           )}
@@ -178,7 +193,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
             <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
               <p className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-nex-grey mb-1">% promedio</p>
               <p className="font-jost font-bold text-2xl text-nex-white">
-                {rows.length === 0 ? '—' : `${Math.round(rows.reduce((a, q) => a + (COMMISSION_RATES[q.commission_type] ?? 0), 0) / rows.length * 100)}%`}
+                {rows.length === 0 ? '—' : `${Math.round(rows.reduce((a, q) => a + commissionOf(q).rate, 0) / rows.length * 100)}%`}
               </p>
             </div>
           )}
@@ -233,8 +248,7 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
               </div>
               {rows.map(q => {
                 const currency    = REGION_CURRENCY[q.region] ?? 'EUR'
-                const rate        = COMMISSION_RATES[q.commission_type] ?? 0
-                const amount      = q.total_price * rate
+                const { type: cType, amount } = commissionOf(q)
                 const vendorId    = q.leads?.assigned_to
                 const vendorEmail = vendorId ? (vendorMap[vendorId] ?? vendorId) : 'Sin asignar'
                 return (
@@ -256,9 +270,9 @@ export default async function ComisionesPage({ searchParams }: PageProps): Promi
                       {CANAL_LABELS[q.leads?.canal ?? ''] ?? (q.leads?.canal ?? '—')}
                     </span>
                     <span className="font-dm-mono text-[10px] text-nex-grey px-4 whitespace-nowrap">
-                      {COMMISSION_LABELS[q.commission_type] ?? q.commission_type}
+                      {COMMISSION_LABELS[cType] ?? cType}
                     </span>
-                    <span className="font-jost text-sm text-nex-white px-4 text-right">{fmt(q.total_price, currency)}</span>
+                    <span className="font-jost text-sm text-nex-white px-4 text-right">{fmt(q.total_snapshot ?? q.total_price, currency)}</span>
                     <span className="font-jost text-sm font-bold text-nex-green px-4 text-right">{fmt(amount, currency)}</span>
                   </div>
                 )

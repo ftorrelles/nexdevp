@@ -16,6 +16,7 @@
 // never rewrite what someone already earned on a finished project.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { CommissionType } from './supabase'
 
 export interface BudgetSettings {
@@ -24,10 +25,31 @@ export interface BudgetSettings {
   company_margin_rate:      number
 }
 
+/** Only used when the settings row cannot be read. The DB is the real source. */
 export const DEFAULT_BUDGET_SETTINGS: BudgetSettings = {
   commission_pool_rate:     0.15,
   commission_own_lead_rate: 0.20,
   company_margin_rate:      0.10,
+}
+
+/**
+ * THE way to read the split rates. Every screen and endpoint that shows or
+ * computes money must go through here — these numbers used to be copy-pasted
+ * across four files, so changing a percentage meant editing code in each.
+ */
+export async function loadBudgetSettings(client: SupabaseClient): Promise<BudgetSettings> {
+  const { data } = await client
+    .from('budget_settings')
+    .select('commission_pool_rate, commission_own_lead_rate, company_margin_rate')
+    .eq('id', 1)
+    .maybeSingle()
+
+  if (!data) return DEFAULT_BUDGET_SETTINGS
+  return {
+    commission_pool_rate:     Number(data.commission_pool_rate),
+    commission_own_lead_rate: Number(data.commission_own_lead_rate),
+    company_margin_rate:      Number(data.company_margin_rate),
+  }
 }
 
 export interface BudgetRates {

@@ -272,10 +272,9 @@ export type CommissionStatus = 'pending' | 'approved' | 'paid' | 'cancelled'
 // Legacy column still stored on `quotes` (kept for backward compatibility).
 export type LegacyCommissionType = 'pool' | 'vendor_own' | null
 
-export const COMMISSION_PERCENTAGE: Record<CommissionType, number> = {
-  nexdevp_pool: 0.15,
-  own_lead:     0.20,
-}
+// Commission rates live in the budget_settings table — read them with
+// loadBudgetSettings() from '@/lib/budget'. They used to be duplicated as a
+// constant here and in two screens, so changing 15% meant editing three files.
 
 export interface Quote {
   id?:         string

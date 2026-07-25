@@ -141,7 +141,6 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const totalPrice    = finalPrice !== null ? finalPrice : calculatedPrice
   // The percentage is a starting point; what gets agreed with the client wins.
   const suggestedMaint = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
-  const maintMonth     = customMaint ?? suggestedMaint
 
   // What each line is really worth: overhead spread over it and every discount
   // applied. Gifts are worth nothing and are left out of the split.

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { PricingSettings, QuoteItem, QuoteSize, QuoteStatus } from '@/lib/supabase'
-import { computeQuoteTotals, bundleDiscountRateFor } from '@/lib/quote-calc'
+import type { BudgetSettings } from '@/lib/budget'
 
 interface LeadOption { id: string; nombre: string; email: string; estado: string; canal?: string }
 
@@ -54,19 +54,21 @@ interface Props {
   quote:    QuoteRow
   items:    QuoteItem[]
   settings: PricingSettings[]
+  /** Read from budget_settings, so this matches what the project pays out. */
+  budget:   BudgetSettings
 }
 
-const COMMISSION_RATES: Record<NonNullable<CommissionType>, number> = {
-  pool:       0.15,
-  vendor_own: 0.20,
-}
+export function QuoteEditor({ quote, items: initialItems, settings, budget }: Props) {
+  const COMMISSION_RATES: Record<NonNullable<CommissionType>, number> = {
+    pool:       budget.commission_pool_rate,
+    vendor_own: budget.commission_own_lead_rate,
+  }
 
-const COMMISSION_LABELS: Record<NonNullable<CommissionType>, string> = {
-  pool:       'Lead de nexdevp (15%)',
-  vendor_own: 'Lead propio del vendedor (20%)',
-}
+  const COMMISSION_LABELS: Record<NonNullable<CommissionType>, string> = {
+    pool:       `Lead de nexdevp (${Math.round(budget.commission_pool_rate * 100)}%)`,
+    vendor_own: `Lead propio del vendedor (${Math.round(budget.commission_own_lead_rate * 100)}%)`,
+  }
 
-export function QuoteEditor({ quote, items: initialItems, settings }: Props) {
   const router = useRouter()
   const [title,          setTitle]          = useState(quote.title)
   const [status,         setStatus]         = useState<QuoteStatus>(quote.status)

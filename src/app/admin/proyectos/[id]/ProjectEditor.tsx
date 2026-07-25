@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import type { UserRole, BriefTemplate, ProjectBrief, ProjectBriefQuestion, ProjectBriefAnswer } from '@/lib/supabase'
 import { computeProgressPct } from '@/lib/projects'
 import { BriefSection } from './BriefSection'
@@ -124,7 +123,6 @@ function ProgressBar({ pct }: { pct: number }) {
 }
 
 export function ProjectEditor({ project: initial, role, currentUserId, vendorUsers, clientEmail, leadEmail, initialBrief, templates }: Props) {
-  const router = useRouter()
   const [project, setProject] = useState(initial)
   const [deliverables, setDeliverables] = useState(initial.deliverables)
   const [saving, setSaving] = useState<string | null>(null)
@@ -300,7 +298,7 @@ export function ProjectEditor({ project: initial, role, currentUserId, vendorUse
   const [commentBodies, setCommentBodies] = useState<Record<string, string>>({})
   const [postingComment, setPostingComment] = useState<string | null>(null)
 
-  async function fetchComments(deliverableId: string) {
+  const fetchComments = useCallback(async (deliverableId: string) => {
     if (commentsData[deliverableId]) return
     try {
       const res = await fetch(`/api/proyectos/${project.id}/deliverables/${deliverableId}/comments`)
@@ -311,7 +309,7 @@ export function ProjectEditor({ project: initial, role, currentUserId, vendorUse
     } catch {
       // silent
     }
-  }
+  }, [project.id, commentsData])
 
   async function postComment(deliverableId: string) {
     const body = commentBodies[deliverableId]
@@ -344,7 +342,7 @@ export function ProjectEditor({ project: initial, role, currentUserId, vendorUse
     if (!commentsData[deliverableId]) {
       await fetchComments(deliverableId)
     }
-  }, [project.id, commentsData])
+  }, [fetchComments, commentsData])
 
   const [inviting, setInviting] = useState(false)
   const [inviteMsg, setInviteMsg] = useState<string | null>(null)

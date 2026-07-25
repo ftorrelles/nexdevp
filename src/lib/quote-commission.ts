@@ -3,12 +3,9 @@
 // amount so later pricing or rate changes never alter what a vendor is owed.
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import {
-  COMMISSION_PERCENTAGE,
-  type CommissionType,
-  type LegacyCommissionType,
-} from './supabase'
+import type { CommissionType, LegacyCommissionType } from './supabase'
 import { REGION_CURRENCY, effectiveQuoteView } from './quote-calc'
+import { loadBudgetSettings, resolveBudgetRates } from './budget'
 import type { QuoteRegion } from './supabase'
 
 /**
@@ -80,7 +77,10 @@ export async function generateCommissionForQuote(
   })
 
   const commissionType = resolveCommissionType(q.commission_type, lead?.canal)
-  const percentage     = COMMISSION_PERCENTAGE[commissionType]
+  // Read from budget_settings so a rate change lands everywhere at once.
+  const percentage     = resolveBudgetRates(
+    await loadBudgetSettings(client), commissionType,
+  ).commission_rate
   const quoteTotal     = view.total
   const amount         = Math.round(quoteTotal * percentage * 100) / 100
   const currency       = q.currency ?? view.currency ?? REGION_CURRENCY[q.region as QuoteRegion] ?? 'EUR'

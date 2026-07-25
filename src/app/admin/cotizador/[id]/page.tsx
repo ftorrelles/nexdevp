@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
+import { loadBudgetSettings } from '@/lib/budget'
 import type { UserRole } from '@/lib/supabase'
 import { AdminNav } from '@/app/admin/AdminNav'
 import { QuoteEditor } from './QuoteEditor'
@@ -19,10 +20,11 @@ export default async function QuoteDetailPage({ params }: Props): Promise<React.
   const { id } = await params
   const client = createServiceClient()
 
-  const [quoteRes, itemsRes, settingsRes] = await Promise.all([
+  const [quoteRes, itemsRes, settingsRes, budget] = await Promise.all([
     client.from('quotes').select('*').eq('id', id).single(),
     client.from('quote_items').select('*').eq('quote_id', id).order('sort_order'),
     client.from('pricing_settings').select('*').order('region'),
+    loadBudgetSettings(client),
   ])
 
   if (quoteRes.error || !quoteRes.data) notFound()
@@ -35,6 +37,7 @@ export default async function QuoteDetailPage({ params }: Props): Promise<React.
           quote={quoteRes.data}
           items={itemsRes.data ?? []}
           settings={settingsRes.data ?? []}
+          budget={budget}
         />
       </main>
     </div>

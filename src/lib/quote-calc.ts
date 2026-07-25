@@ -39,9 +39,10 @@ export interface QuoteTotals {
   qa_hours:           number
   contingency_hours:  number
   total_hours:        number
-  subtotal:           number   // total_hours × rate, before bundle discount
+  subtotal:           number   // total_hours × rate, before any discount
   bundle_discount:    number
-  total:              number    // subtotal − bundle discount
+  special_discount:   number   // manual adjustment to the final client price
+  total:              number    // subtotal − bundle − special
   annual_maintenance: number
   maint_month:        number
 }
@@ -62,6 +63,7 @@ export function computeQuoteTotals(
   items: ReadonlyArray<{ hours?: number | null }>,
   params: PricingParams,
   bundleDiscountRate = 0,
+  specialDiscountInput = 0,
 ): QuoteTotals {
   const developmentHours = items.reduce((acc, i) => acc + (i.hours ?? 0), 0)
   const pmHours          = Math.round(developmentHours * params.pm_percentage)
@@ -71,7 +73,13 @@ export function computeQuoteTotals(
 
   const subtotal       = totalHours * params.hourly_rate
   const bundleDiscount = subtotal * bundleDiscountRate
-  const total          = subtotal - bundleDiscount
+  // Clamped server-side: a manual discount can never exceed what is left after
+  // the bundle discount, nor push the total below zero.
+  const specialDiscount = Math.min(
+    Math.max(specialDiscountInput, 0),
+    Math.max(subtotal - bundleDiscount, 0),
+  )
+  const total = subtotal - bundleDiscount - specialDiscount
 
   const annualMaintenance = total * params.maint_percentage
   const maintMonth        = annualMaintenance / 12
@@ -84,6 +92,7 @@ export function computeQuoteTotals(
     total_hours:        totalHours,
     subtotal,
     bundle_discount:    bundleDiscount,
+    special_discount:   specialDiscount,
     total,
     annual_maintenance: annualMaintenance,
     maint_month:        maintMonth,
@@ -135,6 +144,8 @@ export interface BuildSnapshotInput {
   product:         string
   catalogVersion:  number
   pricingVersion:  number
+  /** Manual reduction of the final client price. Clamped, never trusted raw. */
+  specialDiscount?: number
 }
 
 export interface QuoteSnapshotColumns {
@@ -151,6 +162,7 @@ export interface QuoteSnapshotColumns {
   subtotal_snapshot:           number
   total_snapshot:              number
   annual_maintenance_snapshot: number
+  special_discount:            number
   catalog_version:             number
   pricing_version:             number
   selected_items_snapshot:     QuoteItemSnapshot[]
@@ -169,7 +181,7 @@ export interface QuoteSnapshotColumns {
  */
 export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColumns {
   const bundleRate = bundleDiscountRateFor(input.product)
-  const totals     = computeQuoteTotals(input.items, input.params, bundleRate)
+  const totals     = computeQuoteTotals(input.items, input.params, bundleRate, input.specialDiscount ?? 0)
   const items      = buildItemsSnapshot(input.items, input.params.hourly_rate, input.catalogVersion)
 
   const calculation: QuoteCalculationSnapshot = {
@@ -187,6 +199,7 @@ export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColu
     total_hours:        totals.total_hours,
     subtotal:           round2(totals.subtotal),
     bundle_discount:    round2(totals.bundle_discount),
+    special_discount:   round2(totals.special_discount),
     total:              round2(totals.total),
     annual_maintenance: round2(totals.annual_maintenance),
     maint_month:        round2(totals.maint_month),
@@ -209,6 +222,7 @@ export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColu
     subtotal_snapshot:           round2(totals.subtotal),
     total_snapshot:              round2(totals.total),
     annual_maintenance_snapshot: round2(totals.annual_maintenance),
+    special_discount:            round2(totals.special_discount),
     catalog_version:             input.catalogVersion,
     pricing_version:             input.pricingVersion,
     selected_items_snapshot:     items,

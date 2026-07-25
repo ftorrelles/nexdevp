@@ -74,6 +74,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     notes = null,
     hourly_rate,
     commission_type = null,
+    special_discount = 0,
   } = body as {
     items: QuoteItem[]
     region: QuoteRegion
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     notes: string | null
     hourly_rate?: number
     commission_type?: 'pool' | 'vendor_own' | null
+    special_discount?: number
   }
 
   const client = createServiceClient()
@@ -134,6 +136,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     product,
     catalogVersion: versions.catalog_version,
     pricingVersion: versions.pricing_version,
+    // Clamped inside computeQuoteTotals — a client-supplied discount can never
+    // drive the total below zero.
+    specialDiscount: Number(special_discount) || 0,
   })
 
   const nowIso = new Date().toISOString()

@@ -346,6 +346,7 @@ export interface QuoteCalculationSnapshot {
   total_hours:        number
   subtotal:           number
   bundle_discount:    number
+  special_discount?:  number
   total:              number
   annual_maintenance: number
   maint_month:        number

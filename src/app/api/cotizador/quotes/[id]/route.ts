@@ -71,6 +71,8 @@ export async function PUT(
     lead_id = null,
     hourly_rate,
     commission_type = null,
+    special_discount,
+    maint_month,
   } = body as {
     items: QuoteItem[]
     title?: string
@@ -79,6 +81,8 @@ export async function PUT(
     lead_id?: string | null
     hourly_rate?: number
     commission_type?: 'pool' | 'vendor_own' | null
+    special_discount?: number
+    maint_month?: number | null
   }
 
   const client = createServiceClient()
@@ -115,6 +119,8 @@ export async function PUT(
   if (notes !== undefined)           updates.notes = notes
   if (lead_id !== undefined)         updates.lead_id = lead_id
   if (commission_type !== undefined) updates.commission_type = commission_type
+  if (special_discount !== undefined) updates.special_discount = special_discount
+  if (maint_month !== undefined)      updates.maint_month = maint_month
   updates.status = nextStatus
 
   // ── Pricing: recompute ONLY while the quote is a draft. A sent/accepted/
@@ -141,6 +147,10 @@ export async function PUT(
       category:    it.category ?? existing.tipo,
       size:        it.size ?? null,
       hours:       it.hours,
+      product:     it.product ?? null,
+      parts:       it.parts ?? [],
+      gift:        it.gift ?? false,
+      requires_client_approval: it.requires_client_approval ?? true,
     }))
 
     const snapshot = buildQuoteSnapshot({
@@ -149,6 +159,8 @@ export async function PUT(
       product:        existing.product,
       catalogVersion: versions.catalog_version,
       pricingVersion: versions.pricing_version,
+      specialDiscount: special_discount != null ? Number(special_discount) : undefined,
+      maintMonthOverride: maint_month == null ? null : Number(maint_month),
     })
     Object.assign(updates, snapshot)
 
@@ -163,7 +175,12 @@ export async function PUT(
         hours:            it.hours,
         description:      it.description,
         category:         it.category,
+        product:          it.product ?? null,
+        parts:            it.parts ?? [],
+        gift:             it.gift ?? false,
+        requires_client_approval: it.requires_client_approval ?? true,
         calculated_price: it.calculated_price,
+        effective_price:  it.effective_price ?? null,
         is_custom:        it.is_custom,
         catalog_version:  it.catalog_version,
         sort_order:       idx,

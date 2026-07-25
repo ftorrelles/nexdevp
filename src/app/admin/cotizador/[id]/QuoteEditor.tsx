@@ -83,6 +83,7 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
   const [specialDiscount, setSpecialDiscount] = useState(quote.special_discount ?? 0)
   const [maintMonth,      setMaintMonth]      = useState(quote.maint_month)
   const [saving,          setSaving]          = useState(false)
+  const [expanded, setExpanded] = useState<Set<number>>(new Set())
 
   // PDF options panel
   const [pdfOpen,      setPdfOpen]      = useState(false)
@@ -134,7 +135,7 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
   const cxHours         = Math.round(baseHours * (ps?.overhead_cx ?? 0.10))
   const billedHours     = baseHours + pmHours + qaHours + cxHours
   const calculatedTotal = billedHours + giftHours
-  const calculatedPrice = Math.max(0, (billedHours * rate) - (quote.special_discount ?? 0))
+  const calculatedPrice = Math.max(0, (billedHours * rate) - specialDiscount)
 
   const totalHours = frozen ? quote.total_hours : calculatedTotal
   const totalPrice = frozen ? (quote.total_snapshot ?? quote.total_price) : calculatedPrice
@@ -173,6 +174,13 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
   }
   function addGiftItem() {
     setItems(prev => [...prev, { catalog_id: null, name: 'Funcionalidad de regalo', size: sizeFromHours(10), hours: 10, sort_order: prev.length, gift: true }])
+  }
+  function toggleExpand(idx: number) {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(idx)) next.delete(idx); else next.add(idx)
+      return next
+    })
   }
 
   async function handleSave() {
@@ -327,55 +335,75 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
           )}
         </div>
         {items.map((item, idx) => (
-          <div key={idx} className={[
-            'flex items-center gap-3 border rounded-lg px-4 py-3',
-            item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-nex-ink/5',
-          ].join(' ')}>
-            {item.gift ? (
-              <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green bg-nex-green/10 border-nex-green/30">
-                🎁
-              </span>
-            ) : item.size ? (
-              <span className={[
-                'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
-                SIZE_COLORS[item.size as QuoteSize],
-              ].join(' ')}>
-                {item.size}
-              </span>
-            ) : null}
-            <input
-              type="text"
-              value={item.name}
-              disabled={frozen}
-              onChange={e => updateName(idx, e.target.value)}
-              className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none disabled:opacity-60"
-            />
-            {item.gift && (
-              <span className="font-jost text-xs text-nex-green shrink-0">sin cargo</span>
-            )}
-            <div className="flex items-center gap-1 shrink-0">
+          <div key={idx}>
+            <div className={[
+              'flex items-center gap-3 border rounded-lg px-4 py-3',
+              item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-nex-ink/5',
+            ].join(' ')}>
+              {item.gift ? (
+                <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green bg-nex-green/10 border-nex-green/30">
+                  🎁
+                </span>
+              ) : item.size ? (
+                <span className={[
+                  'font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0',
+                  SIZE_COLORS[item.size as QuoteSize],
+                ].join(' ')}>
+                  {item.size}
+                </span>
+              ) : null}
               <input
-                type="number"
-                min={1}
-                value={item.hours}
+                type="text"
+                value={item.name}
                 disabled={frozen}
-                onChange={e => updateHours(idx, Number(e.target.value))}
-              className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none disabled:opacity-60"
-            />
-            <span className="font-dm-mono text-xs text-nex-grey">h</span>
-          </div>
-          {!frozen && (
-            <>
+                onChange={e => updateName(idx, e.target.value)}
+                className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none disabled:opacity-60"
+              />
+              {item.gift && (
+                <span className="font-jost text-xs text-nex-green shrink-0">sin cargo</span>
+              )}
+              <div className="flex items-center gap-1 shrink-0">
+                <input
+                  type="number"
+                  min={1}
+                  value={item.hours}
+                  disabled={frozen}
+                  onChange={e => updateHours(idx, Number(e.target.value))}
+                className="w-14 bg-nex-dark border border-nex-ink/10 rounded px-2 py-1 font-dm-mono text-xs text-nex-white text-right outline-none disabled:opacity-60"
+              />
+              <span className="font-dm-mono text-xs text-nex-grey">h</span>
+            </div>
+            {(item.parts?.length ?? 0) > 0 && (
               <button
-                onClick={() => toggleGift(idx)}
-                title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
-                className={['text-sm transition-colors shrink-0', item.gift ? 'opacity-100' : 'opacity-30 hover:opacity-70'].join(' ')}
+                onClick={() => toggleExpand(idx)}
+                className="font-dm-mono text-[10px] text-nex-grey hover:text-nex-white transition-colors shrink-0 px-1"
+                title="Ver pasos"
               >
-                🎁
+                {expanded.has(idx) ? '▾' : '▸'} {item.parts!.length}
               </button>
-              <button onClick={() => removeItem(idx)} className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0" aria-label="Eliminar">×</button>
-            </>
-          )}
+            )}
+            {!frozen && (
+              <>
+                <button
+                  onClick={() => toggleGift(idx)}
+                  title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
+                  className={['text-sm transition-colors shrink-0', item.gift ? 'opacity-100' : 'opacity-30 hover:opacity-70'].join(' ')}
+                >
+                  🎁
+                </button>
+                <button onClick={() => removeItem(idx)} className="text-nex-grey hover:text-red-400 transition-colors text-lg leading-none shrink-0" aria-label="Eliminar">×</button>
+              </>
+            )}
+            </div>
+            {expanded.has(idx) && (item.parts?.length ?? 0) > 0 && (
+              <ul className="ml-8 mt-1 space-y-0.5 list-none">
+                {item.parts!.map((part, pi) => (
+                  <li key={pi} className="font-jost text-xs text-nex-grey/70 flex items-center gap-2">
+                    <span className="text-nex-grey/40">·</span> {part}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </div>

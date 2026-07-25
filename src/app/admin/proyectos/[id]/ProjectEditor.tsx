@@ -23,6 +23,13 @@ interface ProjectData {
   deliverables: DeliverableData[]
 }
 
+interface PartData {
+  id: string
+  name: string
+  done: boolean
+  sort_order: number
+}
+
 interface DeliverableData {
   id: string
   name: string
@@ -30,6 +37,11 @@ interface DeliverableData {
   status: string
   assigned_to: string | null
   sort_order: number
+  /** False for invisible engineering — no client sign-off, still billed. */
+  requires_client_approval: boolean
+  /** Share of what the client paid, discounts included. */
+  effective_price: number | null
+  parts: PartData[]
 }
 
 type BriefWithQuestions = ProjectBrief & {
@@ -39,6 +51,7 @@ type BriefWithQuestions = ProjectBrief & {
 interface Props {
   project: ProjectData
   role: UserRole
+  currentUserId: string
   vendorUsers: { id: string; email: string; role: string }[]
   clientEmail: string | null
   leadEmail: string | null
@@ -110,7 +123,7 @@ function ProgressBar({ pct }: { pct: number }) {
   )
 }
 
-export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail, leadEmail, initialBrief, templates }: Props) {
+export function ProjectEditor({ project: initial, role, currentUserId, vendorUsers, clientEmail, leadEmail, initialBrief, templates }: Props) {
   const router = useRouter()
   const [project, setProject] = useState(initial)
   const [deliverables, setDeliverables] = useState(initial.deliverables)
@@ -186,12 +199,99 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
       })
       if (res.ok) {
         const created = await res.json()
-        setDeliverables((prev) => [...prev, created])
+        // A hand-made deliverable comes back without the fields the checklist
+        // reads, so normalize instead of letting the render hit undefined.
+        setDeliverables((prev) => [...prev, {
+          ...created,
+          parts:                    created.parts ?? [],
+          requires_client_approval: created.requires_client_approval ?? true,
+          effective_price:          created.effective_price ?? null,
+        }])
         setNewName('')
         setNewHours('')
       }
     } finally {
       setAdding(false)
+    }
+  }
+
+  // ── Deliverable checklist ───────────────────────────────────────────────────
+
+  /** Owner and supervisor always; a developer only on their own deliverables. */
+  const canTick = (d: DeliverableData) =>
+    isEditable || (role === 'developer' && d.assigned_to === currentUserId)
+
+  const [savingPart, setSavingPart] = useState<string | null>(null)
+  const [newPartName, setNewPartName] = useState<Record<string, string>>({})
+
+  async function togglePart(deliverableId: string, part: PartData) {
+    setSavingPart(part.id)
+    // Optimistic: ticking is a rapid, repeated action and waiting on the round
+    // trip for each one makes the checklist feel broken.
+    const next = !part.done
+    setDeliverables(prev => prev.map(d => d.id === deliverableId
+      ? { ...d, parts: d.parts.map(p => p.id === part.id ? { ...p, done: next } : p) }
+      : d))
+    try {
+      const res = await fetch(
+        `/api/proyectos/${project.id}/deliverables/${deliverableId}/parts/${part.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ done: next }),
+        },
+      )
+      if (!res.ok) {
+        // Roll back so the checkbox never shows progress that was not saved.
+        setDeliverables(prev => prev.map(d => d.id === deliverableId
+          ? { ...d, parts: d.parts.map(p => p.id === part.id ? { ...p, done: part.done } : p) }
+          : d))
+      }
+    } catch {
+      setDeliverables(prev => prev.map(d => d.id === deliverableId
+        ? { ...d, parts: d.parts.map(p => p.id === part.id ? { ...p, done: part.done } : p) }
+        : d))
+    } finally {
+      setSavingPart(null)
+    }
+  }
+
+  async function addPart(deliverableId: string) {
+    const name = (newPartName[deliverableId] ?? '').trim()
+    if (!name) return
+    setSavingPart(deliverableId)
+    try {
+      const res = await fetch(`/api/proyectos/${project.id}/deliverables/${deliverableId}/parts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      if (res.ok) {
+        const created: PartData = await res.json()
+        setDeliverables(prev => prev.map(d => d.id === deliverableId
+          ? { ...d, parts: [...d.parts, created] }
+          : d))
+        setNewPartName(prev => ({ ...prev, [deliverableId]: '' }))
+      }
+    } finally {
+      setSavingPart(null)
+    }
+  }
+
+  async function deletePart(deliverableId: string, partId: string) {
+    setSavingPart(partId)
+    try {
+      const res = await fetch(
+        `/api/proyectos/${project.id}/deliverables/${deliverableId}/parts/${partId}`,
+        { method: 'DELETE' },
+      )
+      if (res.ok) {
+        setDeliverables(prev => prev.map(d => d.id === deliverableId
+          ? { ...d, parts: d.parts.filter(p => p.id !== partId) }
+          : d))
+      }
+    } finally {
+      setSavingPart(null)
     }
   }
 
@@ -380,7 +480,22 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                     {openComments[d.id] ? '▼' : '▶'}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className="font-jost text-sm text-nex-white truncate">{d.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-jost text-sm text-nex-white truncate">{d.name}</p>
+                      {!d.requires_client_approval && (
+                        <span
+                          title="Ingeniería interna: el cliente no la aprueba"
+                          className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey/40 border border-nex-ink/15 rounded px-1.5 py-0.5 shrink-0"
+                        >
+                          interno
+                        </span>
+                      )}
+                    </div>
+                    {d.parts.length > 0 && (
+                      <p className="font-dm-mono text-[10px] text-nex-grey/70 mt-0.5">
+                        {d.parts.filter(p => p.done).length}/{d.parts.length} partes
+                      </p>
+                    )}
                   </div>
                   <span className="font-dm-mono text-xs text-nex-grey shrink-0 w-10 text-right">{d.hours}h</span>
 
@@ -438,9 +553,88 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                   )}
                 </div>
 
-                {/* Collapsible comments section */}
+                {/* Collapsible checklist + comments */}
                 {openComments[d.id] && (
-                  <div className="border-t border-nex-ink/5 px-4 py-3 space-y-3">
+                  <div className="border-t border-nex-ink/5 px-4 py-3 space-y-4">
+                    {/* What this phase is made of. The client approves the phase;
+                        these are what the developer builds and ticks off. */}
+                    <div>
+                      <p className="font-dm-mono text-[10px] uppercase tracking-[0.1em] text-nex-green mb-2">
+                        Qué incluye
+                      </p>
+
+                      {d.parts.length === 0 ? (
+                        <p className="font-jost text-xs text-nex-grey italic">
+                          Sin desglose para esta fase.
+                        </p>
+                      ) : (
+                        <ul className="space-y-1">
+                          {d.parts.map((p) => (
+                            <li key={p.id} className="flex items-center gap-2.5 group">
+                              <button
+                                onClick={() => canTick(d) && togglePart(d.id, p)}
+                                disabled={!canTick(d) || savingPart === p.id}
+                                aria-label={p.done ? 'Marcar como pendiente' : 'Marcar como hecha'}
+                                className={[
+                                  'w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors',
+                                  p.done
+                                    ? 'bg-nex-green border-nex-green text-nex-black'
+                                    : 'border-nex-ink/25 hover:border-nex-green',
+                                  canTick(d) ? 'cursor-pointer' : 'cursor-default opacity-60',
+                                ].join(' ')}
+                              >
+                                {p.done && (
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                )}
+                              </button>
+                              <span className={[
+                                'font-jost text-xs flex-1',
+                                p.done ? 'text-nex-grey/50 line-through' : 'text-nex-white',
+                              ].join(' ')}>
+                                {p.name}
+                              </span>
+                              {isEditable && (
+                                <button
+                                  onClick={() => deletePart(d.id, p.id)}
+                                  disabled={savingPart === p.id}
+                                  className="font-jost text-xs text-nex-grey/0 group-hover:text-nex-grey hover:!text-red-400 transition-colors shrink-0"
+                                  aria-label="Quitar parte"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {isEditable && (
+                        <div className="flex items-center gap-2 mt-2.5">
+                          <input
+                            type="text"
+                            value={newPartName[d.id] ?? ''}
+                            onChange={(e) => setNewPartName((prev) => ({ ...prev, [d.id]: e.target.value }))}
+                            onKeyDown={(e) => { if (e.key === 'Enter') addPart(d.id) }}
+                            placeholder="Agregar una parte…"
+                            className="flex-1 bg-nex-dark border border-nex-ink/10 rounded-lg px-3 py-1.5 font-jost text-xs text-nex-white placeholder:text-nex-grey/60 focus:outline-none focus:border-nex-green/50 transition-colors"
+                          />
+                          <button
+                            onClick={() => addPart(d.id)}
+                            disabled={savingPart === d.id || !(newPartName[d.id] ?? '').trim()}
+                            className="font-jost text-xs text-nex-grey hover:text-nex-green transition-colors disabled:opacity-40 shrink-0"
+                          >
+                            + Agregar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-t border-nex-ink/5 pt-3 space-y-3">
+                      <p className="font-dm-mono text-[10px] uppercase tracking-[0.1em] text-nex-green">
+                        Comentarios
+                      </p>
                     {(commentsData[d.id] ?? []).length === 0 ? (
                       <p className="font-jost text-xs text-nex-grey italic">Sin comentarios.</p>
                     ) : (
@@ -480,6 +674,7 @@ export function ProjectEditor({ project: initial, role, vendorUsers, clientEmail
                         </button>
                       </div>
                     )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -50,7 +50,7 @@ export default async function ProyectoDetailPage({
 
   const { data: deliverables } = await client
     .from('project_deliverables')
-    .select('*')
+    .select('*, project_deliverable_parts(id, name, done, done_at, done_by, sort_order)')
     .eq('project_id', id)
     .order('sort_order', { ascending: true })
 
@@ -131,6 +131,11 @@ export default async function ProyectoDetailPage({
       status: d.status,
       assigned_to: d.assigned_to,
       sort_order: d.sort_order,
+      requires_client_approval: d.requires_client_approval ?? true,
+      effective_price: d.effective_price ?? null,
+      parts: ((d.project_deliverable_parts ?? []) as {
+        id: string; name: string; done: boolean; sort_order: number
+      }[]).sort((a, b) => a.sort_order - b.sort_order),
     })),
   }
 
@@ -141,6 +146,7 @@ export default async function ProyectoDetailPage({
         <ProjectEditor
           project={projectData}
           role={role}
+          currentUserId={user.id}
           vendorUsers={vendorUsers}
           clientEmail={project.client_email as string | null}
           leadEmail={(project as unknown as { leads: { email: string | null } }).leads?.email ?? null}

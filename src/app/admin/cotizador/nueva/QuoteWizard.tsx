@@ -48,6 +48,12 @@ const CATEGORY_LABEL: Record<string, string> = {
   addon:  'Add-on',
 }
 
+// Natural build order: groundwork first, closing last. Applied when a line is
+// added; moving a line by hand overrides it and is never re-sorted, because the
+// build order is the vendor's call.
+const CATEGORY_RANK: Record<string, number> = { base: 0, modulo: 1, addon: 2, cierre: 3 }
+const rankOf = (categoria?: string | null) => CATEGORY_RANK[categoria ?? 'modulo'] ?? 1
+
 /** Key used for the shared group holding work that two products would duplicate. */
 const SHARED = '__shared__'
 
@@ -232,6 +238,16 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
           }
         }
 
+        // Lay the lines out in build order inside each product group.
+        const groupRank = (it: QuoteItem) =>
+          it.product ? products.indexOf(it.product) : -1
+        merged.sort((a, b) =>
+          groupRank(a) - groupRank(b) ||
+          rankOf(a.category) - rankOf(b.category) ||
+          (a.sort_order ?? 0) - (b.sort_order ?? 0)
+        )
+        merged.forEach((it, i) => { it.sort_order = i })
+
         // Keep gift flags and any manually added lines across a template reload.
         setItems(prev => {
           // Keyed by product too: the same catalog row can now appear once per
@@ -279,11 +295,51 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   }
   function removeItem(idx: number) {
     setItems(prev => prev.filter((_, i) => i !== idx))
+    setExpanded(new Set())
   }
 
-  /** Appends a catalog add-on to a product group. */
+  /** Swaps two lines. Used to reorder within a product group. */
+  function swapItems(a: number, b: number) {
+    setItems(prev => {
+      const next = [...prev]
+      const tmp = next[a]
+      next[a] = next[b]
+      next[b] = tmp
+      return next.map((it, i) => ({ ...it, sort_order: i }))
+    })
+    // Expanded rows are tracked by index, so a reorder would leave the marker
+    // pointing at the wrong line.
+    setExpanded(new Set())
+  }
+
+  /**
+   * Places a new line after the last one of its own or an earlier stage inside
+   * the same product group, so base / módulo / add-on / cierre stay in order
+   * without disturbing anything the vendor moved by hand.
+   */
+  function insertOrdered(prev: QuoteItem[], item: QuoteItem): QuoteItem[] {
+    const key  = item.product ?? null
+    const rank = rankOf(item.category)
+
+    let insertAt = -1
+    let firstOfGroup = -1
+    for (let i = 0; i < prev.length; i++) {
+      if ((prev[i].product ?? null) !== key) continue
+      if (firstOfGroup === -1) firstOfGroup = i
+      if (rankOf(prev[i].category) <= rank) insertAt = i
+    }
+    // Nothing at or before this stage yet: sit just above the group, or at the
+    // very end when the group has no lines at all.
+    if (insertAt === -1) insertAt = firstOfGroup === -1 ? prev.length - 1 : firstOfGroup - 1
+
+    const next = [...prev]
+    next.splice(insertAt + 1, 0, item)
+    return next.map((it, i) => ({ ...it, sort_order: i }))
+  }
+
+  /** Adds a catalog add-on to a product group, in build order. */
   function addCatalogItem(product: string, addon: QuoteCatalogItem, gift = false) {
-    setItems(prev => [...prev, {
+    setItems(prev => insertOrdered(prev, {
       catalog_id: addon.id,
       name:       addon.name,
       size:       addon.size,
@@ -292,24 +348,26 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
       complexity: addon.complexity ?? null,
       parts:      addon.parts ?? [],
       product:    product === SHARED ? null : product,
-      sort_order: prev.length,
+      sort_order: 0,
       gift,
-    }])
+    }))
+    setExpanded(new Set())
     setAddPanel(null)
   }
 
-  /** Appends an empty, freely editable line — the escape hatch for one-offs. */
+  /** Adds an empty, freely editable line — the escape hatch for one-offs. */
   function addFreeItem(product: string, gift = false) {
-    setItems(prev => [...prev, {
+    setItems(prev => insertOrdered(prev, {
       catalog_id: null,
       name:       gift ? 'Funcionalidad de regalo' : 'Nueva funcionalidad',
       size:       'M',
       hours:      sizes.find(s => s.size === 'M')?.hours ?? 16,
       category:   'addon',
       product:    product === SHARED ? null : product,
-      sort_order: prev.length,
+      sort_order: 0,
       gift,
-    }])
+    }))
+    setExpanded(new Set())
     setAddPanel(null)
   }
 
@@ -672,7 +730,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                           </div>
                         )}
 
-                        {group.entries.map(({ item, idx }) => (
+                        {group.entries.map(({ item, idx }, pos) => (
                           <div
                             key={idx}
                             className={[
@@ -681,6 +739,26 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                             ].join(' ')}
                           >
                           <div className="flex items-center gap-3">
+                            {/* Reorder within the group — the build order is
+                                the vendor's decision, not the system's. */}
+                            <div className="flex flex-col shrink-0 -my-1">
+                              <button
+                                disabled={pos === 0}
+                                onClick={() => swapItems(idx, group.entries[pos - 1].idx)}
+                                aria-label="Subir"
+                                className="text-[9px] leading-none text-nex-grey hover:text-nex-green disabled:opacity-20 disabled:hover:text-nex-grey transition-colors"
+                              >
+                                ▲
+                              </button>
+                              <button
+                                disabled={pos === group.entries.length - 1}
+                                onClick={() => swapItems(idx, group.entries[pos + 1].idx)}
+                                aria-label="Bajar"
+                                className="text-[9px] leading-none text-nex-grey hover:text-nex-green disabled:opacity-20 disabled:hover:text-nex-grey transition-colors mt-0.5"
+                              >
+                                ▼
+                              </button>
+                            </div>
                             {item.gift ? (
                               <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green border-nex-green/40 bg-nex-green/10">
                                 🎁

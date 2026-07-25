@@ -93,6 +93,11 @@ export interface ProjectDeliverable {
   updated_at?: string
   parts?: DeliverablePart[]
   /**
+   * Share of what the client actually paid, discounts included. The base for
+   * the developer's cut — never the undiscounted list price.
+   */
+  effective_price?: number | null
+  /**
    * Whether this phase is a client review gate. Invisible engineering (setup,
    * CI, the data schema) is still built, billed and paid — the client just has
    * nothing to judge, so it never waits on their sign-off.
@@ -325,7 +330,11 @@ export interface QuoteItemSnapshot {
   requires_client_approval?: boolean
   size:             QuoteSize | null
   hours:            number
+  gift?:            boolean
+  /** List price: hours × rate, before overhead and discounts. */
   calculated_price: number
+  /** Share of what the client actually pays. Sums to the quote total. */
+  effective_price?: number
   is_custom:        boolean
   catalog_version:  number | null
 }

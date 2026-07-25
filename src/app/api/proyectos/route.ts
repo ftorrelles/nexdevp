@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     if (quote) {
       const { data: items } = await client
         .from('quote_items')
-        .select('id, name, hours, sort_order, parts, requires_client_approval')
+        .select('id, name, hours, sort_order, parts, requires_client_approval, effective_price')
         .eq('quote_id', quote.id)
         .order('sort_order', { ascending: true })
 
@@ -137,6 +137,9 @@ export async function POST(req: NextRequest) {
           sort_order: item.sort_order,
           seeded_from_quote_item_id: item.id,
           requires_client_approval: item.requires_client_approval ?? true,
+          // What this phase is actually worth after discounts — the base the
+          // developer gets paid against.
+          effective_price: item.effective_price ?? null,
         }))
 
         const { data: created, error: delErr } = await client

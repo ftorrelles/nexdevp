@@ -75,6 +75,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     hourly_rate,
     commission_type = null,
     special_discount = 0,
+    maint_month = null,
   } = body as {
     items: QuoteItem[]
     region: QuoteRegion
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     hourly_rate?: number
     commission_type?: 'pool' | 'vendor_own' | null
     special_discount?: number
+    maint_month?: number | null
   }
 
   const client = createServiceClient()
@@ -128,6 +130,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     requires_client_approval: it.requires_client_approval ?? true,
     size:        it.size ?? null,
     hours:       it.hours,
+    gift:        it.gift ?? false,
   }))
 
   const snapshot = buildQuoteSnapshot({
@@ -139,6 +142,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // Clamped inside computeQuoteTotals — a client-supplied discount can never
     // drive the total below zero.
     specialDiscount: Number(special_discount) || 0,
+    maintMonthOverride: maint_month == null ? null : Number(maint_month),
   })
 
   const nowIso = new Date().toISOString()
@@ -180,6 +184,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       parts:            it.parts ?? [],
       requires_client_approval: it.requires_client_approval ?? true,
       calculated_price: it.calculated_price,
+      effective_price:  it.effective_price ?? null,
       is_custom:        it.is_custom,
       catalog_version:  it.catalog_version,
       sort_order:       idx,

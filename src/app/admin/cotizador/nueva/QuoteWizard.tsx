@@ -97,6 +97,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const [customRate, setCustomRate] = useState<number | null>(null)
   const [title,      setTitle]      = useState('')
   const [finalPrice, setFinalPrice] = useState<number | null>(null)
+  const [customMaint, setCustomMaint] = useState<number | null>(null)
 
   // Which group currently has its "add" panel open, and its search box
   const [addPanel, setAddPanel] = useState<string | null>(null)
@@ -138,7 +139,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
   const calculatedPrice = basePrice - discount
   const specialDiscount = finalPrice !== null ? Math.max(0, calculatedPrice - finalPrice) : 0
   const totalPrice    = finalPrice !== null ? finalPrice : calculatedPrice
-  const maintMonth    = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
+  // The percentage is a starting point; what gets agreed with the client wins.
+  const suggestedMaint = (totalPrice * (ps?.maint_rate ?? 0.175)) / 12
+  const maintMonth     = customMaint ?? suggestedMaint
+
+  // What each line is really worth: overhead spread over it and every discount
+  // applied. Gifts are worth nothing and are left out of the split.
+  const effectivePriceOf = (item: QuoteItem) =>
+    item.gift || baseHours === 0 ? 0 : ((item.hours ?? 0) / baseHours) * totalPrice
   const currency      = ps?.currency ?? 'EUR'
 
   const fmt = (n: number) =>
@@ -287,7 +295,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
     return () => { cancelled = true }
   }, [products, appScope, tipo, fetchTemplate])
 
-  useEffect(() => { setCustomRate(null) }, [region])
+  useEffect(() => { setCustomRate(null); setCustomMaint(null) }, [region])
 
   // ── Item helpers ─────────────────────────────────────────────────────────────
   function sizeFromHours(h: number): QuoteSize {
@@ -421,7 +429,9 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
           total_hours:      totalHours,
           total_price:      totalPrice,
           special_discount: specialDiscount,
-          maint_month:      maintMonth,
+          // Only sent when actually edited, so the server derives it from the
+          // percentage otherwise instead of trusting a client-side number.
+          maint_month:      customMaint,
           items,
         }),
       })
@@ -847,6 +857,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                               />
                               <span className="font-dm-mono text-xs text-nex-grey">h</span>
                             </div>
+                            {/* Real value of the phase: overhead in, discounts
+                                applied. This is what the developer is paid on. */}
+                            <span
+                              title="Valor real de la fase, con descuentos aplicados"
+                              className="hidden md:block font-dm-mono text-[10px] text-nex-grey/60 w-16 text-right shrink-0"
+                            >
+                              {item.gift ? '—' : fmt(effectivePriceOf(item))}
+                            </span>
                             <button
                               onClick={() => toggleItemGift(idx)}
                               title={item.gift ? 'Quitar regalo' : 'Marcar como regalo'}
@@ -1053,10 +1071,48 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="rounded-xl border p-4 border-nex-green/40 bg-nex-green/5">
+                      <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em] mb-1">
+                        Precio del proyecto
+                      </p>
+                      <p className="font-jost font-bold text-2xl text-nex-green">{fmt(totalPrice)}</p>
+                    </div>
+
+                    {/* Editable: the percentage only suggests a number, the
+                        maintenance fee is negotiated like anything else. */}
+                    <div className="rounded-xl border p-4 border-nex-ink/10 bg-nex-black/40">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.1em]">
+                          Mantenimiento / mes
+                        </p>
+                        {customMaint !== null && (
+                          <button
+                            onClick={() => setCustomMaint(null)}
+                            className="font-jost text-[10px] text-nex-grey hover:text-nex-white transition-colors"
+                          >
+                            reset
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={customMaint ?? Math.round(suggestedMaint)}
+                          onChange={e => setCustomMaint(Number(e.target.value))}
+                          className="w-full bg-transparent font-jost font-bold text-xl text-nex-white outline-none focus:text-nex-green transition-colors"
+                        />
+                      </div>
+                      {customMaint !== null && Math.round(customMaint) !== Math.round(suggestedMaint) && (
+                        <p className="font-jost text-[10px] text-nex-grey/70 mt-0.5">
+                          Sugerido: {fmt(suggestedMaint)}
+                        </p>
+                      )}
+                    </div>
+
                     {[
-                      { label: 'Precio del proyecto', value: fmt(totalPrice), big: true  },
-                      { label: 'Mantenimiento / mes', value: fmt(maintMonth),  big: false },
-                      { label: 'Total horas',          value: `${totalHours}h`, big: false },
+                      { label: 'Total horas', value: `${totalHours}h`, big: false },
                     ].map(card => (
                       <div
                         key={card.label}

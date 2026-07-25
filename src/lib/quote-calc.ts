@@ -112,14 +112,27 @@ export interface SnapshotItemInput {
   parts?:       string[] | null
   /** Whether the client signs this phase off once it becomes a deliverable. */
   requires_client_approval?: boolean | null
+  /** Given away: contributes hours but no revenue, so its share is 0. */
+  gift?:        boolean | null
 }
 
-/** Builds the immutable per-item snapshot list stored as JSONB on the quote. */
+/**
+ * Builds the immutable per-item snapshot list stored as JSONB on the quote.
+ *
+ * `calculated_price` is the list price (hours × rate). `effective_price` is the
+ * line's share of what the client actually pays: overhead spread over it and
+ * every discount already applied. The shares add up to the quote total, so the
+ * developer's cut can be derived from a phase without re-deriving the quote.
+ */
 export function buildItemsSnapshot(
   items: ReadonlyArray<SnapshotItemInput>,
   hourlyRate: number,
   catalogVersion: number,
+  finalTotal = 0,
 ): QuoteItemSnapshot[] {
+  const billedHours = items.reduce(
+    (acc, i) => acc + (i.gift ? 0 : (i.hours ?? 0)), 0,
+  )
   return items.map((it) => ({
     catalog_id:       it.catalog_id ?? null,
     name:             it.name,
@@ -130,7 +143,11 @@ export function buildItemsSnapshot(
     requires_client_approval: it.requires_client_approval ?? true,
     size:             it.size ?? null,
     hours:            it.hours ?? 0,
+    gift:             it.gift ?? false,
     calculated_price: (it.hours ?? 0) * hourlyRate,
+    effective_price:  it.gift || billedHours === 0
+                        ? 0
+                        : round2(((it.hours ?? 0) / billedHours) * finalTotal),
     is_custom:        !it.catalog_id,
     catalog_version:  catalogVersion,
   }))
@@ -146,6 +163,11 @@ export interface BuildSnapshotInput {
   pricingVersion:  number
   /** Manual reduction of the final client price. Clamped, never trusted raw. */
   specialDiscount?: number
+  /**
+   * Agreed monthly maintenance. The percentage of the total is only a starting
+   * point — what was actually negotiated wins and is what gets stored.
+   */
+  maintMonthOverride?: number | null
 }
 
 export interface QuoteSnapshotColumns {
@@ -182,7 +204,16 @@ export interface QuoteSnapshotColumns {
 export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColumns {
   const bundleRate = bundleDiscountRateFor(input.product)
   const totals     = computeQuoteTotals(input.items, input.params, bundleRate, input.specialDiscount ?? 0)
-  const items      = buildItemsSnapshot(input.items, input.params.hourly_rate, input.catalogVersion)
+  const items      = buildItemsSnapshot(
+    input.items, input.params.hourly_rate, input.catalogVersion, round2(totals.total),
+  )
+
+  const overrideMaint =
+    input.maintMonthOverride != null && Number.isFinite(input.maintMonthOverride)
+      ? Math.max(input.maintMonthOverride, 0)
+      : null
+  const maintMonth        = overrideMaint ?? totals.maint_month
+  const annualMaintenance = overrideMaint != null ? overrideMaint * 12 : totals.annual_maintenance
 
   const calculation: QuoteCalculationSnapshot = {
     region:             input.region,
@@ -201,8 +232,8 @@ export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColu
     bundle_discount:    round2(totals.bundle_discount),
     special_discount:   round2(totals.special_discount),
     total:              round2(totals.total),
-    annual_maintenance: round2(totals.annual_maintenance),
-    maint_month:        round2(totals.maint_month),
+    annual_maintenance: round2(annualMaintenance),
+    maint_month:        round2(maintMonth),
     catalog_version:    input.catalogVersion,
     pricing_version:    input.pricingVersion,
     calculated_at:      new Date().toISOString(),
@@ -221,7 +252,7 @@ export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColu
     contingency_hours_snapshot:  totals.contingency_hours,
     subtotal_snapshot:           round2(totals.subtotal),
     total_snapshot:              round2(totals.total),
-    annual_maintenance_snapshot: round2(totals.annual_maintenance),
+    annual_maintenance_snapshot: round2(annualMaintenance),
     special_discount:            round2(totals.special_discount),
     catalog_version:             input.catalogVersion,
     pricing_version:             input.pricingVersion,
@@ -230,7 +261,7 @@ export function buildQuoteSnapshot(input: BuildSnapshotInput): QuoteSnapshotColu
     // legacy mirrors
     total_hours:                 totals.total_hours,
     total_price:                 round2(totals.total),
-    maint_month:                 round2(totals.maint_month),
+    maint_month:                 round2(maintMonth),
     hourly_rate:                 input.params.hourly_rate,
   }
 }

@@ -92,6 +92,12 @@ export interface ProjectDeliverable {
   created_at?: string
   updated_at?: string
   parts?: DeliverablePart[]
+  /**
+   * Whether this phase is a client review gate. Invisible engineering (setup,
+   * CI, the data schema) is still built, billed and paid — the client just has
+   * nothing to judge, so it never waits on their sign-off.
+   */
+  requires_client_approval?: boolean
 }
 
 /**
@@ -221,6 +227,8 @@ export interface QuoteCatalogItem {
   hours?:       number
   /** Can be added more than once — a custom app has several complex modules. */
   repeatable?:  boolean
+  /** Whether the client signs this phase off. False for invisible engineering. */
+  requires_client_approval?: boolean
   /** What the item contains. Descriptive: it does not split the price. */
   parts?:       string[]
   sort_order:   number
@@ -240,6 +248,8 @@ export interface QuoteItem {
   complexity?: QuoteComplexity | string | null
   /** What this line includes — shown to the client, not priced separately. */
   parts?:      string[]
+  /** Whether the client signs this phase off once it becomes a deliverable. */
+  requires_client_approval?: boolean
   // Snapshot fields (frozen at save time, independent of catalog edits)
   description?:      string | null
   category?:         string | null
@@ -312,6 +322,7 @@ export interface QuoteItemSnapshot {
   category:         string | null
   product?:         string | null
   parts?:           string[]
+  requires_client_approval?: boolean
   size:             QuoteSize | null
   hours:            number
   calculated_price: number

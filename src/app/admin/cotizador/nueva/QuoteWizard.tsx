@@ -232,6 +232,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               category:   ci.category,
               complexity: ci.complexity ?? null,
               parts:      ci.parts ?? [],
+              requires_client_approval: ci.requires_client_approval ?? true,
               product:    perProduct ? products[i] : null,
               sort_order: order++,
             })
@@ -347,6 +348,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
       category:   addon.category,
       complexity: addon.complexity ?? null,
       parts:      addon.parts ?? [],
+      requires_client_approval: addon.requires_client_approval ?? true,
       product:    product === SHARED ? null : product,
       sort_order: 0,
       gift,
@@ -775,6 +777,14 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                             {item.category && CATEGORY_LABEL[item.category] && (
                               <span className="hidden sm:inline font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey/70 shrink-0">
                                 {CATEGORY_LABEL[item.category]}
+                              </span>
+                            )}
+                            {item.requires_client_approval === false && (
+                              <span
+                                title="Ingeniería interna: se cobra y se paga, pero el cliente no la aprueba"
+                                className="hidden sm:inline font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey/40 border border-nex-ink/15 rounded px-1.5 py-0.5 shrink-0"
+                              >
+                                interno
                               </span>
                             )}
 

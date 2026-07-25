@@ -101,6 +101,8 @@ export interface SnapshotItemInput {
   product?:     string | null
   /** What the line includes. Descriptive — it does not split the price. */
   parts?:       string[] | null
+  /** Whether the client signs this phase off once it becomes a deliverable. */
+  requires_client_approval?: boolean | null
 }
 
 /** Builds the immutable per-item snapshot list stored as JSONB on the quote. */
@@ -116,6 +118,7 @@ export function buildItemsSnapshot(
     category:         it.category ?? null,
     product:          it.product ?? null,
     parts:            it.parts ?? [],
+    requires_client_approval: it.requires_client_approval ?? true,
     size:             it.size ?? null,
     hours:            it.hours ?? 0,
     calculated_price: (it.hours ?? 0) * hourlyRate,

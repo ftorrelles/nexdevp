@@ -123,6 +123,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     category:    it.category ?? null,
     product:     it.product ?? null,
     parts:       it.parts ?? [],
+    requires_client_approval: it.requires_client_approval ?? true,
     size:        it.size ?? null,
     hours:       it.hours,
   }))
@@ -172,6 +173,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       category:         it.category,
       product:          it.product ?? null,
       parts:            it.parts ?? [],
+      requires_client_approval: it.requires_client_approval ?? true,
       calculated_price: it.calculated_price,
       is_custom:        it.is_custom,
       catalog_version:  it.catalog_version,

@@ -439,33 +439,42 @@ export function QuoteEditor({ quote, items: initialItems, settings, budget }: Pr
       </div>
 
       {/* Special discount / price rounding */}
-      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5 space-y-3">
-        <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em]">Ajuste de precio final</h3>
-        <div className="flex items-center gap-3">
-          <span className="font-jost text-sm text-nex-grey shrink-0">Precio final al cliente:</span>
-          <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 focus-within:border-nex-green/50 transition-colors">
-            <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
-            <input
-              type="number"
-              min={0}
-              value={finalPrice ?? Math.round(calculatedPrice)}
-              onChange={e => setFinalPrice(Number(e.target.value))}
-              className="w-24 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right"
-            />
+      <div className="bg-nex-dark border border-nex-ink/10 rounded-xl p-5">
+        <h3 className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.15em] mb-4">Ajuste de precio final</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between font-jost text-sm">
+            <span className="text-nex-grey">Precio calculado</span>
+            <span className="text-nex-white font-dm-mono">{fmt(calculatedPrice)}</span>
           </div>
-          {finalPrice !== null && (
-            <button
-              onClick={() => setFinalPrice(null)}
-              className="font-jost text-xs text-nex-grey hover:text-nex-white transition-colors"
-            >
-              reset
-            </button>
-          )}
           {specialDiscount > 0 && (
-            <span className="font-jost text-xs text-nex-green">
-              Descuento de {fmt(specialDiscount)} aplicado
-            </span>
+            <div className="flex justify-between font-jost text-sm">
+              <span className="text-nex-green">Descuento especial</span>
+              <span className="text-nex-green font-dm-mono">−{fmt(specialDiscount)}</span>
+            </div>
           )}
+          <div className="border-t border-nex-ink/10 pt-2 flex items-center justify-between">
+            <span className="font-jost text-sm font-bold text-nex-white">TOTAL</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-nex-black border border-nex-ink/10 rounded-lg px-3 py-1.5 focus-within:border-nex-green/50 transition-colors">
+                <span className="font-dm-mono text-xs text-nex-grey">{currency}</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={finalPrice ?? Math.round(calculatedPrice)}
+                  onChange={e => setFinalPrice(Number(e.target.value))}
+                  className="w-24 bg-transparent font-dm-mono text-sm text-nex-white outline-none text-right font-bold"
+                />
+              </div>
+              {finalPrice !== null && (
+                <button
+                  onClick={() => setFinalPrice(null)}
+                  className="font-jost text-[10px] text-nex-grey hover:text-nex-white transition-colors shrink-0"
+                >
+                  reset
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

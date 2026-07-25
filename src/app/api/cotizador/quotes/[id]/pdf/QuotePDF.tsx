@@ -1,7 +1,7 @@
 import React from 'react'
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
 
-const BRAND  = '#22b561'
+const BRAND  = '#15803d'
 const DARK   = '#111111'
 const MID    = '#F2F2F2'
 const GREY   = '#666666'

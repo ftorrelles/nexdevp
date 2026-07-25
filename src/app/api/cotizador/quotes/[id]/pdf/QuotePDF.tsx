@@ -1,49 +1,51 @@
 import React from 'react'
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
 
-const BRAND = '#00E472'
-const DARK  = '#1A1A1A'
-const MID   = '#2A2A2A'
-const GREY  = '#888888'
-const WHITE = '#FFFFFF'
+const BRAND  = '#00E472'
+const DARK   = '#111111'
+const MID    = '#F2F2F2'
+const GREY   = '#666666'
+const WHITE  = '#FFFFFF'
+const LIGHT  = '#F8F8F8'
+const BORDER = '#DDDDDD'
 
 const s = StyleSheet.create({
-  page:      { backgroundColor: DARK, color: WHITE, fontFamily: 'Helvetica', padding: '40pt 44pt' },
+  page:      { backgroundColor: WHITE, color: DARK, fontFamily: 'Helvetica', padding: '40pt 44pt' },
   header:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 },
-  brand:     { fontSize: 20, color: BRAND, fontFamily: 'Helvetica-Bold', letterSpacing: 1 },
   tagline:   { fontSize: 8, color: GREY, marginTop: 3, letterSpacing: 2 },
   docLabel:  { fontSize: 8, color: GREY, letterSpacing: 2, textAlign: 'right' },
-  docId:     { fontSize: 10, color: WHITE, marginTop: 4, textAlign: 'right', fontFamily: 'Helvetica-Bold' },
+  docId:     { fontSize: 10, color: DARK, marginTop: 4, textAlign: 'right', fontFamily: 'Helvetica-Bold' },
   docDate:   { fontSize: 8, color: GREY, marginTop: 2, textAlign: 'right' },
-  divider:   { borderBottomWidth: 1, borderBottomColor: '#333333', marginBottom: 24 },
-  titleText: { fontSize: 18, color: WHITE, fontFamily: 'Helvetica-Bold', marginBottom: 6 },
+  divider:   { borderBottomWidth: 1, borderBottomColor: BORDER, marginBottom: 24 },
+  titleText: { fontSize: 18, color: DARK, fontFamily: 'Helvetica-Bold', marginBottom: 6 },
   meta:      { fontSize: 9, color: GREY, letterSpacing: 0.5 },
   sectionHd: { fontSize: 7, color: BRAND, letterSpacing: 2, marginBottom: 8, fontFamily: 'Helvetica-Bold' },
   section:   { marginBottom: 24 },
-  tableHdRow:{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#333333', paddingBottom: 6, marginBottom: 2 },
-  tableRow:  { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#2D2D2D', paddingVertical: 7 },
-  colName:   { flex: 1, fontSize: 9, color: WHITE },
+  tableHdRow:{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: BORDER, paddingBottom: 6, marginBottom: 2 },
+  tableRow:  { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#EEEEEE', paddingVertical: 7 },
+  colName:   { flex: 1, fontSize: 9, color: DARK },
   colNameHd: { flex: 1, fontSize: 7, color: GREY, letterSpacing: 1 },
   logo:      { width: 120, height: 32, objectFit: 'contain' },
-  colHrs:    { width: 40, fontSize: 9, color: WHITE, textAlign: 'right', fontFamily: 'Helvetica-Bold' },
-  colHrsHd:  { width: 40, fontSize: 7, color: GREY, letterSpacing: 1, textAlign: 'right' },
-  ohRow:     { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: '#222222' },
+  colHrs:    { width: 50, fontSize: 9, color: DARK, textAlign: 'right', fontFamily: 'Helvetica-Bold' },
+  colHrsHd:  { width: 50, fontSize: 7, color: GREY, letterSpacing: 1, textAlign: 'right' },
+  partRow:   { flexDirection: 'row', paddingLeft: 14, paddingVertical: 2 },
+  partBullet:{ width: 10, fontSize: 8, color: '#999999' },
+  partText:  { flex: 1, fontSize: 8, color: '#999999' },
+  ohRow:     { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: '#EEEEEE' },
   ohLabel:   { fontSize: 9, color: GREY },
-  ohValue:   { fontSize: 9, color: WHITE, fontFamily: 'Helvetica-Bold' },
+  ohValue:   { fontSize: 9, color: DARK, fontFamily: 'Helvetica-Bold' },
   totalRow:  { flexDirection: 'row', justifyContent: 'space-between', paddingTop: 8 },
-  totalLabel:{ fontSize: 10, color: WHITE, fontFamily: 'Helvetica-Bold' },
+  totalLabel:{ fontSize: 10, color: DARK, fontFamily: 'Helvetica-Bold' },
   totalValue:{ fontSize: 10, color: BRAND, fontFamily: 'Helvetica-Bold' },
   cards:     { flexDirection: 'row', gap: 12, marginBottom: 24 },
-  cardMain:  { flex: 1, backgroundColor: '#1E1E1E', borderWidth: 1, borderColor: '#333333', borderRadius: 8, padding: 14 },
-  cardSec:   { flex: 1, backgroundColor: MID, borderWidth: 1, borderColor: '#333333', borderRadius: 8, padding: 14 },
+  cardSec:   { flex: 1, backgroundColor: LIGHT, borderWidth: 1, borderColor: BORDER, borderRadius: 8, padding: 14 },
   cardLabel: { fontSize: 7, color: GREY, letterSpacing: 1.5, marginBottom: 6 },
-  cardMainV: { fontSize: 20, color: BRAND, fontFamily: 'Helvetica-Bold' },
-  cardSecV:  { fontSize: 16, color: WHITE, fontFamily: 'Helvetica-Bold' },
-  notesBox:  { backgroundColor: MID, borderRadius: 6, padding: 12 },
+  cardSecV:  { fontSize: 16, color: DARK, fontFamily: 'Helvetica-Bold' },
+  notesBox:  { backgroundColor: LIGHT, borderRadius: 6, padding: 12 },
   notesText: { fontSize: 9, color: GREY, lineHeight: 1.5 },
   footer:    { position: 'absolute', bottom: 28, left: 44, right: 44, flexDirection: 'row', justifyContent: 'space-between' },
-  footerL:   { fontSize: 7, color: '#555555' },
-  footerR:   { fontSize: 7, color: '#555555' },
+  footerL:   { fontSize: 7, color: '#AAAAAA' },
+  footerR:   { fontSize: 7, color: '#AAAAAA' },
 })
 
 const REGION_LABEL: Record<string, string> = {
@@ -70,7 +72,7 @@ export interface QuotePDFProps {
   maint_month:      number
   notes:            string | null
   created_at:       string | null
-  items:            Array<{ name: string; size?: string | null; hours?: number | null; gift?: boolean }>
+  items:            Array<{ name: string; size?: string | null; hours?: number | null; gift?: boolean; parts?: string[] | null }>
   currency:         string
   overhead_pm:      number
   overhead_qa:      number
@@ -135,9 +137,17 @@ export function QuotePDF({
             {showHours && <Text style={s.colHrsHd}>HORAS</Text>}
           </View>
           {billedItems.map((item, idx) => (
-            <View key={idx} style={s.tableRow}>
-              <Text style={s.colName}>{item.name}</Text>
-              {showHours && <Text style={s.colHrs}>{item.hours ?? 0}h</Text>}
+            <View key={idx}>
+              <View style={s.tableRow}>
+                <Text style={s.colName}>{item.name}</Text>
+                {showHours && <Text style={s.colHrs}>{item.hours ?? 0}h</Text>}
+              </View>
+              {(item.parts ?? []).length > 0 && item.parts!.map((part, pi) => (
+                <View key={pi} style={s.partRow}>
+                  <Text style={s.partBullet}>•  </Text>
+                  <Text style={s.partText}>{part}</Text>
+                </View>
+              ))}
             </View>
           ))}
           {giftItems.length > 0 && (
@@ -185,7 +195,7 @@ export function QuotePDF({
         )}
 
         {/* Invoice-style price summary */}
-        <View style={{ ...s.section, borderWidth: 1, borderColor: '#333333', borderRadius: 8, padding: 16 }}>
+        <View style={{ ...s.section, borderWidth: 1, borderColor: BORDER, borderRadius: 8, padding: 16 }}>
           <Text style={{ ...s.sectionHd, marginBottom: 12 }}>RESUMEN DE INVERSIÓN</Text>
 
           <View style={s.ohRow}>
@@ -200,8 +210,8 @@ export function QuotePDF({
             </View>
           )}
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#444444', marginTop: 6, paddingTop: 10 }}>
-            <Text style={{ fontSize: 12, color: WHITE, fontFamily: 'Helvetica-Bold' }}>INVERSIÓN TOTAL</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: BORDER, marginTop: 6, paddingTop: 10 }}>
+            <Text style={{ fontSize: 12, color: DARK, fontFamily: 'Helvetica-Bold' }}>INVERSIÓN TOTAL</Text>
             <Text style={{ fontSize: 14, color: BRAND, fontFamily: 'Helvetica-Bold' }}>{fmt(total_price)}</Text>
           </View>
         </View>

@@ -62,11 +62,12 @@ export async function GET(
     maint_month:      view.maint_month,
     notes:            quote.notes ?? null,
     created_at:       quote.created_at ?? null,
-    items:            items.map((i: { name: string; size?: string; hours?: number; gift?: boolean }) => ({
+    items:            items.map((i: { name: string; size?: string; hours?: number; gift?: boolean; parts?: string[] | null }) => ({
       name:  i.name,
       size:  i.size,
       hours: i.hours,
       gift:  i.gift ?? false,
+      parts: i.parts ?? [],
     })),
     currency:    view.currency,
     overhead_pm: view.pm_percentage,

@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     if (quote) {
       const { data: items } = await client
         .from('quote_items')
-        .select('id, name, hours, sort_order')
+        .select('id, name, hours, sort_order, parts')
         .eq('quote_id', quote.id)
         .order('sort_order', { ascending: true })
 
@@ -138,12 +138,32 @@ export async function POST(req: NextRequest) {
           seeded_from_quote_item_id: item.id,
         }))
 
-        const { error: delErr } = await client
+        const { data: created, error: delErr } = await client
           .from('project_deliverables')
           .insert(deliverables)
+          .select('id, seeded_from_quote_item_id')
 
         if (delErr) {
           console.error('Deliverables seed error:', delErr)
+        }
+
+        // Carry the breakdown across: it is what the client was charged for
+        // and what the developer has to build. Without this the detail dies
+        // exactly when the quote becomes work.
+        const partRows = (created ?? []).flatMap((deliverable) => {
+          const item = items.find(i => i.id === deliverable.seeded_from_quote_item_id)
+          return ((item?.parts ?? []) as string[]).map((name, idx) => ({
+            deliverable_id: deliverable.id,
+            name,
+            sort_order: idx,
+          }))
+        })
+
+        if (partRows.length > 0) {
+          const { error: partsErr } = await client
+            .from('project_deliverable_parts')
+            .insert(partRows)
+          if (partsErr) console.error('Deliverable parts seed error:', partsErr)
         }
       }
     }

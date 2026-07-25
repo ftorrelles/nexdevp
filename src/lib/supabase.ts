@@ -91,6 +91,22 @@ export interface ProjectDeliverable {
   sort_order?: number
   created_at?: string
   updated_at?: string
+  parts?: DeliverablePart[]
+}
+
+/**
+ * One item of a deliverable's breakdown. The client approves the deliverable as
+ * a whole; these are what the developer actually builds and ticks off, and they
+ * carry no hours of their own — the deliverable holds the economic weight.
+ */
+export interface DeliverablePart {
+  id?:            string
+  deliverable_id: string
+  name:           string
+  done:           boolean
+  done_at?:       string | null
+  done_by?:       string | null
+  sort_order:     number
 }
 
 export interface BriefTemplate {

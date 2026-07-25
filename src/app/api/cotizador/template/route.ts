@@ -74,6 +74,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     console.error('pricing_settings error:', settingsRes.error)
     return NextResponse.json({ error: 'Error al cargar configuración.' }, { status: 500 })
   }
+  // A failed template/add-on query must not silently degrade into an empty
+  // catalog — that reads as "this product has no add-ons" and hides the bug.
+  if (templateRes.error || addonsRes.error) {
+    console.error('template error:', templateRes.error, 'addons error:', addonsRes.error)
+    return NextResponse.json({ error: 'Error al cargar la plantilla del producto.' }, { status: 500 })
+  }
 
   type JoinRow = {
     sort_order:     number

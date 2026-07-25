@@ -1,7 +1,7 @@
 import React from 'react'
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
 
-const BRAND  = '#00E472'
+const BRAND  = '#22b561'
 const DARK   = '#111111'
 const MID    = '#F2F2F2'
 const GREY   = '#666666'
@@ -247,7 +247,7 @@ export function QuotePDF({
         {/* Footer */}
         <View style={s.footer} fixed>
           <Text style={s.footerL}>nexdevp — Ingeniería de Software &amp; IA</Text>
-          <Text style={s.footerR}>Este documento es una estimación referencial.</Text>
+          {/* footer-right removed */}
         </View>
 
       </Page>

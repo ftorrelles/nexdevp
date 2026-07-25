@@ -46,8 +46,8 @@ export async function GET(
   // Render from the FROZEN snapshot, never from current pricing settings.
   const view = effectiveQuoteView(quote)
 
-  const logoPath   = join(process.cwd(), 'public', 'brand', 'Logo.png')
-  const logoBase64 = `data:image/png;base64,${readFileSync(logoPath).toString('base64')}`
+  const logoPath   = join(process.cwd(), 'public', 'brand', 'logo-light.svg')
+  const logoBase64 = `data:image/svg+xml;base64,${readFileSync(logoPath).toString('base64')}`
 
   const element = React.createElement(QuotePDF, {
     logoUrl: logoBase64,

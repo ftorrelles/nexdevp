@@ -11,7 +11,9 @@ interface CatalogRow {
   size:        QuoteSize
   base_hours:  number | null
   complexity:  string | null
+  repeatable:  boolean
   sort_order:  number
+  quote_catalog_parts?: { name: string; sort_order: number }[] | null
 }
 
 /**
@@ -28,6 +30,10 @@ function toItem(row: CatalogRow, hoursOverride: number | null, sortOrder: number
     size:        row.size,
     hours:       hoursOverride ?? row.base_hours ?? 0,
     complexity:  row.complexity,
+    repeatable:  row.repeatable,
+    parts:       [...(row.quote_catalog_parts ?? [])]
+                   .sort((a, b) => a.sort_order - b.sort_order)
+                   .map(p => p.name),
     sort_order:  sortOrder,
   }
 }
@@ -48,7 +54,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const product = searchParams.get('product')
 
   const client = createServiceClient()
-  const CATALOG_FIELDS = 'id, name, description, category, size, base_hours, complexity, sort_order'
+  const CATALOG_FIELDS =
+    'id, name, description, category, size, base_hours, complexity, repeatable, sort_order, quote_catalog_parts(name, sort_order)'
 
   const [settingsRes, sizesRes, templateRes, addonsRes] = await Promise.all([
     client.from('pricing_settings').select('*').order('region'),

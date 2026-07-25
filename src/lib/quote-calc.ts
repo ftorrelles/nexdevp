@@ -99,6 +99,8 @@ export interface SnapshotItemInput {
   hours?:       number | null
   /** Product this line belongs to, so multi-product quotes stay grouped. */
   product?:     string | null
+  /** What the line includes. Descriptive — it does not split the price. */
+  parts?:       string[] | null
 }
 
 /** Builds the immutable per-item snapshot list stored as JSONB on the quote. */
@@ -113,6 +115,7 @@ export function buildItemsSnapshot(
     description:      it.description ?? null,
     category:         it.category ?? null,
     product:          it.product ?? null,
+    parts:            it.parts ?? [],
     size:             it.size ?? null,
     hours:            it.hours ?? 0,
     calculated_price: (it.hours ?? 0) * hourlyRate,

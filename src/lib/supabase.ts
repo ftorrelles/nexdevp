@@ -203,6 +203,10 @@ export interface QuoteCatalogItem {
   complexity?:  QuoteComplexity | string | null
   /** Resolved hours for this product (template override ?? base_hours). */
   hours?:       number
+  /** Can be added more than once — a custom app has several complex modules. */
+  repeatable?:  boolean
+  /** What the item contains. Descriptive: it does not split the price. */
+  parts?:       string[]
   sort_order:   number
 }
 
@@ -218,6 +222,8 @@ export interface QuoteItem {
   product?:   string | null
   /** Complexity tier, only set on generic "módulo funcional" lines. */
   complexity?: QuoteComplexity | string | null
+  /** What this line includes — shown to the client, not priced separately. */
+  parts?:      string[]
   // Snapshot fields (frozen at save time, independent of catalog edits)
   description?:      string | null
   category?:         string | null
@@ -289,6 +295,7 @@ export interface QuoteItemSnapshot {
   description:      string | null
   category:         string | null
   product?:         string | null
+  parts?:           string[]
   size:             QuoteSize | null
   hours:            number
   calculated_price: number

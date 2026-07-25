@@ -90,6 +90,16 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
 
   // Which group currently has its "add" panel open
   const [addPanel, setAddPanel] = useState<string | null>(null)
+  // Line indexes whose breakdown is expanded
+  const [expanded, setExpanded] = useState<Set<number>>(new Set())
+
+  function toggleExpanded(idx: number) {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(idx)) next.delete(idx); else next.add(idx)
+      return next
+    })
+  }
 
   // ── Derived ─────────────────────────────────────────────────────────────────
   const isBundle      = products.length >= 2
@@ -215,6 +225,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
               hours:      ci.hours ?? 0,
               category:   ci.category,
               complexity: ci.complexity ?? null,
+              parts:      ci.parts ?? [],
               product:    perProduct ? products[i] : null,
               sort_order: order++,
             })
@@ -279,6 +290,7 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
       hours:      addon.hours ?? addon.base_hours ?? 0,
       category:   addon.category,
       complexity: addon.complexity ?? null,
+      parts:      addon.parts ?? [],
       product:    product === SHARED ? null : product,
       sort_order: prev.length,
       gift,
@@ -643,6 +655,9 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                   {groups.map(group => {
                     const groupHours = group.entries.reduce((acc, e) => acc + (e.item.hours ?? 0), 0)
                     const available  = group.key === SHARED ? [] : (addonsByProduct[group.key] ?? [])
+                    // Only single-use items get blocked once added. A custom app
+                    // legitimately has several complex modules, and a site can
+                    // buy three extra pages.
                     const usedIds    = new Set(items.map(i => i.catalog_id).filter(Boolean))
                     const isOpen     = addPanel === group.key
 
@@ -661,10 +676,11 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                           <div
                             key={idx}
                             className={[
-                              'flex items-center gap-3 border rounded-lg px-4 py-3',
+                              'border rounded-lg px-4 py-3',
                               item.gift ? 'bg-nex-green/5 border-nex-green/20' : 'bg-nex-black border-nex-ink/5',
                             ].join(' ')}
                           >
+                          <div className="flex items-center gap-3">
                             {item.gift ? (
                               <span className="font-dm-mono text-[10px] font-bold uppercase rounded border px-2 py-0.5 shrink-0 text-nex-green border-nex-green/40 bg-nex-green/10">
                                 🎁
@@ -690,6 +706,15 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                               onChange={e => updateItemName(idx, e.target.value)}
                               className="flex-1 bg-transparent font-jost text-sm text-nex-white outline-none min-w-0"
                             />
+                            {(item.parts?.length ?? 0) > 0 && (
+                              <button
+                                onClick={() => toggleExpanded(idx)}
+                                title="Ver qué incluye"
+                                className="font-dm-mono text-[10px] text-nex-grey hover:text-nex-green transition-colors shrink-0"
+                              >
+                                {expanded.has(idx) ? '▾' : '▸'} {item.parts!.length}
+                              </button>
+                            )}
                             {item.gift && (
                               <span className="font-dm-mono text-[9px] text-nex-green uppercase tracking-wider shrink-0">
                                 sin cargo
@@ -723,6 +748,20 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                               ×
                             </button>
                           </div>
+
+                          {/* What the line includes. Descriptive only — the
+                              hours above cover the whole module. */}
+                          {expanded.has(idx) && (item.parts?.length ?? 0) > 0 && (
+                            <ul className="mt-2.5 pt-2.5 border-t border-nex-ink/5 space-y-1">
+                              {item.parts!.map(part => (
+                                <li key={part} className="flex items-start gap-2 font-jost text-[11px] text-nex-grey">
+                                  <span className="text-nex-green/50 mt-px">·</span>
+                                  <span>{part}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          </div>
                         ))}
 
                         {/* Add panel — only the add-ons that make sense for this product */}
@@ -739,36 +778,46 @@ export function QuoteWizard({ initialLeadId }: WizardProps = {}) {
                               <div className="mt-2 bg-nex-black border border-nex-ink/10 rounded-xl p-3 space-y-1 max-h-72 overflow-y-auto">
                                 {available.length > 0 ? (
                                   available.map(addon => {
-                                    const already = usedIds.has(addon.id)
+                                    const already = !addon.repeatable && usedIds.has(addon.id)
                                     return (
                                       <div
                                         key={addon.id}
                                         className={[
-                                          'flex items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+                                          'flex items-start gap-2 rounded-lg px-3 py-2 transition-colors',
                                           already ? 'opacity-40' : 'hover:bg-nex-dark',
                                         ].join(' ')}
                                       >
                                         <button
                                           disabled={already}
                                           onClick={() => addCatalogItem(group.key, addon)}
-                                          className="flex-1 flex items-center gap-2 text-left disabled:cursor-not-allowed min-w-0"
+                                          className="flex-1 text-left disabled:cursor-not-allowed min-w-0"
                                         >
-                                          <span className={[
-                                            'font-dm-mono text-[9px] font-bold uppercase rounded border px-1.5 py-0.5 shrink-0',
-                                            SIZE_COLORS[addon.size],
-                                          ].join(' ')}>
-                                            {addon.size}
+                                          <span className="flex items-center gap-2">
+                                            <span className={[
+                                              'font-dm-mono text-[9px] font-bold uppercase rounded border px-1.5 py-0.5 shrink-0',
+                                              SIZE_COLORS[addon.size],
+                                            ].join(' ')}>
+                                              {addon.size}
+                                            </span>
+                                            <span className="font-jost text-xs text-nex-white truncate">{addon.name}</span>
+                                            {addon.repeatable && (
+                                              <span className="font-dm-mono text-[9px] text-nex-grey/60 shrink-0">×n</span>
+                                            )}
+                                            <span className="font-dm-mono text-[10px] text-nex-grey shrink-0 ml-auto">
+                                              {addon.hours ?? addon.base_hours}h
+                                            </span>
                                           </span>
-                                          <span className="font-jost text-xs text-nex-white truncate">{addon.name}</span>
-                                          <span className="font-dm-mono text-[10px] text-nex-grey shrink-0 ml-auto">
-                                            {addon.hours ?? addon.base_hours}h
-                                          </span>
+                                          {addon.description && (
+                                            <span className="block font-jost text-[10px] text-nex-grey/70 mt-0.5 pl-8 truncate">
+                                              {addon.description}
+                                            </span>
+                                          )}
                                         </button>
                                         <button
                                           disabled={already}
                                           onClick={() => addCatalogItem(group.key, addon, true)}
                                           title="Agregar como regalo"
-                                          className="text-xs shrink-0 text-nex-grey hover:text-nex-green transition-colors disabled:cursor-not-allowed"
+                                          className="text-xs shrink-0 text-nex-grey hover:text-nex-green transition-colors disabled:cursor-not-allowed mt-0.5"
                                         >
                                           🎁
                                         </button>

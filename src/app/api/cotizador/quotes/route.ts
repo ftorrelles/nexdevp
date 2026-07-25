@@ -122,6 +122,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     description: it.description ?? null,
     category:    it.category ?? null,
     product:     it.product ?? null,
+    parts:       it.parts ?? [],
     size:        it.size ?? null,
     hours:       it.hours,
   }))
@@ -170,6 +171,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       description:      it.description,
       category:         it.category,
       product:          it.product ?? null,
+      parts:            it.parts ?? [],
       calculated_price: it.calculated_price,
       is_custom:        it.is_custom,
       catalog_version:  it.catalog_version,

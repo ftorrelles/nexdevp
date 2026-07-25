@@ -1,33 +1,34 @@
 import type { MetadataRoute } from 'next'
+import { routing } from '@/i18n/routing'
+import { getPublishedCases } from '@/content/case-studies'
 import { SITE_URL } from '@/lib/constants'
+import type { Locale } from '@/content/types'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date()
+  const locales = [...routing.locales] as Locale[]
+  const cases = getPublishedCases()
+  const entries: MetadataRoute.Sitemap = []
 
-  return [
-    {
-      url: `${SITE_URL}/es`,
-      lastModified,
-      changeFrequency: 'weekly',
+  for (const locale of locales) {
+    entries.push({
+      url: `${SITE_URL}/${locale}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
       priority: 1,
-      alternates: {
-        languages: {
-          es: `${SITE_URL}/es`,
-          en: `${SITE_URL}/en`,
-        },
-      },
-    },
-    {
-      url: `${SITE_URL}/en`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-      alternates: {
-        languages: {
-          es: `${SITE_URL}/es`,
-          en: `${SITE_URL}/en`,
-        },
-      },
-    },
-  ]
+    })
+  }
+
+  for (const caseStudy of cases) {
+    for (const locale of locales) {
+      const slug = caseStudy.slugMap[locale]
+      entries.push({
+        url: `${SITE_URL}/${locale}/casos/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.8,
+      })
+    }
+  }
+
+  return entries
 }

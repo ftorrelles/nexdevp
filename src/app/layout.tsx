@@ -4,13 +4,11 @@ import { Cormorant_Garamond, DM_Mono, Jost } from 'next/font/google'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 
-// Applies the stored theme before hydration, only within logged-in areas,
-// to avoid a flash of the wrong theme. Mirrors the scope check in ThemeProvider.
 const THEME_INIT_SCRIPT = `
 (function() {
   try {
     var p = window.location.pathname;
-    var authed = p.indexOf('/admin') === 0 || /^\\/(es|en)\\/proyecto(\\/|$)/.test(p) || /^\\/(es|en)\\/careers\\/portal(\\/|$)/.test(p);
+    var authed = p.indexOf('/admin') === 0 || /^\/(es|en)\/proyecto(\/|$)/.test(p) || /^\/(es|en)\/careers\/portal(\/|$)/.test(p);
     if (authed && localStorage.getItem('nex-theme') === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
     }
@@ -53,7 +51,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="bg-nex-black text-nex-white antialiased">
         <ThemeProvider>{children}</ThemeProvider>
 
-        {/* Meta Pixel — carga después de que la página es interactiva */}
         <Script
           id="meta-pixel"
           strategy="afterInteractive"
@@ -72,7 +69,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             `,
           }}
         />
-        {/* Fallback para navegadores sin JavaScript */}
         <noscript>
           <img
             height="1"

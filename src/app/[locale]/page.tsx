@@ -1,4 +1,6 @@
+import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
+import { buildMetadata, buildOrganizationSchema, buildServiceSchema } from '@/lib/seo'
 import type { Locale } from '@/content/types'
 import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/sections/Hero'
@@ -17,26 +19,45 @@ type Props = {
   params: Promise<{ locale: string }>
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  return buildMetadata(locale as Locale, 'home')
+}
+
 export default async function HomePage({ params }: Props) {
   const { locale } = await params
   setRequestLocale(locale as Locale)
+
+  const orgSchema = buildOrganizationSchema(locale as Locale)
+  const serviceSchema = buildServiceSchema([], locale as Locale)
+
   return (
-    <main>
-      <Navbar locale={locale as Locale} />
-      <Hero />
-      <BeforeAfter />
-      <Pillars />
-      <Methodology />
-      <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
-      <DemoSection />
-      <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
-      <CasosExito />
-      <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
-      <Portfolio />
-      <Stats />
-      <CtaFinal />
-      <JoinUs locale={locale as Locale} />
-      <Footer locale={locale as Locale} />
-    </main>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
+      <main>
+        <Navbar locale={locale as Locale} />
+        <Hero />
+        <BeforeAfter />
+        <Pillars />
+        <Methodology />
+        <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
+        <DemoSection />
+        <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
+        <CasosExito />
+        <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
+        <Portfolio />
+        <Stats />
+        <CtaFinal />
+        <JoinUs locale={locale as Locale} />
+        <Footer locale={locale as Locale} />
+      </main>
+    </>
   )
 }

@@ -197,23 +197,23 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
           <section>
             <h2 className="font-jost font-bold text-lg text-nex-white mb-4">Ganancias por persona</h2>
             <div className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
-              <div className="grid grid-cols-[1fr_auto_auto_auto] text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-5 py-3 border-b border-nex-ink/5">
+              <div className="grid grid-cols-[1fr_3.5rem_6.5rem_5.5rem] text-[10px] font-dm-mono uppercase tracking-[0.1em] text-nex-grey px-5 py-3 border-b border-nex-ink/5">
                 <span>Persona</span>
-                <span className="px-4 text-right">Fases</span>
-                <span className="px-4 text-right">Proyectado</span>
-                <span className="px-4 text-right">Ganado</span>
+                <span className="text-right">Fases</span>
+                <span className="text-right">Proyectado</span>
+                <span className="text-right">Ganado</span>
               </div>
               {byPerson.map(p => (
                 <div
                   key={p.user_id ?? 'sin-asignar'}
-                  className="grid grid-cols-[1fr_auto_auto_auto] items-center border-b border-nex-ink/5 px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
+                  className="grid grid-cols-[1fr_3.5rem_6.5rem_5.5rem] items-center border-b border-nex-ink/5 px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
                 >
                   <span className="font-jost text-sm text-nex-white truncate">
                     {p.user_id ? (userMap[p.user_id] ?? p.user_id) : 'Sin asignar'}
                   </span>
-                  <span className="font-dm-mono text-xs text-nex-grey px-4 text-right">{p.phases}</span>
-                  <span className="font-jost text-sm text-nex-grey px-4 text-right">{fmt(p.projected)}</span>
-                  <span className="font-jost text-sm font-bold text-nex-green px-4 text-right">{fmt(p.earned)}</span>
+                  <span className="font-dm-mono text-xs text-nex-grey text-right">{p.phases}</span>
+                  <span className="font-jost text-sm text-nex-grey text-right">{fmt(p.projected)}</span>
+                  <span className="font-jost text-sm font-bold text-nex-green text-right">{fmt(p.earned)}</span>
                 </div>
               ))}
             </div>
@@ -278,11 +278,11 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
                               { label: `Desarrollo ${pct(split.dev_rate)}`,      value: split.dev_pool,          dot: 'bg-nex-green' },
                             ].map(s => (
                               <div key={s.label}>
-                                <p className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey flex items-center gap-1.5">
-                                  <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-                                  {s.label}
-                                </p>
-                                <p className="font-jost text-sm text-nex-white mt-0.5">{fmt(s.value, currency)}</p>
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className={`w-2 h-2 rounded-full shrink-0 ${s.dot}`} />
+                                  <p className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey leading-none">{s.label}</p>
+                                </div>
+                                <p className="font-jost text-sm text-nex-white pl-3.5">{fmt(s.value, currency)}</p>
                               </div>
                             ))}
                           </div>

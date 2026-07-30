@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase'
 import type { UserRole, CommissionType } from '@/lib/supabase'
@@ -10,22 +9,13 @@ import {
   computeDeliverablePayouts, groupEarningsByPerson,
   type BudgetSettings, type BudgetSplit, type DeliverablePayout,
 } from '@/lib/budget'
+import { ProjectBudgetCard } from './ProjectBudgetCard'
 
 const REGION_CURRENCY: Record<string, string> = { españa: 'EUR', eeuu: 'USD', latam: 'USD' }
-
-const COMMISSION_LABEL: Record<CommissionType, string> = {
-  nexdevp_pool: 'Lead del pool',
-  own_lead:     'Lead propio',
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  activo: 'Activo', pausado: 'Pausado', entregado: 'Entregado', cerrado: 'Cerrado',
-}
 
 function fmt(n: number, currency = 'EUR') {
   return n.toLocaleString('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 })
 }
-const pct = (r: number) => `${Math.round(r * 1000) / 10}%`
 
 interface DeliverableRow {
   id: string; name: string; status: string; hours: number
@@ -71,7 +61,6 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
   const settings: BudgetSettings = settingsRow ?? DEFAULT_BUDGET_SETTINGS
   const projects = (rawProjects ?? []) as unknown as ProjectRow[]
 
-  // Staff need every name for the breakdown; a developer only needs their own.
   let userMap: Record<string, string> = {}
   if (isStaff) {
     const { data: { users } } = await client.auth.admin.listUsers()
@@ -80,8 +69,6 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
     userMap = { [user.id]: user.email ?? user.id }
   }
 
-  // Resolve each project's split from its own frozen rates, falling back to the
-  // current defaults for projects created before this existed.
   const analysed = projects.map(p => {
     const commissionType: CommissionType =
       p.commission_type_snapshot ??
@@ -101,7 +88,7 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
     const contractValue = Number(
       p.contract_value ?? p.quotes?.total_snapshot ?? p.quotes?.total_price ?? 0,
     )
-    const split: BudgetSplit = computeBudgetSplit(contractValue, rates)
+    const split: BudgetSplit         = computeBudgetSplit(contractValue, rates)
     const payouts: DeliverablePayout[] = computeDeliverablePayouts(p.project_deliverables ?? [], split)
 
     return {
@@ -154,10 +141,10 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
         {isStaff ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Contratado',       value: totalContract,   accent: false },
-              { label: 'Comisiones',       value: totalCommission, accent: false },
-              { label: 'Margen empresa',   value: totalMargin,     accent: false },
-              { label: 'Pozo desarrollo',  value: totalDevPool,    accent: true  },
+              { label: 'Contratado',      value: totalContract,   accent: false },
+              { label: 'Comisiones',      value: totalCommission, accent: false },
+              { label: 'Margen empresa',  value: totalMargin,     accent: false },
+              { label: 'Pozo desarrollo', value: totalDevPool,    accent: true  },
             ].map(card => (
               <div
                 key={card.label}
@@ -236,88 +223,19 @@ export default async function BudgetPage(): Promise<React.JSX.Element> {
             </div>
           ) : (
             <div className="space-y-4">
-              {visible.map(({ project: p, split, payouts, currency, frozen }) => {
-                const mine = isStaff ? payouts : payouts.filter(x => x.assigned_to === user.id)
-                return (
-                  <div key={p.id} className="bg-nex-dark border border-nex-ink/10 rounded-xl overflow-hidden">
-                    <div className="px-5 py-4 border-b border-nex-ink/5">
-                      <div className="flex items-start justify-between gap-4 flex-wrap">
-                        <div className="min-w-0">
-                          <Link
-                            href={`/admin/proyectos/${p.id}`}
-                            className="font-jost font-bold text-sm text-nex-white hover:text-nex-green transition-colors"
-                          >
-                            {p.name}
-                          </Link>
-                          <p className="font-jost text-xs text-nex-grey mt-0.5">
-                            {p.leads?.nombre ?? 'Sin lead'} · {STATUS_LABEL[p.status] ?? p.status}
-                            {' · '}
-                            {COMMISSION_LABEL[split.commission_type]}
-                            {!frozen && (
-                              <span className="text-nex-grey/50"> · reparto estimado</span>
-                            )}
-                          </p>
-                        </div>
-                        <p className="font-jost font-bold text-lg text-nex-white shrink-0">
-                          {fmt(split.contract_value, currency)}
-                        </p>
-                      </div>
-
-                      {/* The split, staff only */}
-                      {isStaff && split.contract_value > 0 && (
-                        <>
-                          <div className="flex h-1.5 rounded-full overflow-hidden mt-4 bg-nex-ink/10">
-                            <div style={{ width: `${split.commission_rate * 100}%` }} className="bg-blue-400" />
-                            <div style={{ width: `${split.margin_rate * 100}%` }} className="bg-yellow-400" />
-                            <div style={{ width: `${split.dev_rate * 100}%` }} className="bg-nex-green" />
-                          </div>
-                          <div className="grid grid-cols-3 gap-3 mt-3">
-                            {[
-                              { label: `Comisión ${pct(split.commission_rate)}`, value: split.commission_amount, dot: 'bg-blue-400' },
-                              { label: `Empresa ${pct(split.margin_rate)}`,      value: split.margin_amount,     dot: 'bg-yellow-400' },
-                              { label: `Desarrollo ${pct(split.dev_rate)}`,      value: split.dev_pool,          dot: 'bg-nex-green' },
-                            ].map(s => (
-                              <div key={s.label}>
-                                <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className={`w-2 h-2 rounded-full shrink-0 ${s.dot}`} />
-                                  <p className="font-dm-mono text-[9px] uppercase tracking-wider text-nex-grey leading-none">{s.label}</p>
-                                </div>
-                                <p className="font-jost text-sm text-nex-white pl-3.5">{fmt(s.value, currency)}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Phases */}
-                    {mine.length > 0 && (
-                      <div className="divide-y divide-nex-ink/5">
-                        {mine.map(x => (
-                          <div key={x.deliverable_id} className="flex items-center gap-3 px-5 py-2.5">
-                            <span className={[
-                              'w-1.5 h-1.5 rounded-full shrink-0',
-                              x.earned ? 'bg-nex-green' : 'bg-nex-ink/30',
-                            ].join(' ')} />
-                            <span className="font-jost text-xs text-nex-white flex-1 truncate">{x.name}</span>
-                            {isStaff && (
-                              <span className="font-jost text-[10px] text-nex-grey shrink-0 hidden sm:block max-w-[160px] truncate">
-                                {x.assigned_to ? (userMap[x.assigned_to] ?? x.assigned_to) : 'Sin asignar'}
-                              </span>
-                            )}
-                            <span className={[
-                              'font-jost text-xs shrink-0 w-24 text-right',
-                              x.earned ? 'font-bold text-nex-green' : 'text-nex-grey',
-                            ].join(' ')}>
-                              {fmt(x.payout, currency)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+              {visible.map(({ project: p, split, payouts, currency, frozen }) => (
+                <ProjectBudgetCard
+                  key={p.id}
+                  project={p}
+                  split={split}
+                  payouts={payouts}
+                  currency={currency}
+                  frozen={frozen}
+                  isStaff={isStaff}
+                  userMap={userMap}
+                  userId={user.id}
+                />
+              ))}
             </div>
           )}
         </section>

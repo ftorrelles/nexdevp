@@ -42,6 +42,15 @@ export interface ObjectionItem {
   script: string
 }
 
+export interface WarmScript {
+  id: string
+  title: string
+  productFocus: string
+  icon: string
+  situation: string
+  script: string
+}
+
 export const WARM_NETWORK_STEPS = [
   {
     step: '1',
@@ -57,6 +66,49 @@ export const WARM_NETWORK_STEPS = [
     step: '3',
     title: 'Ex-compañeros o Contactos Laborales',
     desc: 'Colegas de empleos anteriores o proveedores con los que has tenido buena relación comercial.',
+  },
+]
+
+export const WARM_SCRIPTS: WarmScript[] = [
+  {
+    id: 'warm-ecommerce',
+    title: 'Comercio o Tienda con Productos Físicos',
+    productFocus: 'Smart Commerce & Tienda Online 24/7',
+    icon: '🛒',
+    situation: 'Ideal para conocidos con tienda de ropa, repuestos, calzado, belleza o tecnología.',
+    script: '“Hola [Nombre], ¿cómo va todo por [Nombre del negocio]? Estaba viendo tus publicaciones y pensaba que a veces los clientes escriben de noche o en horas pico y se pierden ventas por no poder responder al instante. En mi agencia nexdevp estamos implementando tiendas online rápidas e integradas a WhatsApp donde el cliente ve tallas, precios y compra directo aunque la tienda esté cerrada. Me gustaría regalarte una sesión de 20 minutos con nuestros fundadores para mostrarte en vivo un prototipo adaptado a tus productos. ¿Te sirve esta semana?”',
+  },
+  {
+    id: 'warm-ai-bot',
+    title: 'Comercio Frecuente (Clínica, Barbería, Consultorio)',
+    productFocus: 'Agente IA para WhatsApp (AI Sales Engine)',
+    icon: '🤖',
+    situation: 'Ideal para tu dentista, médica, veterinaria, taller de confianza o peluquería habitual.',
+    script: '“Hola [Nombre], ¡un gusto saludarte! Como cliente frecuente de [Nombre del negocio], me encanta su servicio, pero he notado que a veces la recepción se llena de mensajes y llamadas preguntando horarios o precios. En nexdevp creamos asistentes de IA en WhatsApp que responden en 60 segundos y dejan la cita agendada en automático. Me encantaría coordinar 20 minutos con nuestros fundadores para mostrarte una demo en vivo armada con tus propios precios. ¿Cuándo tienes un espacio?”',
+  },
+  {
+    id: 'warm-web-b2b',
+    title: 'Ex-Compañero / Contacto en Empresa B2B',
+    productFocus: 'Website Corporativo & Imagen Institucional',
+    icon: '🌐',
+    situation: 'Ideal para conocidos en consultoras, constructoras, firmas legales o servicios corporativos.',
+    script: '“Hola [Nombre], ¡qué gusto saber de ti! Estuve viendo el crecimiento de [Nombre de la empresa] y los felicito. Noté que hoy en el mercado B2B las decisiones de compra se toman evaluando la presencia digital del proveedor. En nexdevp diseñamos sitios web corporativos de alta conversión que proyectan gran autoridad y captan clientes directo a WhatsApp. Me gustaría coordinar una llamada breve de 20 minutos con nuestros fundadores para mostrarte cómo elevar la captación de su web. ¿Te viene bien esta semana?”',
+  },
+  {
+    id: 'warm-pwa-app',
+    title: 'Amigo en Alimentos, Restaurantes o Campo',
+    productFocus: 'PWA & Software de Gestión a Medida',
+    icon: '⚡',
+    situation: 'Ideal para dueños de catering, restaurantes, distribuidoras con choferes o talleres.',
+    script: '“Hola [Nombre], estuve conversando con dueños de empresas de alimentos y el dolor de cabeza siempre es la pérdida de dinero por mala gestión de insumos o cálculos en papel. Desarrollamos una app web a medida (PWA) que el equipo usa desde el teléfono en 2 minutos para calcular recetas e inventarios exactos (con casos reales donde han reducido 30% el desperdicio). Quisiera regalarte 20 minutos con nuestros fundadores para mostrarte cómo funciona el sistema. ¿Te acomoda una llamada breve esta semana?”',
+  },
+  {
+    id: 'warm-crm-sales',
+    title: 'Contacto con Equipo Comercial Multi-Vendedor',
+    productFocus: 'CRM Integrado & Control Gerencial',
+    icon: '📊',
+    situation: 'Ideal para gerentes o dueños de pymes que sufren por falta de seguimiento a prospectos.',
+    script: '“Hola [Nombre], espero que estés muy bien. Sé lo complejo que es supervisar a varios vendedores y evitar que se queden chats sin responder o cotizaciones olvidadas en celulares personales. En nexdevp implementamos un CRM en tiempo real que centraliza todos los chats de tu equipo y te da un panel gerencial con las ventas en juego. Me gustaría agendar 20 minutos con nuestros fundadores para mostrarte la pantalla de control gerencial en vivo. ¿Te parece mañana?”',
   },
 ]
 

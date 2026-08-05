@@ -5,6 +5,7 @@ import type { UserRole } from '@/lib/supabase'
 import { AdminNav } from '../AdminNav'
 import {
   WARM_NETWORK_STEPS,
+  WARM_SCRIPTS,
   PRE_DEMO_SCRIPT,
   PRODUCT_GLOSSARY,
   PRODUCT_PITCHES,
@@ -356,30 +357,56 @@ export function CapacitacionView({ role, email, name }: Props) {
               </div>
             </div>
 
-            {/* Script for Warm Contact */}
-            <div className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-6 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h3 className="font-jost font-bold text-lg text-nex-white">
-                  💬 Mensaje Recomendado para Enviar a un Conocido
-                </h3>
-                <button
-                  onClick={() =>
-                    handleCopy(
-                      'Hola [Nombre], estuve pensando en tu negocio... estamos implementando soluciones digitales y asistentes de IA en WhatsApp que responden a los clientes en menos de 60 segundos y agendan citas o pedidos automáticos. Me gustaría regalarte una sesión de diagnóstico de 20 minutos con nuestros fundadores para mostrarte en vivo un prototipo adaptado a ti.',
-                      'warm-script'
-                    )
-                  }
-                  className="font-jost text-xs bg-nex-green/10 border border-nex-green/30 text-nex-green hover:bg-nex-green/20 px-3.5 py-1.5 rounded-lg transition-colors font-bold"
-                >
-                  {copiedId === 'warm-script' ? '✓ Mensaje copiado' : 'Copiar mensaje'}
-                </button>
+            {/* Multiple Specialized Scripts for Warm Contacts */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between border-b border-nex-ink/10 pb-3">
+                <div>
+                  <h3 className="font-jost font-bold text-xl text-nex-white">
+                    💬 Mensajes de Abordaje para Conocidos según Producto y Situación
+                  </h3>
+                  <p className="font-jost text-xs text-zinc-400 mt-0.5">
+                    Selecciona y edita el mensaje que mejor se adapte al tipo de conocido o negocio al que vas a escribirle:
+                  </p>
+                </div>
               </div>
-              <p className="font-jost text-sm text-zinc-200 italic bg-nex-black/60 border border-nex-ink/10 rounded-xl p-4 leading-relaxed">
-                “Hola [Nombre], estuve pensando en tu negocio... estamos implementando soluciones digitales y asistentes de IA en WhatsApp que responden a los clientes en menos de 60 segundos y agendan citas o pedidos automáticos. Me gustaría regalarte una sesión de diagnóstico de 20 minutos con nuestros fundadores para mostrarte en vivo un prototipo adaptado a ti.”
-              </p>
-              <div className="flex items-center gap-2 text-xs text-nex-green font-dm-mono bg-nex-green/5 border border-nex-green/20 p-3 rounded-xl">
-                <span>💡 Por qué usar este script:</span>
-                <span className="text-zinc-300">Al ser un lead traído por ti, se registra a tu nombre en el CRM y ganas el **20% de comisión** tras el cierre.</span>
+
+              <div className="space-y-4">
+                {WARM_SCRIPTS.map((ws) => (
+                  <div key={ws.id} className="bg-nex-dark border border-nex-ink/10 rounded-2xl p-6 space-y-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{ws.icon}</span>
+                        <div>
+                          <h4 className="font-jost font-bold text-lg text-nex-white">{ws.title}</h4>
+                          <span className="font-dm-mono text-[10px] text-nex-green uppercase tracking-widest bg-nex-green/10 border border-nex-green/20 px-2 py-0.5 rounded">
+                            {ws.productFocus}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleCopy(ws.script, ws.id)}
+                        className="font-jost text-xs bg-nex-green/10 border border-nex-green/30 text-nex-green hover:bg-nex-green/20 px-3.5 py-1.5 rounded-lg transition-colors font-bold"
+                      >
+                        {copiedId === ws.id ? '✓ Mensaje copiado' : 'Copiar mensaje'}
+                      </button>
+                    </div>
+
+                    <div className="bg-nex-black/40 border border-nex-ink/5 p-3 rounded-xl text-xs text-zinc-300">
+                      <strong className="text-nex-white font-bold">Cuándo usar este mensaje:</strong> {ws.situation}
+                    </div>
+
+                    <div className="bg-nex-black/60 border border-nex-ink/10 rounded-xl p-4 font-jost text-sm text-zinc-200 italic leading-relaxed">
+                      {ws.script}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-nex-green font-dm-mono bg-nex-green/5 border border-nex-green/20 p-4 rounded-xl">
+                <span>💡 Regla de Comisión (20%):</span>
+                <span className="text-zinc-300">
+                  Al enviar cualquiera de estos mensajes a contactos de tu propia red, registra sus datos en el CRM. Como lead propio tuyo, ganas el **20% de comisión** tras el cierre.
+                </span>
               </div>
             </div>
           </div>

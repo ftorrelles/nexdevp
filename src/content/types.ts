@@ -19,6 +19,9 @@ export interface CaseStudy {
   metrics: Metric[]
   technologies: string[]
   videoUrl?: string
+  /** ISO date (YYYY-MM-DD) of the last real content change; feeds sitemap lastmod and Article dateModified. */
+  updatedAt?: string
+  /** Titles are stored without the brand; `withBrand` appends it when it fits. */
   seo: { title: Localized<string>; description: Localized<string> }
 }
 export interface Service {

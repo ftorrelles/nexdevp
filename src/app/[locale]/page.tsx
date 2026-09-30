@@ -4,6 +4,7 @@ import { buildMetadata, buildOrganizationSchema, buildWebSiteSchema } from '@/li
 import type { Locale } from '@/content/types'
 import { isLocale } from '@/i18n/routing'
 import { HASH_LOAD_SCRIPT } from '@/lib/offscreen'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { Navbar } from '@/components/layout/Navbar'
 import { OffscreenAnchors } from '@/components/layout/OffscreenAnchors'
 import { OffscreenSection } from '@/components/layout/OffscreenSection'
@@ -39,14 +40,8 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
-      />
+      <JsonLd data={orgSchema} />
+      <JsonLd data={webSiteSchema} />
       <script dangerouslySetInnerHTML={{ __html: HASH_LOAD_SCRIPT }} />
       <OffscreenAnchors />
       <main>

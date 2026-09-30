@@ -28,8 +28,8 @@ export const placeholder2: CaseStudy = {
   technologies: [],
   seo: {
     title: {
-      es: 'Caso de estudio — nexdevp',
-      en: 'Case study — nexdevp',
+      es: 'Caso de estudio',
+      en: 'Case study',
     },
     description: {
       es: 'Próximamente.',

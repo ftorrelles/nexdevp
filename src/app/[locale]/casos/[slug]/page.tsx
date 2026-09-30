@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { routing } from '@/i18n/routing'
 import { getCaseBySlug, getPublishedSlugsForLocale } from '@/content/case-studies'
 import { CaseDetail } from '@/components/case/CaseDetail'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { buildMetadata, buildCaseStudySchema } from '@/lib/seo'
 import type { Locale } from '@/content/types'
 
@@ -47,11 +48,7 @@ export default async function CaseDetailPage({ params }: Props) {
   return (
     <>
       {jsonLd.map((schema, i) => (
-        <script
-          key={i}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
+        <JsonLd key={i} data={schema} />
       ))}
       <main>
         <CaseDetail caseStudy={caseStudy} locale={locale as Locale} />

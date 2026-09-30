@@ -36,6 +36,19 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  // The Vercel subdomain serves the same site and would be indexed as a
+  // duplicate; send it to the canonical host. Exact host match only, so preview
+  // deployments (`*.vercel.app`) and localhost are untouched.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host" as const, value: "nexdevp\\.vercel\\.app" }],
+        destination: "https://www.nexdevp.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

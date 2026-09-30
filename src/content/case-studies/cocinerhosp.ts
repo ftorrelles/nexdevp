@@ -163,14 +163,15 @@ export const cocinerhosp: CaseStudy = {
     },
   ],
   technologies: ['Next.js', 'PWA', 'TypeScript', 'Supabase'],
+  updatedAt: '2026-06-08',
   seo: {
     title: {
-      es: 'CocinerHosp: gestión de cocina hospitalaria con PWA — nexdevp',
-      en: 'CocinerHosp: hospital kitchen management with PWA — nexdevp',
+      es: 'CocinerHosp: gestión de cocina hospitalaria con PWA',
+      en: 'CocinerHosp: hospital kitchen management with PWA',
     },
     description: {
       es: 'Cómo nexdevp redujo el desperdicio alimentario en un 30% y el tiempo de cálculo diario de 30 minutos a 2 minutos en 6 centros hospitalarios en Tenerife.',
-      en: 'How nexdevp reduced food waste by 30% and daily calculation time from 30 minutes to 2 minutes across 6 hospital centers in Tenerife.',
+      en: 'How nexdevp reduced food waste by 30% and daily calculation time from 30 minutes to 2 minutes across 6 hospital centers in Tenerife with a custom PWA.',
     },
   },
 }

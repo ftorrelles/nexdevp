@@ -1,6 +1,15 @@
 import type { Metadata } from 'next'
 import type { CaseStudy, Service, Locale } from '@/content/types'
-import { SITE_URL } from '@/lib/constants'
+import { SITE_URL, SOCIAL_PROFILES, WHATSAPP_NUMBER } from '@/lib/constants'
+
+const BRAND = 'nexdevp'
+export const TITLE_MAX_LENGTH = 60
+export const DESCRIPTION_MIN_LENGTH = 140
+export const DESCRIPTION_MAX_LENGTH = 160
+
+// Stable ids so the JSON-LD entities can reference each other.
+const ORGANIZATION_ID = `${SITE_URL}/#organization`
+const WEBSITE_ID = `${SITE_URL}/#website`
 
 type PageKey = 'home' | 'case' | 'careers'
 
@@ -21,7 +30,7 @@ const defaultTitles: Record<Locale, string> = {
 }
 
 const defaultDescriptions: Record<Locale, string> = {
-  es: 'Consultora de software a medida: sistemas internos, automatizaciones con IA y sitios web que resuelven problemas concretos de tu empresa. Primera consulta sin costo.',
+  es: 'Consultora de software a medida: sistemas internos, automatizaciones con IA y sitios web para problemas concretos de tu empresa. Primera consulta sin costo.',
   en: 'Custom software consultancy: internal systems, AI automations and websites that solve specific problems in your company. First consultation is free.',
 }
 
@@ -30,8 +39,16 @@ const OG_LOCALES: Record<Locale, { locale: string; alternate: string }> = {
   en: { locale: 'en_US', alternate: 'es_ES' },
 }
 
+// Appends " | nexdevp" only when the result stays within the title budget and
+// the brand is not already part of the title.
+export function withBrand(title: string): string {
+  if (title.toLowerCase().includes(BRAND)) return title
+  const branded = `${title} | ${BRAND}`
+  return branded.length <= TITLE_MAX_LENGTH ? branded : title
+}
+
 export function getDefaultSeo(locale: Locale): { title: string; description: string } {
-  return { title: defaultTitles[locale], description: defaultDescriptions[locale] }
+  return { title: withBrand(defaultTitles[locale]), description: defaultDescriptions[locale] }
 }
 
 export function buildOgImageUrl(locale: Locale): string {
@@ -55,7 +72,7 @@ export function buildMetadata(
   pageKey: PageKey,
   overrides?: SeoOverrides,
 ): Metadata {
-  const title = overrides?.title ?? defaultTitles[locale]
+  const title = withBrand(overrides?.title ?? defaultTitles[locale])
   const description = overrides?.description ?? defaultDescriptions[locale]
 
   let canonical: string
@@ -122,17 +139,28 @@ export function buildMetadata(
 
 // ─── JSON-LD Builders ────────────────────────────────────────────────────────
 
+const ORGANIZATION_REF = { '@id': ORGANIZATION_ID }
+const WEBSITE_REF = { '@id': WEBSITE_ID }
+
 export function buildOrganizationSchema(locale: Locale): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'nexdevp',
-    url: `${SITE_URL}/${locale}`,
+    '@id': ORGANIZATION_ID,
+    name: BRAND,
+    url: buildHomeUrl(locale),
     logo: `${SITE_URL}/brand/icon-512.png`,
     description:
       locale === 'es'
         ? 'Consultora de software a medida y automatización con IA.'
         : 'Custom software and AI automation consultancy.',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'sales',
+      telephone: `+${WHATSAPP_NUMBER.replace(/\D/g, '')}`,
+      availableLanguage: ['es', 'en'],
+    },
+    ...(SOCIAL_PROFILES.length > 0 ? { sameAs: SOCIAL_PROFILES } : {}),
   }
 }
 
@@ -140,10 +168,11 @@ export function buildWebSiteSchema(locale: Locale): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'nexdevp',
-    url: `${SITE_URL}/${locale}`,
+    '@id': WEBSITE_ID,
+    name: BRAND,
+    url: buildHomeUrl(locale),
     inLanguage: locale,
-    publisher: { '@type': 'Organization', name: 'nexdevp' },
+    publisher: ORGANIZATION_REF,
   }
 }
 
@@ -151,7 +180,7 @@ export function buildServiceSchema(services: Service[], locale: Locale): Record<
   return services.map((service) => ({
     '@context': 'https://schema.org',
     '@type': 'Service',
-    provider: { '@type': 'Organization', name: 'nexdevp' },
+    provider: ORGANIZATION_REF,
     name: service.painHeadline[locale],
     description: service.whatWeBuilt[locale],
   }))
@@ -171,6 +200,7 @@ export function buildCaseStudySchema(caseStudy: CaseStudy, locale: Locale): Reco
       description,
       url,
       inLanguage: locale,
+      isPartOf: WEBSITE_REF,
     },
     {
       '@context': 'https://schema.org',
@@ -180,9 +210,19 @@ export function buildCaseStudySchema(caseStudy: CaseStudy, locale: Locale): Reco
       url,
       image: buildOgImageUrl(locale),
       inLanguage: locale,
-      author: { '@type': 'Organization', name: 'nexdevp' },
-      publisher: { '@type': 'Organization', name: 'nexdevp' },
+      author: ORGANIZATION_REF,
+      publisher: ORGANIZATION_REF,
+      isPartOf: WEBSITE_REF,
       about: caseStudy.client,
+      ...(caseStudy.updatedAt ? { dateModified: caseStudy.updatedAt } : {}),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: BRAND, item: buildHomeUrl(locale) },
+        { '@type': 'ListItem', position: 2, name: caseStudy.client, item: url },
+      ],
     },
   ]
 }

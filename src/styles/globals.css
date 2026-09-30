@@ -49,9 +49,11 @@
   0%, 100% { opacity: 0.5; }
   50%       { opacity: 1; }
 }
+/* Ring behind the floating WhatsApp button. Scales a filled circle instead of
+   animating box-shadow, so it stays on the compositor (transform + opacity). */
 @keyframes pulse-slow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 181, 97, 0.4); }
-  50%       { box-shadow: 0 0 0 10px rgba(34, 181, 97, 0); }
+  0%, 100% { transform: scale(1);    opacity: 0.4; }
+  50%       { transform: scale(1.36); opacity: 0; }
 }
 
 /* Hero entrance — CSS-only so the server-rendered h1 paints without waiting for hydration. */
@@ -72,6 +74,41 @@
 
 .animate-pulse-slow {
   animation: pulse-slow 2.5s ease-in-out infinite;
+}
+
+/* Hint ring on the idle inner tabs of the "casos" device. A pseudo-element
+   carries the static ring and only its opacity/scale animate. The glow colour
+   comes from --tab-glow, set per product theme on the button. */
+@keyframes casos-tab-pulse {
+  0%, 100% { opacity: 0; transform: scale(0.94); }
+  50%       { opacity: 1; transform: scale(1); }
+}
+
+.casos-tab-hint {
+  position: relative;
+}
+
+.casos-tab-hint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 4px var(--tab-glow);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .casos-tab-hint::after {
+    animation: casos-tab-pulse 1.7s ease-in-out infinite;
+    animation-delay: inherit;
+  }
+}
+
+/* Set on <html> by lib/offscreen once the visitor navigates to an anchor, so
+   sections skipped with content-visibility render and the scroll target is exact. */
+html[data-render-all] [data-offscreen] {
+  content-visibility: visible !important;
 }
 
 /* Custom scrollbar */

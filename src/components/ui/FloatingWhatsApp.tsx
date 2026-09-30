@@ -19,8 +19,12 @@ export function FloatingWhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-nex-green text-nex-black shadow-lg hover:bg-nex-green/90 transition-colors animate-pulse-slow"
+      className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-nex-green text-nex-black shadow-lg hover:bg-nex-green/90 transition-colors"
     >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-nex-green animate-pulse-slow motion-reduce:hidden"
+      />
       <svg
         width="28"
         height="28"

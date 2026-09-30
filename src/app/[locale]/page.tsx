@@ -2,7 +2,10 @@ import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { buildMetadata, buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo'
 import type { Locale } from '@/content/types'
+import { HASH_LOAD_SCRIPT } from '@/lib/offscreen'
 import { Navbar } from '@/components/layout/Navbar'
+import { OffscreenAnchors } from '@/components/layout/OffscreenAnchors'
+import { OffscreenSection } from '@/components/layout/OffscreenSection'
 import { Hero } from '@/components/sections/Hero'
 import { Pillars } from '@/components/sections/Pillars'
 import { DemoSection } from '@/components/sections/DemoSection'
@@ -41,22 +44,44 @@ export default async function HomePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
       />
+      <script dangerouslySetInnerHTML={{ __html: HASH_LOAD_SCRIPT }} />
+      <OffscreenAnchors />
       <main>
         <Navbar locale={locale as Locale} />
         <Hero />
-        <BeforeAfter />
-        <Pillars />
-        <Methodology />
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1000px] lg:[contain-intrinsic-size:auto_620px]">
+          <BeforeAfter />
+        </OffscreenSection>
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1750px] lg:[contain-intrinsic-size:auto_970px]">
+          <Pillars />
+        </OffscreenSection>
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1150px] lg:[contain-intrinsic-size:auto_550px]">
+          <Methodology />
+        </OffscreenSection>
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
-        <DemoSection />
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2000px] lg:[contain-intrinsic-size:auto_1230px]">
+          <DemoSection />
+        </OffscreenSection>
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
-        <CasosExito />
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1400px] lg:[contain-intrinsic-size:auto_970px]">
+          <CasosExito />
+        </OffscreenSection>
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
-        <Portfolio />
-        <Stats />
-        <CtaFinal />
-        <JoinUs locale={locale as Locale} />
-        <Footer locale={locale as Locale} />
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2100px] lg:[contain-intrinsic-size:auto_1520px]">
+          <Portfolio />
+        </OffscreenSection>
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_400px] lg:[contain-intrinsic-size:auto_270px]">
+          <Stats />
+        </OffscreenSection>
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1170px] lg:[contain-intrinsic-size:auto_950px]">
+          <CtaFinal />
+        </OffscreenSection>
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1200px] lg:[contain-intrinsic-size:auto_900px]">
+          <JoinUs locale={locale as Locale} />
+        </OffscreenSection>
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_900px] lg:[contain-intrinsic-size:auto_440px]">
+          <Footer locale={locale as Locale} />
+        </OffscreenSection>
       </main>
     </>
   )

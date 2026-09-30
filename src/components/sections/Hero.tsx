@@ -53,7 +53,7 @@ export function Hero() {
         }}
       />
 
-      <div className="hero-enter relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
         {/* ── LEFT: copy ── */}
         <div className="flex flex-col items-start">
 
@@ -93,8 +93,8 @@ export function Hero() {
           </div>
         </div>
 
-        {/* ── RIGHT: counter card ── */}
-        <div className="flex items-center justify-center lg:justify-end">
+        {/* ── RIGHT: counter card (the copy on the left paints immediately so the h1 can be the LCP) ── */}
+        <div className="hero-enter flex items-center justify-center lg:justify-end">
           <HeroCard count={count} flash={flash} />
         </div>
 

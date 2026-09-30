@@ -103,19 +103,29 @@ const HIGHLIGHTS: { big: { es: string; en: string }; small: { es: string; en: st
 ]
 
 // ── Animated primitives (remount on screen change re-fires the entry) ──
-function Grow({ pct, axis = 'x', color, radius, duration = 950 }: { pct: number; axis?: 'x' | 'y'; color: string; radius?: string; duration?: number }) {
-  const [v, setV] = useState(0)
+// The slot keeps its final size; the fill scales inside it from the left (x) or
+// the bottom (y), so the entry animates transform only (no layout per frame).
+function Grow({ pct, axis = 'x', color, radius }: { pct: number; axis?: 'x' | 'y'; color: string; radius?: string }) {
+  const [on, setOn] = useState(false)
   useEffect(() => {
-    const t = setTimeout(() => setV(pct), 40)
+    const t = setTimeout(() => setOn(true), 40)
     return () => clearTimeout(t)
-  }, [pct])
-  const style: CSSProperties = {
+  }, [])
+  const slot: CSSProperties = axis === 'x' ? { width: `${pct}%`, height: '100%' } : { height: `${pct}%`, width: '100%' }
+  const fill: CSSProperties = {
     background: color,
     borderRadius: radius,
-    transition: `width ${duration}ms cubic-bezier(.2,.7,.3,1), height ${duration}ms cubic-bezier(.2,.7,.3,1)`,
-    ...(axis === 'x' ? { width: `${v}%`, height: '100%' } : { height: `${v}%`, width: '100%' }),
+    transformOrigin: axis === 'x' ? 'left' : 'bottom',
+    transform: on ? 'none' : axis === 'x' ? 'scaleX(0)' : 'scaleY(0)',
   }
-  return <div style={style} />
+  return (
+    <div style={slot}>
+      <div
+        className="h-full w-full transition-transform duration-[950ms] ease-[cubic-bezier(.2,.7,.3,1)] motion-reduce:transition-none"
+        style={fill}
+      />
+    </div>
+  )
 }
 
 function Counter({ to, money = false }: { to: number; money?: boolean }) {
@@ -394,7 +404,6 @@ export function CasosExito() {
 
   return (
     <section id="casos" className="bg-nex-black py-24 px-6 lg:px-12" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
-      <style>{`@media (prefers-reduced-motion: no-preference){.casos-tab-hint{animation:casosTabPulse 1.7s ease-in-out infinite}}@keyframes casosTabPulse{0%,100%{box-shadow:0 0 0 0 var(--tab-glow)}50%{box-shadow:0 0 0 4px var(--tab-glow)}}`}</style>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <p className="font-dm-mono text-[11px] uppercase text-nex-green mb-2" style={{ letterSpacing: '.25em' }}>{COPY.eyebrow[locale]}</p>

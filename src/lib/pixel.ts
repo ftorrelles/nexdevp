@@ -20,8 +20,10 @@ export type PixelEvent = 'Lead' | 'Schedule' | 'PageView' | 'Contact' | 'ViewCon
 /**
  * Dispara un evento estándar de Meta Pixel.
  * Es seguro llamarlo en SSR — solo actúa si fbq existe en window.
+ * Until fbevents.js loads, `window.fbq` is the queueing stub installed by
+ * MetaPixel; the library flushes the queue on load, so no event is dropped.
  */
-export function pixelEvent(event: PixelEvent, params?: Record<string, unknown>) {
+export function pixelEvent(event: PixelEvent, params?: Record<string, unknown>): void {
   if (typeof window === 'undefined' || !window.fbq) return
   window.fbq('track', event, params)
 }

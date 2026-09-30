@@ -7,6 +7,7 @@ import { Link, usePathname } from '@/i18n/navigation'
 import { BookingDialog } from '@/components/cta/BookingDialog'
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher'
 import type { Locale } from '@/content/types'
+import { renderAllOffscreenSections } from '@/lib/offscreen'
 
 const sectionIds = ['hero', 'servicios', 'demo', 'casos', 'portfolio', 'contacto', 'trabaja']
 
@@ -48,6 +49,7 @@ export function Navbar({ locale }: NavbarProps) {
   const scrollTo = (id: string) => {
     setMenuOpen(false)
     if (isHome) {
+      renderAllOffscreenSections()
       const el = document.getElementById(id)
       if (el) el.scrollIntoView({ behavior: 'smooth' })
     } else {

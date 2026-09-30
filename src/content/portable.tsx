@@ -19,7 +19,7 @@ function RichBlockElement({ block }: { block: RichBlock }) {
       )
     case 'quote':
       return (
-        <blockquote className="my-6 border-l-4 border-accent pl-4 italic text-muted">
+        <blockquote className="my-6 border-l-4 border-nex-green pl-4 italic text-nex-grey">
           {block.text}
         </blockquote>
       )

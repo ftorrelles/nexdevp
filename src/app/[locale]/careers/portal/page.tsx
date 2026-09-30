@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import type { Locale } from '@/content/types'
@@ -5,6 +6,10 @@ import { CareersHeader } from '@/components/layout/CareersHeader'
 import { Link } from '@/i18n/navigation'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, type CareerApplication } from '@/lib/supabase'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 type Props = {
   params: Promise<{ locale: string }>

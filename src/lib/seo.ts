@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import type { CaseStudy, Service, Locale } from '@/content/types'
 import { SITE_URL } from '@/lib/constants'
 
-type PageKey = 'home' | 'case'
+type PageKey = 'home' | 'case' | 'careers'
 
 interface SeoOverrides {
   title?: string
@@ -13,14 +13,29 @@ interface SeoOverrides {
   slug?: string
 }
 
+// Single source for the landing title/description (used by the locale layout
+// as the site-wide default and by the home page metadata).
 const defaultTitles: Record<Locale, string> = {
-  es: 'nexdevp — Sistemas digitales para empresas',
-  en: 'nexdevp — Digital systems for business',
+  es: 'Software a medida y automatización con IA | nexdevp',
+  en: 'Custom software & AI automation for business | nexdevp',
 }
 
 const defaultDescriptions: Record<Locale, string> = {
-  es: 'Diseñamos e implementamos sistemas digitales que hacen crecer tu negocio. Consultoría, desarrollo y automatización.',
-  en: 'We design and implement digital systems that grow your business. Consulting, development and automation.',
+  es: 'Consultora de software a medida: sistemas internos, automatizaciones con IA y sitios web que resuelven problemas concretos de tu empresa. Primera consulta sin costo.',
+  en: 'Custom software consultancy: internal systems, AI automations and websites that solve specific problems in your company. First consultation is free.',
+}
+
+const OG_LOCALES: Record<Locale, { locale: string; alternate: string }> = {
+  es: { locale: 'es_ES', alternate: 'en_US' },
+  en: { locale: 'en_US', alternate: 'es_ES' },
+}
+
+export function getDefaultSeo(locale: Locale): { title: string; description: string } {
+  return { title: defaultTitles[locale], description: defaultDescriptions[locale] }
+}
+
+export function buildOgImageUrl(locale: Locale): string {
+  return `${SITE_URL}/og/og-${locale}.png`
 }
 
 function buildCaseUrl(locale: Locale, slug: string): string {
@@ -29,6 +44,10 @@ function buildCaseUrl(locale: Locale, slug: string): string {
 
 function buildHomeUrl(locale: Locale): string {
   return `${SITE_URL}/${locale}`
+}
+
+function buildCareersUrl(locale: Locale): string {
+  return `${SITE_URL}/${locale}/careers`
 }
 
 export function buildMetadata(
@@ -49,6 +68,13 @@ export function buildMetadata(
       en: buildCaseUrl('en', overrides.slugMap.en),
       'x-default': buildCaseUrl('es', overrides.slugMap.es),
     }
+  } else if (pageKey === 'careers') {
+    canonical = buildCareersUrl(locale)
+    alternateLanguages = {
+      es: buildCareersUrl('es'),
+      en: buildCareersUrl('en'),
+      'x-default': buildCareersUrl('es'),
+    }
   } else {
     canonical = buildHomeUrl(locale)
     alternateLanguages = {
@@ -57,6 +83,8 @@ export function buildMetadata(
       'x-default': buildHomeUrl('es'),
     }
   }
+
+  const ogImage = buildOgImageUrl(locale)
 
   return {
     title,
@@ -70,12 +98,13 @@ export function buildMetadata(
       title,
       description,
       url: canonical,
-      locale: locale === 'es' ? 'es_ES' : 'en_US',
+      locale: OG_LOCALES[locale].locale,
+      alternateLocale: [OG_LOCALES[locale].alternate],
       type: 'website',
       siteName: 'nexdevp',
       images: [
         {
-          url: `${SITE_URL}/og/og-default.png`,
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: title,
@@ -86,29 +115,39 @@ export function buildMetadata(
       card: 'summary_large_image',
       title,
       description,
-      images: [`${SITE_URL}/og/og-default.png`],
+      images: [ogImage],
     },
   }
 }
 
 // ─── JSON-LD Builders ────────────────────────────────────────────────────────
 
-export function buildOrganizationSchema(locale: Locale) {
+export function buildOrganizationSchema(locale: Locale): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'nexdevp',
     url: `${SITE_URL}/${locale}`,
-    logo: `${SITE_URL}/brand/logo-light.png`,
-    sameAs: [],
+    logo: `${SITE_URL}/brand/icon-512.png`,
     description:
       locale === 'es'
-        ? 'Sistemas digitales que hacen crecer tu negocio.'
-        : 'Digital systems that grow your business.',
+        ? 'Consultora de software a medida y automatización con IA.'
+        : 'Custom software and AI automation consultancy.',
   }
 }
 
-export function buildServiceSchema(services: Service[], locale: Locale) {
+export function buildWebSiteSchema(locale: Locale): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'nexdevp',
+    url: `${SITE_URL}/${locale}`,
+    inLanguage: locale,
+    publisher: { '@type': 'Organization', name: 'nexdevp' },
+  }
+}
+
+export function buildServiceSchema(services: Service[], locale: Locale): Record<string, unknown>[] {
   return services.map((service) => ({
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -118,7 +157,7 @@ export function buildServiceSchema(services: Service[], locale: Locale) {
   }))
 }
 
-export function buildCaseStudySchema(caseStudy: CaseStudy, locale: Locale) {
+export function buildCaseStudySchema(caseStudy: CaseStudy, locale: Locale): Record<string, unknown>[] {
   const slug = caseStudy.slugMap[locale]
   const url = buildCaseUrl(locale, slug)
   const title = caseStudy.seo.title[locale]
@@ -131,7 +170,7 @@ export function buildCaseStudySchema(caseStudy: CaseStudy, locale: Locale) {
       name: title,
       description,
       url,
-      inLanguage: locale === 'es' ? 'es-ES' : 'en-US',
+      inLanguage: locale,
     },
     {
       '@context': 'https://schema.org',
@@ -139,6 +178,8 @@ export function buildCaseStudySchema(caseStudy: CaseStudy, locale: Locale) {
       headline: title,
       description,
       url,
+      image: buildOgImageUrl(locale),
+      inLanguage: locale,
       author: { '@type': 'Organization', name: 'nexdevp' },
       publisher: { '@type': 'Organization', name: 'nexdevp' },
       about: caseStudy.client,

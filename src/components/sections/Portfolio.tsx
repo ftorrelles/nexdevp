@@ -115,7 +115,7 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1 font-dm-mono text-[9px] tracking-wider uppercase transition-all duration-200 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0"
+                className="flex items-center gap-1 font-dm-mono text-[9px] tracking-wider uppercase transition-all duration-200 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:-translate-x-1 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-x-0 focus-visible:!opacity-100 focus-visible:!translate-x-0"
                 style={{ color: project.accent }}
               >
                 Ver <ExternalIcon />

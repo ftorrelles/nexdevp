@@ -11,13 +11,11 @@ const INCREMENT_EVERY_MS = 3200
 
 export function Hero() {
   const t = useTranslations('hero')
-  const [ready, setReady] = useState(false)
   const [count, setCount] = useState(BASE_COUNT)
   const [flash, setFlash] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    setTimeout(() => setReady(true), 150)
     intervalRef.current = setInterval(() => {
       setCount((c) => c + Math.floor(Math.random() * 3) + 1)
       setFlash(true)
@@ -55,14 +53,7 @@ export function Hero() {
         }}
       />
 
-      <div
-        className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center"
-        style={{
-          transition: 'opacity 1s ease, transform 1s ease',
-          opacity: ready ? 1 : 0,
-          transform: ready ? 'translateY(0)' : 'translateY(24px)',
-        }}
-      >
+      <div className="hero-enter relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
         {/* ── LEFT: copy ── */}
         <div className="flex flex-col items-start">
 

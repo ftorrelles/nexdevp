@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { BookingDialog } from '@/components/cta/BookingDialog'
@@ -60,8 +61,7 @@ export function Navbar({ locale }: NavbarProps) {
 
         {/* Logo */}
         <Link href="/" aria-label="nexdevp home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-dark.svg" alt="nexdevp" style={{ height: '40px', width: 'auto' }} />
+          <Image src="/brand/logo-mark.png" alt="nexdevp" width={40} height={40} priority />
         </Link>
 
         {/* Desktop nav */}

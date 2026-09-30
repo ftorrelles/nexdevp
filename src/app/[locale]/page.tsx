@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
-import { buildMetadata, buildOrganizationSchema, buildServiceSchema } from '@/lib/seo'
+import { buildMetadata, buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo'
 import type { Locale } from '@/content/types'
 import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/sections/Hero'
@@ -29,7 +29,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale as Locale)
 
   const orgSchema = buildOrganizationSchema(locale as Locale)
-  const serviceSchema = buildServiceSchema([], locale as Locale)
+  const webSiteSchema = buildWebSiteSchema(locale as Locale)
 
   return (
     <>
@@ -39,7 +39,7 @@ export default async function HomePage({ params }: Props) {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
       />
       <main>
         <Navbar locale={locale as Locale} />

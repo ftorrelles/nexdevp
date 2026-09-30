@@ -1,3 +1,5 @@
+import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher'
@@ -8,15 +10,17 @@ interface FooterProps {
 }
 
 export function Footer({ locale }: FooterProps) {
+  const t = useTranslations('footer')
+  const tNav = useTranslations('navbar')
   const year = new Date().getFullYear()
 
   const navLinks = [
-    { href: '/', label: 'Inicio' },
-    { href: '/#pilares', label: 'Servicios' },
-    { href: '#demo', label: 'Demo' },
-    { href: '/#casos', label: 'Casos' },
-    { href: '/#portfolio', label: locale === 'es' ? 'Proyectos' : 'Projects' },
-    { href: '/careers', label: locale === 'es' ? 'Trabajá con nosotros' : 'Join Our Team' },
+    { href: '/', label: tNav('home') },
+    { href: '/#servicios', label: tNav('servicios') },
+    { href: '#demo', label: tNav('demo') },
+    { href: '/#casos', label: tNav('casos') },
+    { href: '/#portfolio', label: tNav('portfolio') },
+    { href: '/careers', label: tNav('trabaja') },
   ]
 
   return (
@@ -29,21 +33,16 @@ export function Footer({ locale }: FooterProps) {
           {/* Brand */}
           <div className="flex flex-col items-center gap-4 w-full lg:w-64 text-center">
             <Link href="/" className="flex justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/brand/logo-dark.svg"
-                alt="nexdevp"
-                style={{ height: '52px', width: 'auto' }}
-              />
+              <Image src="/brand/logo-mark.png" alt="nexdevp" width={52} height={52} />
             </Link>
             <p className="font-jost text-sm text-nex-grey max-w-xs leading-relaxed">
-              Consultoría tecnológica especializada en software a medida e ingeniería de ventas con IA.
+              {t('tagline')}
             </p>
           </div>
 
           {/* Nav links */}
           <nav>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">Navegación</p>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">{t('navHeading')}</p>
             <ul className="flex flex-col gap-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -60,7 +59,7 @@ export function Footer({ locale }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">Contacto</p>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">{t('contactHeading')}</p>
             <ul className="flex flex-col gap-3">
               <li>
                 <a
@@ -82,7 +81,7 @@ export function Footer({ locale }: FooterProps) {
 
           {/* Locale switcher */}
           <div>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">Idioma</p>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">{t('languageHeading')}</p>
             <LocaleSwitcher locale={locale} />
             <a
               href="/admin"
@@ -96,10 +95,10 @@ export function Footer({ locale }: FooterProps) {
         {/* Bottom bar — extra bottom padding on mobile so the floating WhatsApp button doesn't cover the text */}
         <div className="mt-12 pt-6 pb-20 sm:pb-0 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono text-xs text-nex-grey">
-            © {year} nexdevp — Todos los derechos reservados
+            {t('copyright', { year })}
           </p>
           <p className="font-mono text-xs text-nex-grey/40">
-            Construido con Next.js · Desplegado con Hostinger
+            {t('builtWith')}
           </p>
         </div>
 

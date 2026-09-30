@@ -1,12 +1,23 @@
-import { setRequestLocale } from 'next-intl/server'
+import type { Metadata } from 'next'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Locale } from '@/content/types'
 import { CareersHeader } from '@/components/layout/CareersHeader'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, type Career } from '@/lib/supabase'
+import { buildMetadata } from '@/lib/seo'
 import { CareersListing } from './CareersListing'
 
 type Props = {
   params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'careers' })
+  return buildMetadata(locale as Locale, 'careers', {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  })
 }
 
 export default async function PublicCareersPage({ params }: Props): Promise<React.JSX.Element> {

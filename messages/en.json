@@ -123,6 +123,11 @@
     "siteDescription": "We design and implement digital systems that grow your business. Consulting, development and automation."
   },
   "footer": {
+    "tagline": "Technology consultancy specialized in custom software and AI sales engineering.",
+    "navHeading": "Navigation",
+    "contactHeading": "Contact",
+    "languageHeading": "Language",
+    "builtWith": "Built with Next.js",
     "copyright": "© {year} nexdevp. All rights reserved.",
     "nav": {
       "home": "Home",
@@ -131,6 +136,11 @@
       "about": "About",
       "contact": "Contact"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has moved.",
+    "home": "Back to home"
   },
   "booking": {
     "dialogTitle": "Book a free call",
@@ -368,6 +378,8 @@
     "retail_resp_gracias": "Thanks for writing! Any questions about sizes or availability, we're here 🙌"
   },
   "careers": {
+    "metaTitle": "Join our team | nexdevp",
+    "metaDescription": "Join nexdevp: browse open positions and apply to grow with us in custom software and AI automation.",
     "title": "Join Our Team",
     "subtitle": "Join nexdevp and let's build the future of intelligent operations.",
     "noPositions": "We do not have any open positions at the moment. However, we are always looking for talent. Write to us!",

@@ -118,9 +118,10 @@ export function Navbar({ locale }: NavbarProps) {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — overlays the page: if it pushed the content down, closing it
+          on a link tap would shift the scroll target by the menu's height. */}
       <div
-        className="lg:hidden overflow-hidden transition-all duration-300"
+        className="lg:hidden absolute inset-x-0 top-full overflow-hidden bg-nex-black transition-all duration-300"
         style={{ maxHeight: menuOpen ? '460px' : '0px' }}
       >
         <div className="px-6 pb-6 pt-2 flex flex-col gap-1 border-t border-white/5">

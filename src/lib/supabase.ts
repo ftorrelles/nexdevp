@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { Attribution } from './attribution'
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +29,7 @@ export interface Lead {
   notas?: string
   assigned_to?: string | null
   created_by?: string | null
+  attribution?: Attribution | null
   created_at?: string
 }
 

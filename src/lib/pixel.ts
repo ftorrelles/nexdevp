@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-type PixelEvent = 'Lead' | 'Schedule' | 'PageView' | 'Contact' | 'ViewContent'
+export type PixelEvent = 'Lead' | 'Schedule' | 'PageView' | 'Contact' | 'ViewContent'
 
 /**
  * Dispara un evento estándar de Meta Pixel.

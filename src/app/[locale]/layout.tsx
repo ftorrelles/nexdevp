@@ -4,6 +4,7 @@ import { CustomCursor } from '@/components/ui/CustomCursor'
 import { FloatingWhatsApp } from '@/components/ui/FloatingWhatsApp'
 import { DocumentShell } from '@/components/layout/DocumentShell'
 import { MetaPixel } from '@/components/analytics/MetaPixel'
+import { AttributionCapture } from '@/components/analytics/AttributionCapture'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { setRequestLocale } from 'next-intl/server'
@@ -52,6 +53,7 @@ export default async function LocaleLayout({ children, params }: Props): Promise
         <FloatingWhatsApp />
       </NextIntlClientProvider>
       <MetaPixel />
+      <AttributionCapture />
     </DocumentShell>
   )
 }

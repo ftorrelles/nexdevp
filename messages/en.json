@@ -254,7 +254,9 @@
     "submit": "Send message",
     "submitting": "Sending...",
     "success": "Message sent! We'll contact you soon.",
-    "error_generic": "Something went wrong. Please try again."
+    "error_generic": "Something went wrong. Please try again.",
+    "error_invalid": "Please check your details: a name and a valid email are required.",
+    "error_rate_limited": "Too many messages sent. Please try again in a few minutes."
   },
   "ctaFinal": {
     "eyebrow": "First consultation · Free · No commitment",

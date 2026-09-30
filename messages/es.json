@@ -254,7 +254,9 @@
     "submit": "Enviar mensaje",
     "submitting": "Enviando...",
     "success": "¡Mensaje enviado! Te contactamos pronto.",
-    "error_generic": "Algo salió mal. Intentá de nuevo."
+    "error_generic": "Algo salió mal. Intentá de nuevo.",
+    "error_invalid": "Revisa los datos ingresados: el nombre y un email válido son obligatorios.",
+    "error_rate_limited": "Has enviado demasiados mensajes. Inténtalo de nuevo en unos minutos."
   },
   "ctaFinal": {
     "eyebrow": "Primera consulta · Sin costo · Sin compromiso",

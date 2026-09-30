@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { pixelEvent } from '@/lib/pixel'
+import { readStoredAttribution } from '@/lib/attribution-storage'
+import { HONEYPOT_FIELD } from '@/lib/lead-validation'
 
 const BUSINESS_TYPE_KEYS = [
   'business_clinic',
@@ -30,6 +32,14 @@ export function ContactForm() {
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  // Honeypot: real users never see this field, bots tend to fill it.
+  const [honeypot, setHoneypot] = useState('')
+  // When the form mounted; the server rejects submissions that are implausibly fast.
+  const mountedAt = useRef(0)
+
+  useEffect(() => {
+    mountedAt.current = Date.now()
+  }, [])
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -46,18 +56,31 @@ export function ContactForm() {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          [HONEYPOT_FIELD]: honeypot,
+          elapsed_ms: Date.now() - mountedAt.current,
+          attribution: readStoredAttribution(),
+        }),
       })
-      const data = await res.json()
+      const data: { success?: boolean } = await res.json().catch(() => ({}))
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error ?? t('error_generic'))
+        setErrorMsg(
+          res.status === 400
+            ? t('error_invalid')
+            : res.status === 429
+              ? t('error_rate_limited')
+              : t('error_generic')
+        )
+        setStatus('error')
+        return
       }
 
       pixelEvent('Lead')
       setStatus('success')
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : t('error_generic'))
+    } catch {
+      setErrorMsg(t('error_generic'))
       setStatus('error')
     }
   }
@@ -167,6 +190,17 @@ export function ContactForm() {
             onChange={handleChange}
             className={`${inputClass} resize-none`}
             placeholder={t('message_placeholder')}
+          />
+        </div>
+
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <input
+            type="text"
+            name={HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
           />
         </div>
 

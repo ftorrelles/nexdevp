@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher'
 import { WHATSAPP_NUMBER } from '@/lib/constants'
+import { PixelLink } from '@/components/analytics/PixelLink'
 
 interface FooterProps {
   locale: Locale
@@ -62,14 +63,15 @@ export function Footer({ locale }: FooterProps) {
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">{t('contactHeading')}</p>
             <ul className="flex flex-col gap-3">
               <li>
-                <a
+                <PixelLink
+                  event="Contact"
                   href={`https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-jost text-sm text-nex-grey hover:text-nex-white transition-colors flex items-center gap-2"
                 >
                   <span className="text-nex-green">↗</span> WhatsApp
-                </a>
+                </PixelLink>
               </li>
               <li>
                 <span className="font-jost text-sm text-nex-grey">

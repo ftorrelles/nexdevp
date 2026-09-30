@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Lead, AdminUser, UserRole } from '@/lib/supabase'
 import { AdminNav } from './AdminNav'
 import { LeadQuotes } from './LeadQuotes'
+import { describeAttributionSource } from '@/lib/attribution'
 
 type EstadoFilter = 'todos' | 'nuevo' | 'contactado' | 'negociacion' | 'cerrado' | 'perdido'
 
@@ -457,6 +458,14 @@ export function AdminCRM({ leads: initialLeads, role, currentUserEmail, currentU
                             <p className="text-sm text-nex-grey leading-relaxed whitespace-pre-wrap">
                               {lead.mensaje || <span className="italic opacity-50">Sin mensaje</span>}
                             </p>
+                            {describeAttributionSource(lead.attribution) && (
+                              <p className="mt-3 text-xs text-nex-grey">
+                                <span className="font-dm-mono text-[10px] tracking-[0.15em] uppercase text-nex-green mr-2">
+                                  Origen
+                                </span>
+                                {describeAttributionSource(lead.attribution)}
+                              </p>
+                            )}
                             <LeadQuotes leadId={lead.id!} />
                             {lead.estado === 'cerrado' &&
                              !projectLeadIds?.has(lead.id!) &&

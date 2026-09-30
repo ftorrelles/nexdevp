@@ -92,15 +92,6 @@
   box-shadow: 0 0 12px rgba(34, 181, 97, 0.9), 0 0 28px rgba(34, 181, 97, 0.5);
 }
 
-/* Cursor ring expand on hover */
-.cursor-ring.cursor-hover {
-  width: 52px !important;
-  height: 52px !important;
-  border-color: rgba(34, 181, 97, 0.9) !important;
-  margin-top: -6px;
-  margin-left: -6px;
-}
-
 /* Dark-first base */
 @layer base {
   html {
@@ -113,16 +104,11 @@
     @apply bg-nex-black text-nex-white font-jost antialiased;
   }
 
-  /* Custom cursor — desktop only */
-  @media (pointer: fine) and (min-width: 1024px) {
-    html {
-      cursor: none;
-    }
-    body {
-      cursor: none;
-    }
-    a, button, [role="button"] {
-      cursor: none;
-    }
+  /* Custom cursor. CustomCursor.tsx adds the class only while its own cursor is
+     on screen, so the native one is never hidden without a replacement. Text
+     fields keep the native caret. */
+  html.custom-cursor,
+  html.custom-cursor *:not(input, textarea, [contenteditable="true"]) {
+    cursor: none;
   }
 }

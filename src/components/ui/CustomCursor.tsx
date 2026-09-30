@@ -1,124 +1,140 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-export function CustomCursor() {
+const ENABLE_QUERY =
+  '(pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference)'
+const INTERACTIVE = 'a, button, [role="button"], label, select, summary, .cursor-pointer'
+const TEXT_FIELD = 'input, textarea, [contenteditable="true"]'
+const ACCENT_SURFACE_CLASS = 'bg-nex-green'
+// Set on <html> only while the custom cursor is on screen; globals.css hides the native one.
+const ACTIVE_CLASS = 'custom-cursor'
+const RING_EASE = 0.2
+const SETTLED_PX = 0.1
+
+function place(el: HTMLElement, x: number, y: number): void {
+  el.style.transform = `translate3d(${x}px, ${y}px, 0)`
+}
+
+export function CustomCursor(): React.JSX.Element {
+  const rootRef = useRef<HTMLDivElement>(null)
   const dotRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
-  const posRef = useRef({ x: -100, y: -100 })
-  const ringPosRef = useRef({ x: -100, y: -100 })
-  const rafRef = useRef<number | null>(null)
-  const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    // Touch/mobile devices don't have a fine pointer — skip entirely
-    if (!window.matchMedia('(pointer: fine) and (min-width: 1024px)').matches) return
-    setEnabled(true)
+    const root = rootRef.current
+    const dot = dotRef.current
+    const ring = ringRef.current
+    if (!root || !dot || !ring) return
 
-    const move = (e: MouseEvent) => {
-      posRef.current = { x: e.clientX, y: e.clientY }
-    }
-    window.addEventListener('mousemove', move)
+    const query = window.matchMedia(ENABLE_QUERY)
+    const html = document.documentElement
+    const target = { x: 0, y: 0 }
+    const ringPos = { x: 0, y: 0 }
+    let frame = 0
+    let active = false
+    let onScreen = false
 
-    const animate = () => {
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${posRef.current.x - 4}px, ${posRef.current.y - 4}px)`
-      }
-      ringPosRef.current.x += (posRef.current.x - ringPosRef.current.x) * 0.12
-      ringPosRef.current.y += (posRef.current.y - ringPosRef.current.y) * 0.12
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${ringPosRef.current.x - 20}px, ${ringPosRef.current.y - 20}px)`
-      }
-      rafRef.current = requestAnimationFrame(animate)
-    }
-    rafRef.current = requestAnimationFrame(animate)
-
-    const attachListeners = () => {
-      const onEnter = (e: Event) => {
-        const target = e.currentTarget as HTMLElement
-        const isGreen =
-          target.classList.contains('bg-nex-green') ||
-          target.classList.toString().includes('green') ||
-          getComputedStyle(target).backgroundColor.includes('34, 181') ||
-          getComputedStyle(target).backgroundColor.includes('34,181')
-
-        if (dotRef.current) {
-          dotRef.current.style.background = '#ffffff'
-          dotRef.current.style.boxShadow = '0 0 8px 3px rgba(255,255,255,0.8), 0 0 20px 6px rgba(255,255,255,0.3)'
-        }
-        if (ringRef.current) {
-          ringRef.current.style.borderColor = isGreen ? 'rgba(255,255,255,0.9)' : 'rgba(34,181,97,0.9)'
-          ringRef.current.style.boxShadow = isGreen
-            ? '0 0 14px 3px rgba(255,255,255,0.2)'
-            : '0 0 14px 3px rgba(34,181,97,0.4)'
-          ringRef.current.style.width = '48px'
-          ringRef.current.style.height = '48px'
-          ringRef.current.style.marginLeft = '-4px'
-          ringRef.current.style.marginTop = '-4px'
-        }
-      }
-
-      const onLeave = () => {
-        if (dotRef.current) {
-          dotRef.current.style.background = '#22b561'
-          dotRef.current.style.boxShadow =
-            '0 0 8px 3px rgba(34,181,97,0.8), 0 0 20px 6px rgba(34,181,97,0.4)'
-        }
-        if (ringRef.current) {
-          ringRef.current.style.borderColor = 'rgba(34,181,97,0.6)'
-          ringRef.current.style.boxShadow =
-            '0 0 12px 2px rgba(34,181,97,0.2), inset 0 0 12px 2px rgba(34,181,97,0.05)'
-          ringRef.current.style.width = '40px'
-          ringRef.current.style.height = '40px'
-          ringRef.current.style.marginLeft = '0'
-          ringRef.current.style.marginTop = '0'
-        }
-      }
-
-      document.querySelectorAll('a, button, [role="button"], input, textarea, select, label').forEach((el) => {
-        el.addEventListener('mouseenter', onEnter)
-        el.addEventListener('mouseleave', onLeave)
-      })
+    // The ring eases towards the pointer and the loop stops once it arrives.
+    const tick = (): void => {
+      ringPos.x += (target.x - ringPos.x) * RING_EASE
+      ringPos.y += (target.y - ringPos.y) * RING_EASE
+      place(ring, ringPos.x, ringPos.y)
+      const settled =
+        Math.abs(target.x - ringPos.x) < SETTLED_PX && Math.abs(target.y - ringPos.y) < SETTLED_PX
+      frame = settled ? 0 : requestAnimationFrame(tick)
     }
 
-    // Run once DOM is ready, then observe for new elements (e.g. modals)
-    attachListeners()
-    const observer = new MutationObserver(attachListeners)
-    observer.observe(document.body, { childList: true, subtree: true })
+    const hide = (): void => {
+      onScreen = false
+      root.dataset.visible = 'false'
+      html.classList.remove(ACTIVE_CLASS)
+    }
+
+    const onMove = (e: MouseEvent): void => {
+      target.x = e.clientX
+      target.y = e.clientY
+      place(dot, target.x, target.y)
+      if (!onScreen) {
+        // First move (or re-entry): snap the ring, then swap the native cursor for ours.
+        onScreen = true
+        ringPos.x = target.x
+        ringPos.y = target.y
+        place(ring, ringPos.x, ringPos.y)
+        root.dataset.visible = 'true'
+        html.classList.add(ACTIVE_CLASS)
+      }
+      if (!frame) frame = requestAnimationFrame(tick)
+    }
+
+    const onOver = (e: MouseEvent): void => {
+      const el = e.target instanceof Element ? e.target : null
+      const interactive = el?.closest(INTERACTIVE) ?? null
+      const state = el?.closest(TEXT_FIELD) ? 'text' : interactive ? 'link' : 'default'
+      root.dataset.state = state
+      root.dataset.accent = String(
+        state === 'link' && Boolean(interactive?.classList.contains(ACCENT_SURFACE_CLASS)),
+      )
+    }
+
+    const onDown = (): void => {
+      root.dataset.pressed = 'true'
+    }
+    const onUp = (): void => {
+      root.dataset.pressed = 'false'
+    }
+
+    const enable = (): void => {
+      if (active) return
+      active = true
+      window.addEventListener('mousemove', onMove, { passive: true })
+      document.addEventListener('mouseover', onOver, { passive: true })
+      document.addEventListener('mousedown', onDown, { passive: true })
+      document.addEventListener('mouseup', onUp, { passive: true })
+      html.addEventListener('mouseleave', hide)
+    }
+
+    const disable = (): void => {
+      if (!active) return
+      active = false
+      window.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseover', onOver)
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('mouseup', onUp)
+      html.removeEventListener('mouseleave', hide)
+      if (frame) cancelAnimationFrame(frame)
+      frame = 0
+      hide()
+    }
+
+    // Follow the media query live: a window that starts narrow (or emulated as touch)
+    // and later qualifies must get the cursor, and the other way round must give it back.
+    const sync = (): void => (query.matches ? enable() : disable())
+    sync()
+    query.addEventListener('change', sync)
 
     return () => {
-      window.removeEventListener('mousemove', move)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      observer.disconnect()
+      query.removeEventListener('change', sync)
+      disable()
     }
   }, [])
 
-  if (!enabled) return null
-
   return (
-    <>
-      {/* Dot */}
-      <div
-        ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full pointer-events-none z-[9999]"
-        style={{
-          background: '#22b561',
-          boxShadow: '0 0 8px 3px rgba(34,181,97,0.8), 0 0 20px 6px rgba(34,181,97,0.4)',
-          willChange: 'transform',
-          transition: 'background 0.15s, box-shadow 0.15s',
-        }}
-      />
-      {/* Ring */}
-      <div
-        ref={ringRef}
-        className="fixed top-0 left-0 w-10 h-10 rounded-full pointer-events-none z-[9998]"
-        style={{
-          border: '1px solid rgba(34,181,97,0.6)',
-          boxShadow: '0 0 12px 2px rgba(34,181,97,0.2), inset 0 0 12px 2px rgba(34,181,97,0.05)',
-          willChange: 'transform',
-          transition: 'width 0.2s, height 0.2s, border-color 0.15s, box-shadow 0.15s, margin 0.2s',
-        }}
-      />
-    </>
+    <div
+      ref={rootRef}
+      aria-hidden="true"
+      data-visible="false"
+      data-state="default"
+      data-accent="false"
+      data-pressed="false"
+      className="group pointer-events-none fixed left-0 top-0 z-[9999] hidden opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 lg:block"
+    >
+      <div ref={ringRef} className="absolute left-0 top-0 will-change-transform">
+        <div className="-ml-[18px] -mt-[18px] h-9 w-9 rounded-full border-[1.5px] border-nex-green/50 transition-[transform,background-color,border-color,opacity] duration-200 ease-out group-data-[pressed=true]:scale-75 group-data-[state=link]:scale-150 group-data-[state=link]:border-nex-green group-data-[state=link]:bg-nex-green/10 group-data-[state=link]:group-data-[pressed=true]:scale-125 group-data-[state=link]:group-data-[accent=true]:border-nex-white group-data-[state=link]:group-data-[accent=true]:bg-nex-white/15 group-data-[state=text]:opacity-0" />
+      </div>
+      <div ref={dotRef} className="absolute left-0 top-0 will-change-transform">
+        <div className="-ml-[3px] -mt-[3px] h-1.5 w-1.5 rounded-full bg-nex-green transition-[transform,opacity] duration-150 ease-out group-data-[state=link]:scale-0 group-data-[state=text]:opacity-0" />
+      </div>
+    </div>
   )
 }

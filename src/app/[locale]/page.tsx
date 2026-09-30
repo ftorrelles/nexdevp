@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { buildMetadata, buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo'
 import type { Locale } from '@/content/types'
+import { isLocale } from '@/i18n/routing'
 import { HASH_LOAD_SCRIPT } from '@/lib/offscreen'
 import { Navbar } from '@/components/layout/Navbar'
 import { OffscreenAnchors } from '@/components/layout/OffscreenAnchors'
@@ -24,7 +25,9 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
-  return buildMetadata(locale as Locale, 'home')
+  // Unknown locale: the layout answers 404, so there is nothing to describe.
+  if (!isLocale(locale)) return {}
+  return buildMetadata(locale, 'home')
 }
 
 export default async function HomePage({ params }: Props) {

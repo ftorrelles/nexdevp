@@ -5,6 +5,7 @@ import { CareersHeader } from '@/components/layout/CareersHeader'
 import { createAuthServerClient } from '@/lib/supabase-server'
 import { createServiceClient, type Career } from '@/lib/supabase'
 import { buildMetadata } from '@/lib/seo'
+import { isLocale } from '@/i18n/routing'
 import { CareersListing } from './CareersListing'
 
 type Props = {
@@ -13,8 +14,10 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
+  // Unknown locale: the layout answers 404, so there is nothing to describe.
+  if (!isLocale(locale)) return {}
   const t = await getTranslations({ locale, namespace: 'careers' })
-  return buildMetadata(locale as Locale, 'careers', {
+  return buildMetadata(locale, 'careers', {
     title: t('metaTitle'),
     description: t('metaDescription'),
   })

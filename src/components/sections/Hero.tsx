@@ -1,103 +1,48 @@
-'use client'
+import type { ReactElement } from 'react'
+import { getTranslations } from 'next-intl/server'
+import { HeroGoalRail } from './HeroGoalRail'
+import { HeroMesh } from './HeroMesh'
 
-import { useEffect, useState, useRef } from 'react'
-import { useTranslations } from 'next-intl'
-import { BookingDialog } from '@/components/cta/BookingDialog'
-import { Link } from '@/i18n/navigation'
-import { HeroCard } from './HeroCard'
-
-const BASE_COUNT = 2847
-const INCREMENT_EVERY_MS = 3200
-
-export function Hero() {
-  const t = useTranslations('hero')
-  const [count, setCount] = useState(BASE_COUNT)
-  const [flash, setFlash] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCount((c) => c + Math.floor(Math.random() * 3) + 1)
-      setFlash(true)
-      setTimeout(() => setFlash(false), 400)
-    }, INCREMENT_EVERY_MS)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [])
+export async function Hero(): Promise<ReactElement> {
+  const t = await getTranslations('hero.solutionFirst')
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center bg-nex-black overflow-hidden px-6 lg:px-16 pt-10 pb-16">
+    <section id="hero" aria-labelledby="hero-heading" className="relative isolate overflow-hidden bg-nex-black px-6 pb-12 pt-12 text-nex-white sm:pb-16 sm:pt-16 lg:px-16 lg:pt-20">
+      <HeroMesh />
+      <div className="relative z-10 mx-auto w-full max-w-7xl">
+        <p className="mb-6 flex items-center gap-3 font-dm-mono text-[11px] uppercase tracking-[0.18em] text-nex-white/70">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-nex-green" />
+          {t('eyebrow')}
+        </p>
 
-      {/* Dot grid */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
-          backgroundSize: '30px 30px',
-        }}
-      />
+        <h1 id="hero-heading" className="font-jost text-[clamp(2.5rem,6.2vw,5.5rem)] font-semibold leading-[1.08] tracking-[-0.045em]">
+          {t('headline')}
+          <span className="block text-nex-green">{t('headlineAccent')}</span>
+        </h1>
 
-      {/* Light orbs */}
-      <div className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, rgba(34,181,97,0.1) 0%, transparent 70%)',
-          top: '-10%', right: '5%',
-          animation: 'drift 16s ease-in-out infinite',
-          filter: 'blur(12px)',
-        }}
-      />
-      <div className="absolute w-[350px] h-[350px] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, rgba(34,181,97,0.07) 0%, transparent 70%)',
-          bottom: '0%', left: '5%',
-          animation: 'drift-reverse 20s ease-in-out infinite',
-          filter: 'blur(16px)',
-        }}
-      />
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-        {/* ── LEFT: copy ── */}
-        <div className="flex flex-col items-start">
-
-          <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green mb-5">
-            {t('eyebrow')}
+        <div className="mt-7 flex flex-col gap-7 lg:mt-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+          <p className="max-w-md font-jost text-base leading-relaxed text-nex-white/70 sm:text-lg">
+            {t('support')}
           </p>
-
-          <h1 className="font-jost font-extrabold text-5xl sm:text-6xl xl:text-7xl text-nex-white leading-[1.05] mb-6">
-            {t('headline1')}<br />
-            {t('headline2')}<br />
-            {t('headline3')}{' '}
-            <span className="text-nex-green">{t('headline_accent')}</span>
-          </h1>
-
-          <p className="font-jost font-light text-lg text-nex-grey max-w-md leading-relaxed mb-10">
-            {t('sub')}
-          </p>
-
-          <div className="flex flex-wrap gap-4 mb-10">
-            <BookingDialog triggerLabel={t('cta_primary')} variant="primary" />
-            <Link
-              href="#demo"
-              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-md
-                font-jost text-sm font-semibold text-nex-white border border-nex-white/30
-                hover:border-nex-white/60 transition-colors"
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <a
+              href="#contacto"
+              className="inline-flex min-h-12 items-center justify-center gap-6 rounded-md bg-nex-green px-6 py-3 font-jost text-sm font-semibold text-black hover:bg-nex-green/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-nex-green"
             >
-              {t('cta_secondary')}
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="font-dm-mono text-xs text-nex-grey">{t('stat1')}</span>
-            <span className="text-nex-grey/30">|</span>
-            <span className="font-dm-mono text-xs text-nex-grey">{t('stat2')}</span>
-            <span className="text-nex-grey/30">|</span>
-            <span className="font-dm-mono text-xs text-nex-grey">{t('stat3')}</span>
+              {t('primaryCta')}
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a
+              href="#casos"
+              className="inline-flex min-h-12 items-center gap-3 rounded-sm py-3 font-jost text-sm text-nex-white underline decoration-nex-white/30 underline-offset-4 hover:decoration-nex-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-nex-green"
+            >
+              {t('secondaryCta')}
+              <span aria-hidden="true">↓</span>
+            </a>
           </div>
         </div>
 
-        {/* ── RIGHT: counter card (the copy on the left paints immediately so the h1 can be the LCP) ── */}
-        <div className="hero-enter flex items-center justify-center lg:justify-end">
-          <HeroCard count={count} flash={flash} />
-        </div>
-
+        <HeroGoalRail />
       </div>
     </section>
   )

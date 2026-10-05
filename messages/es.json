@@ -24,7 +24,6 @@
   "sections": {
     "cases": "Casos",
     "services": "Servicios",
-    "methodology": "Metodología",
     "about": "Sobre nosotros",
     "contact": "Contacto",
     "retainer": "Soporte continuo",
@@ -56,27 +55,6 @@
     "eyebrow": "Qué hacemos",
     "heading": "Servicios",
     "cardCta": "Solicitar presupuesto"
-  },
-  "methodology": {
-    "eyebrow": "METODOLOGÍA",
-    "heading": "De desconocido a cliente",
-    "heading_accent": "en 3 pasos simples",
-    "step1": {
-      "number": "01",
-      "title": "Diagnosticamos",
-      "description": "Empezamos entendiendo tu negocio: procesos actuales, dolores reales, objetivos de crecimiento. Sin supuestos — solo escucha y análisis."
-    },
-    "step2": {
-      "number": "02",
-      "title": "Construimos",
-      "description": "Desarrollamos la solución en iteraciones cortas con entregas reales. Vos ves progreso desde la primera semana, no al final del proyecto."
-    },
-    "step3": {
-      "number": "03",
-      "title": "Hacemos crecer",
-      "description": "Medimos resultados, ajustamos y escalamos. El sistema evoluciona con tu negocio para que el crecimiento no te encuentre sin infraestructura."
-    },
-    "connector": "→"
   },
   "cases": {
     "eyebrow": "Resultados reales",
@@ -159,6 +137,32 @@
     "externalLink": "Abre en nueva pestaña"
   },
   "hero": {
+    "solutionFirst": {
+      "eyebrow": "Tu negocio primero",
+      "headline": "Que tu negocio avance.",
+      "headlineAccent": "Sin los obstáculos de hoy.",
+      "support": "Primero entendemos lo que necesitas resolver. Después creamos la tecnología adecuada.",
+      "primaryCta": "Cuéntanos tu reto",
+      "secondaryCta": "Ver soluciones en acción",
+      "goals": {
+        "question": "¿Qué quieres cambiar?",
+        "time": {
+          "label": "Recuperar tiempo",
+          "problem": "Tareas que se repiten",
+          "possibility": "Podemos explorar un flujo que evite volver a cargar los mismos datos."
+        },
+        "control": {
+          "label": "Tener más control",
+          "problem": "Información en lugares distintos",
+          "possibility": "Podemos reunir registros y estados para decidir con el contexto a mano."
+        },
+        "idea": {
+          "label": "Lanzar una idea",
+          "problem": "Una oportunidad por convertir en algo real",
+          "possibility": "Podemos definir una primera versión que permita ponerla a prueba."
+        }
+      }
+    },
     "eyebrow": "CONSULTORÍA · SOFTWARE · AUTOMATIZACIÓN IA",
     "headline1": "De procesos",
     "headline2": "caóticos a",

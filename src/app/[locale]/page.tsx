@@ -12,7 +12,6 @@ import { Hero } from '@/components/sections/Hero'
 import { Pillars } from '@/components/sections/Pillars'
 import { DemoSection } from '@/components/sections/DemoSection'
 import { CasosExito } from '@/components/sections/CasosExito'
-import { Methodology } from '@/components/sections/Methodology'
 import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
 import { BeforeAfter } from '@/components/sections/BeforeAfter'
@@ -52,9 +51,6 @@ export default async function HomePage({ params }: Props) {
         </OffscreenSection>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1750px] lg:[contain-intrinsic-size:auto_970px]">
           <Pillars />
-        </OffscreenSection>
-        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1150px] lg:[contain-intrinsic-size:auto_550px]">
-          <Methodology />
         </OffscreenSection>
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2000px] lg:[contain-intrinsic-size:auto_1230px]">

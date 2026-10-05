@@ -24,7 +24,6 @@
   "sections": {
     "cases": "Cases",
     "services": "Services",
-    "methodology": "Methodology",
     "about": "About us",
     "contact": "Contact",
     "retainer": "Ongoing support",
@@ -56,27 +55,6 @@
     "eyebrow": "What we do",
     "heading": "Services",
     "cardCta": "Request a quote"
-  },
-  "methodology": {
-    "eyebrow": "METHODOLOGY",
-    "heading": "From stranger to customer",
-    "heading_accent": "in 3 simple steps",
-    "step1": {
-      "number": "01",
-      "title": "Diagnose",
-      "description": "We start by understanding your business: current processes, real pain points, growth objectives. No assumptions — only listening and analysis."
-    },
-    "step2": {
-      "number": "02",
-      "title": "Build",
-      "description": "We develop the solution in short iterations with real deliverables. You see progress from the first week, not at the end of the project."
-    },
-    "step3": {
-      "number": "03",
-      "title": "Grow",
-      "description": "We measure results, adjust, and scale. The system evolves with your business so growth doesn't find you without the infrastructure to support it."
-    },
-    "connector": "→"
   },
   "cases": {
     "eyebrow": "Real results",
@@ -159,6 +137,32 @@
     "externalLink": "Opens in new tab"
   },
   "hero": {
+    "solutionFirst": {
+      "eyebrow": "Your business first",
+      "headline": "Move your business forward.",
+      "headlineAccent": "Leave today’s obstacles behind.",
+      "support": "First, we understand what you need to solve. Then, we build the right technology.",
+      "primaryCta": "Tell us your challenge",
+      "secondaryCta": "See solutions in action",
+      "goals": {
+        "question": "What would you like to change?",
+        "time": {
+          "label": "Get time back",
+          "problem": "Tasks on repeat",
+          "possibility": "We can explore a workflow that saves you from entering the same data again."
+        },
+        "control": {
+          "label": "Gain more control",
+          "problem": "Information scattered across tools",
+          "possibility": "We can bring records and progress together so you can make informed decisions."
+        },
+        "idea": {
+          "label": "Launch an idea",
+          "problem": "An opportunity waiting to take shape",
+          "possibility": "We can define a first version that lets you put it to the test."
+        }
+      }
+    },
     "eyebrow": "CONSULTING · SOFTWARE · AI AUTOMATION",
     "headline1": "From chaotic",
     "headline2": "processes to",

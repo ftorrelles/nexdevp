@@ -7,7 +7,8 @@ export async function Hero(): Promise<ReactElement> {
   const t = await getTranslations('hero.solutionFirst')
 
   return (
-    <section id="hero" aria-labelledby="hero-heading" className="relative isolate overflow-hidden bg-nex-black px-6 pb-12 pt-12 text-nex-white sm:pb-16 sm:pt-16 lg:px-16 lg:pt-20">
+    // Navbar uses h-16 (64px) plus its 1px bottom border; min-height still permits content growth.
+    <section id="hero" aria-labelledby="hero-heading" className="relative isolate flex min-h-[calc(100svh-65px)] items-center overflow-hidden bg-nex-black px-6 py-[clamp(1.5rem,6svh,5rem)] text-nex-white lg:px-16">
       <HeroMesh />
       <div className="relative z-10 mx-auto w-full max-w-7xl">
         <p className="mb-6 flex items-center gap-3 font-dm-mono text-[11px] uppercase tracking-[0.18em] text-nex-white/70">
@@ -15,7 +16,7 @@ export async function Hero(): Promise<ReactElement> {
           {t('eyebrow')}
         </p>
 
-        <h1 id="hero-heading" className="font-jost text-[clamp(2.5rem,6.2vw,5.5rem)] font-semibold leading-[1.08] tracking-[-0.045em]">
+        <h1 id="hero-heading" className="font-jost text-[clamp(2.5rem,min(6.2vw,10svh),5.5rem)] font-semibold leading-[1.08] tracking-[-0.045em]">
           {t('headline')}
           <span className="block text-nex-green">{t('headlineAccent')}</span>
         </h1>

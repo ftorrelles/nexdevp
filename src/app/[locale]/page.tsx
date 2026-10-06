@@ -11,7 +11,6 @@ import { OffscreenSection } from '@/components/layout/OffscreenSection'
 import { Hero } from '@/components/sections/Hero'
 import { Pillars } from '@/components/sections/Pillars'
 import { DemoSection } from '@/components/sections/DemoSection'
-import { CasosExito } from '@/components/sections/CasosExito'
 import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
 import { BeforeAfter } from '@/components/sections/BeforeAfter'
@@ -49,20 +48,16 @@ export default async function HomePage({ params }: Props) {
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1000px] lg:[contain-intrinsic-size:auto_620px]">
           <BeforeAfter />
         </OffscreenSection>
-        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1750px] lg:[contain-intrinsic-size:auto_970px]">
-          <Pillars />
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1800px] lg:[contain-intrinsic-size:auto_1250px]">
+          <Portfolio />
         </OffscreenSection>
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2000px] lg:[contain-intrinsic-size:auto_1230px]">
           <DemoSection />
         </OffscreenSection>
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
-        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1400px] lg:[contain-intrinsic-size:auto_970px]">
-          <CasosExito />
-        </OffscreenSection>
-        <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
-        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2100px] lg:[contain-intrinsic-size:auto_1520px]">
-          <Portfolio />
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1750px] lg:[contain-intrinsic-size:auto_970px]">
+          <Pillars />
         </OffscreenSection>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_400px] lg:[contain-intrinsic-size:auto_270px]">
           <Stats />

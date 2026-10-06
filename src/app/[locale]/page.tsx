@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { ReactElement } from 'react'
 import { setRequestLocale } from 'next-intl/server'
 import { buildMetadata, buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo'
 import type { Locale } from '@/content/types'
@@ -15,6 +16,7 @@ import { Stats } from '@/components/sections/Stats'
 import { CtaFinal } from '@/components/sections/CtaFinal'
 import { BeforeAfter } from '@/components/sections/BeforeAfter'
 import { Portfolio } from '@/components/sections/Portfolio'
+import { RealProjectPortfolio } from '@/components/sections/RealProjectPortfolio'
 import { JoinUs } from '@/components/sections/JoinUs'
 import { Footer } from '@/components/sections/Footer'
 
@@ -29,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata(locale, 'home')
 }
 
-export default async function HomePage({ params }: Props) {
+export default async function HomePage({ params }: Props): Promise<ReactElement> {
   const { locale } = await params
   setRequestLocale(locale as Locale)
 
@@ -51,6 +53,7 @@ export default async function HomePage({ params }: Props) {
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1800px] lg:[contain-intrinsic-size:auto_1250px]">
           <Portfolio />
         </OffscreenSection>
+        <RealProjectPortfolio />
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2000px] lg:[contain-intrinsic-size:auto_1230px]">
           <DemoSection />

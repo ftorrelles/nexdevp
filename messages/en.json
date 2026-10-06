@@ -450,5 +450,292 @@
     "noAccount": "Don't have an account?",
     "register": "Sign up",
     "errorGeneric": "Invalid credentials"
+  },
+  "useCases": {
+    "eyebrow": "Selected use cases",
+    "headline": "Solutions in action",
+    "scope": "Some examples of what we can build. We create custom solutions for any industry, starting with the challenge your business needs to solve.",
+    "selection": "Explore use cases",
+    "challenge": "The challenge",
+    "solution": "The solution",
+    "contact": "Could this help your business?",
+    "disclaimer": "Interactive recreations based on our development experience. All records, amounts and scenarios are fictional: they are not client data or verified performance results. These demos do not send or store information outside this page.",
+    "cases": {
+      "construction": {
+        "label": "Construction and finance",
+        "title": "A budget you can explain.",
+        "interaction": "Change the surface area, then explore expenses, profitability and team payments.",
+        "problem": "Budgets, approvals and expenses spread across spreadsheets and messages make it hard to understand where a project stands.",
+        "solution": "A platform bringing together unit-price analysis, role-based approvals, fund requests, receipts and financial dashboards. Workers have a portal for salaries, advances and receipt confirmation; PDF documents and notifications support remote operation.",
+        "benefits": [
+          "Costs, expenses and profitability together",
+          "Payments and advances with a clear history",
+          "Role-based access across devices"
+        ]
+      },
+      "education": {
+        "label": "Education and training",
+        "title": "From managing courses to experiencing learning.",
+        "interaction": "Open a lesson and complete a sample activity to see progress change.",
+        "problem": "Separate schedules, static course materials and manual follow-up disconnect students, teachers and administration.",
+        "solution": "Our experience with course platforms and educational products connects learning content, class scheduling, student progress and administrative visibility. The same model can extend to a native mobile app, according to the needs of each project.",
+        "benefits": [
+          "Courses and learning paths in one place",
+          "Student, teacher and administrator experiences",
+          "Web and native app possibilities"
+        ]
+      },
+      "research": {
+        "label": "Market research",
+        "title": "From a field visit to a decision.",
+        "interaction": "Record a test visit, explore the illustrative map and watch the summary update.",
+        "problem": "Visits, product observations, evidence and answers scattered across forms, photos and messages make fieldwork difficult to follow.",
+        "solution": "A fieldwork platform associates each response with its store and campaign, organizes visits and brings survey information into maps and metrics. The interface below uses anonymous examples inspired by that workflow.",
+        "benefits": [
+          "Capture observations with context",
+          "Follow visits and their status",
+          "Read field findings in one place"
+        ]
+      },
+      "food": {
+        "label": "Food production",
+        "title": "The right quantities before cooking begins.",
+        "interaction": "Change the number of portions and see the ingredient requirement adapt.",
+        "problem": "Manual production calculations complicate planning when quantities, menus and dietary needs change.",
+        "solution": "A production tool helps calculate quantities, scale recipes, organize dietary variants and consult production records. It adapts to mobile use so the team can work where preparation takes place.",
+        "benefits": [
+          "Quantities scaled to the production plan",
+          "Menus and dietary needs organized",
+          "Production records accessible to the team"
+        ]
+      }
+    },
+    "preview": {
+      "demo": "Interactive recreation · Fictional data",
+      "screens": "Product screens",
+      "construction": {
+        "app": "Construction control",
+        "tabs": {
+          "budget": "Unit costs",
+          "expenses": "Expenses",
+          "profit": "Profitability",
+          "team": "Team",
+          "budgets": "Budgets"
+        },
+        "titles": {
+          "budget": "Interior painting · Unit-price analysis",
+          "expenses": "Budget vs. actual",
+          "profit": "Project profitability",
+          "team": "My payments",
+          "budgets": "Budgets"
+        },
+        "project": "Sample project / Office renovation",
+        "work": "Painting interior walls",
+        "area": "Surface area to paint",
+        "materials": "Materials",
+        "equipment": "Equipment",
+        "labor": "Labor",
+        "total": "Estimated total cost",
+        "formula": "{area} m² × USD 12 / m². Proportional example, excluding taxes and fixed costs.",
+        "half": "Same project at 50% progress · Amounts in USD",
+        "expected": "Expected cost at this stage",
+        "actual": "Recorded cost",
+        "difference": "Over expected cost",
+        "forecast": "Projected gross result",
+        "forecastNote": "Sample sale: {sale}. Recorded cost: {actual}, plus {pending} to complete the work. This is a projection, not final profit.",
+        "payments": "Sample worker · Recorded work",
+        "earned": "Recorded work",
+        "advance": "Advance paid",
+        "balance": "Pending balance",
+        "roles": "Each worker sees their own payments. Administration follows advances and supporting records.",
+        "screens": "Construction app screens",
+        "inProgress": "In progress",
+        "review": "Under review",
+        "margin": "Projected margin",
+        "sale": "Sample sale",
+        "remaining": "Cost still to come",
+        "result": "Projected result",
+        "breakdownLabel": "Sample sale: 48% recorded cost, 40% pending cost and 12% projected gross result.",
+        "progress": "Progress",
+        "resource": "Resource",
+        "expectedShort": "Expected",
+        "actualShort": "Actual",
+        "differenceShort": "Difference",
+        "openBudget": "Open budget",
+        "listNote": "Fictional budgets. Select one to explore the office painting detail.",
+        "projects": {
+          "office": "Office renovation",
+          "warehouse": "Warehouse expansion",
+          "electrical": "Electrical installation"
+        }
+      },
+      "education": {
+        "app": "Learning campus",
+        "tabs": {
+          "learning": "My learning",
+          "lesson": "Lesson",
+          "management": "Management",
+          "course": "Course"
+        },
+        "titles": {
+          "learning": "Welcome to your learning space.",
+          "lesson": "Learn through a real situation.",
+          "management": "Classes and coordination"
+        },
+        "courseLabel": "Your course",
+        "course": "Communication foundations",
+        "progress": "{count} of 3 sample activities completed",
+        "progressLabel": "Sample course progress",
+        "continue": "Continue learning",
+        "lessonLabel": "Activity {number} / 3",
+        "lessonTitle": "Introduce your idea",
+        "lessonCopy": "Describe a goal you would like to achieve. Explain the problem, who it affects and what would change if it were solved.",
+        "complete": "Complete sample activity",
+        "finished": "Sample completed",
+        "agenda": "Sample schedule",
+        "class": "Individual class · Communication",
+        "time": "Tuesday · 10:00–10:30 · Sample time",
+        "managementCopy": "Students follow their progress, teachers organize classes and administrators consult operational information.",
+        "native": "The sample shows a web experience. A native mobile app can be designed as part of the solution; it is not shown here.",
+        "screens": "Learning app screens",
+        "greeting": "Welcome back, learner!",
+        "welcomeCopy": "Ready to continue learning today?",
+        "reviewLesson": "Review activity",
+        "myCourses": "My courses",
+        "browseCourses": "Explore your learning path",
+        "myLessons": "My lessons",
+        "upcoming": "Upcoming classes",
+        "courseMeta": "3 modules · 3 sample activities",
+        "content": "Course content",
+        "done": "Completed",
+        "activity": "1 activity",
+        "completedModule": "You completed this module.",
+        "continueModule": "Continue with the next activity on your learning path.",
+        "teacher": "Your teacher",
+        "question": "What do you want to achieve with this project?",
+        "chooseAnswer": "Choose the clearer answer",
+        "answerCorrect": "A clear goal helps explain what would change. You can complete this sample activity.",
+        "answerRetry": "Try again: choose the answer that explains a concrete goal.",
+        "answerHint": "Choose an answer to try this lesson.",
+        "scheduled": "Scheduled",
+        "modules": {
+          "0": "Present your idea",
+          "1": "Build a conversation",
+          "2": "Explain your goal"
+        },
+        "answers": {
+          "goal": "I want to organize classes so students can follow their progress.",
+          "unclear": "I want something, but I cannot explain what it should solve."
+        }
+      },
+      "food": {
+        "app": "Production kitchen",
+        "tabs": {
+          "plan": "Calculate",
+          "dashboard": "Dashboard",
+          "diets": "Soft diets"
+        },
+        "titles": {
+          "plan": "Plan the next service.",
+          "production": "From portions to preparation."
+        },
+        "portions": "Portions to prepare",
+        "required": "Ingredient required",
+        "formula": "Example: 150 g per portion × number of portions.",
+        "productionNote": "The same quantities support preparation planning and production records.",
+        "note": "Example recipe quantities only. This demo does not provide dietary advice or replace nutritional planning and food-safety procedures.",
+        "screens": "Kitchen app screens",
+        "service": "Lunch service",
+        "patients": "LUNCH · Total portions",
+        "protein": "Protein",
+        "selected": "Selected",
+        "quickSelect": "Protein — quick select",
+        "unitsBox": "Units / box",
+        "unitsServing": "Units / portion",
+        "waste": "Waste %",
+        "calculate": "Calculate production",
+        "boxesRequired": "Boxes needed for this sample service",
+        "calculation": "{portions} portions × {units} units, with {waste}% waste from boxes of {box} units. Rounded up to whole boxes.",
+        "dashboardTitle": "Production dashboard",
+        "weekTitle": "Production this week · Sample",
+        "weekChart": "Illustrative weekly production chart, not client results.",
+        "dashboardNote": "Fictional weekly history. Today shows the boxes from your last calculation in this demonstration.",
+        "dietTitle": "Soft diet preparations",
+        "dietCopy": "Organize preparations separately from the main service, using example quantities.",
+        "preparation": "Preparation",
+        "dietFormula": "{portions} sample portions × 200 g.",
+        "proteins": {
+          "chicken": "Chicken thigh",
+          "fish": "Fish",
+          "meatballs": "Meatballs",
+          "burger": "Burger"
+        },
+        "metrics": {
+          "weekly": "Boxes this sample week",
+          "average": "Average boxes / day",
+          "preparations": "Preparations",
+          "today": "Boxes planned today"
+        },
+        "days": {
+          "0": "M",
+          "1": "T",
+          "2": "W",
+          "3": "T",
+          "4": "F",
+          "5": "S",
+          "6": "S"
+        },
+        "diets": {
+          "vegetables": "Vegetable purée",
+          "carrot": "Carrot purée",
+          "pumpkin": "Pumpkin purée"
+        }
+      },
+      "research": {
+        "app": "Field team",
+        "demo": "Demonstration data",
+        "screens": "Research product screens",
+        "tabs": {
+          "visit": "Field visit",
+          "map": "Map",
+          "metrics": "Metrics"
+        },
+        "titles": {
+          "visit": "Log a visit",
+          "map": "Team visits",
+          "metrics": "Reading the field"
+        },
+        "store": "Store",
+        "storeName": "Store {number}",
+        "campaign": "Campaign",
+        "campaignName": "Sample beverage study",
+        "product": "SAMPLE PRODUCT · OBSERVATIONS",
+        "availability": "Is the product available in the store?",
+        "choices": {
+          "on": "Yes · On display",
+          "off": "Not displayed",
+          "out": "Out of stock"
+        },
+        "evidence": "Product evidence",
+        "addEvidence": "Add simulated evidence",
+        "removeEvidence": "Remove simulated evidence",
+        "evidenceNote": "Generic illustration. Not a photograph.",
+        "save": "Save test visit",
+        "saved": "Visit saved in this demo. Check the Metrics tab.",
+        "local": "Only in this demonstration. Nothing is sent.",
+        "recorded": "Recorded",
+        "pending": "Pending",
+        "mapLabel": "Illustrative map without geographic locations",
+        "selectStore": "Select store {number}",
+        "mapNote": "Illustrative map: no scale or real location. The line connects examples; it is not directions or an optimized route.",
+        "openVisit": "Open store {number} visit",
+        "completed": "Recorded visits",
+        "onShelf": "Stores with product on display",
+        "metricsNote": "Only saved visits count. Saving the same store again updates its record rather than adding another visit. These are fictional responses, not client results.",
+        "districtNorth": "NORTH DISTRICT",
+        "districtSouth": "SOUTH DISTRICT",
+        "park": "Park"
+      }
+    }
   }
 }

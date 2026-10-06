@@ -6,7 +6,7 @@ interface ProjectImage {
   src: string
   width: number
   height: number
-  kind: 'screenshot' | 'redacted' | 'cover'
+  kind: 'screenshot' | 'redacted' | 'demo' | 'cover'
 }
 
 interface ProjectBase {
@@ -22,9 +22,9 @@ export type RealProject = ProjectBase & (
 )
 
 export const REAL_PROJECTS: readonly RealProject[] = [
-  { id: 'sce', category: 'projects', relationship: 'client', access: 'private' },
+  { id: 'sce', category: 'projects', relationship: 'client', access: 'private', image: { src: '/portfolio/sce-dashboard.png', width: 1916, height: 1030, kind: 'screenshot' } },
   { id: 'trayecto', category: 'projects', relationship: 'product', access: 'public', url: 'https://trayecto.app/', linkKind: 'website', image: { src: '/portfolio/trayecto.png', width: 1578, height: 883, kind: 'screenshot' } },
-  { id: 'vivir', category: 'projects', relationship: 'client', access: 'public', url: 'https://youtube.com/watch?v=KKoggMgaJDw', linkKind: 'video', image: { src: '/portfolio/vivir-chevere-redacted.png', width: 1402, height: 1122, kind: 'redacted' } },
+  { id: 'vivir', category: 'projects', relationship: 'client', access: 'public', url: 'https://youtube.com/watch?v=KKoggMgaJDw', linkKind: 'video', image: { src: '/portfolio/vivir-chevere-demo.png', width: 1402, height: 1122, kind: 'demo' } },
   { id: 'cil', category: 'apps', relationship: 'product', access: 'public', url: 'https://cambridge-helper-cumorah.vercel.app/', linkKind: 'website', image: { src: '/portfolio/cil.png', width: 720, height: 1600, kind: 'screenshot' } },
   { id: 'speakpath', category: 'apps', relationship: 'product', access: 'public', url: 'https://speakpath-ten.vercel.app/', linkKind: 'website', image: { src: '/portfolio/speakpath.jpg', width: 720, height: 1600, kind: 'screenshot' } },
   { id: 'collab', category: 'apps', relationship: 'client', access: 'private', image: { src: '/portfolio/collab-map-cover.png', width: 572, height: 609, kind: 'cover' } },

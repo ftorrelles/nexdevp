@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
@@ -9,19 +9,19 @@ import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher'
 import type { Locale } from '@/content/types'
 import { renderAllOffscreenSections } from '@/lib/offscreen'
 
-const sectionIds = ['hero', 'servicios', 'demo', 'casos', 'portfolio', 'contacto', 'trabaja']
+const sectionIds = ['hero', 'casos', 'demo', 'servicios', 'portfolio', 'contacto', 'trabaja']
 
 interface NavbarProps {
   locale: Locale
 }
 
-export function Navbar({ locale }: NavbarProps) {
+export function Navbar({ locale }: NavbarProps): ReactElement {
   const t = useTranslations('navbar')
   const navLinks = [
     { href: '#hero',      label: t('home') },
-    { href: '#servicios', label: t('servicios') },
-    { href: '#demo',      label: t('demo') },
     { href: '#casos',      label: t('casos') },
+    { href: '#demo',      label: t('demo') },
+    { href: '#servicios', label: t('servicios') },
     { href: '#portfolio',  label: t('portfolio') },
     { href: '#contacto',   label: t('contacto') },
     { href: '#trabaja',    label: t('trabaja') },

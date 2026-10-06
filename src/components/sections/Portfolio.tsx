@@ -12,8 +12,7 @@ export function Portfolio(): ReactElement {
 
   return (
     <section id="casos" aria-labelledby="use-cases-heading" className="scroll-mt-20 bg-nex-black px-6 py-16 text-nex-white lg:px-12 lg:py-24">
-      <div id="portfolio" className="mx-auto max-w-6xl scroll-mt-20">
-        <span id="proyectos" className="block scroll-mt-20" aria-hidden="true" />
+      <div className="mx-auto max-w-6xl scroll-mt-20">
         <p className="mb-4 font-dm-mono text-xs uppercase tracking-[0.2em] text-nex-green">{t('eyebrow')}</p>
         <h2 id="use-cases-heading" className="mb-4 font-jost text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{t('headline')}</h2>
         <p className="mb-7 max-w-3xl text-base leading-relaxed text-nex-grey">{t('scope')}</p>

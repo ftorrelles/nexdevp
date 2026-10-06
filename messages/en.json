@@ -1,4 +1,140 @@
 {
+  "realPortfolio": {
+    "eyebrow": "Selected work",
+    "headline": "Real projects. Solutions in use.",
+    "intro": "Platforms, apps and websites built around a real need. Different challenges, one team: Nexdevp.",
+    "filterLabel": "Project categories",
+    "categories": {
+      "projects": "Projects",
+      "apps": "Apps",
+      "websites": "Websites"
+    },
+    "scrollHint": "Scroll to explore, or use the previous and next buttons.",
+    "listHint": "Explore the projects in this category.",
+    "regionLabel": "Selected project stories",
+    "relationships": {
+      "client": "Client",
+      "product": "Product"
+    },
+    "challenge": "The challenge",
+    "solution": "The solution",
+    "privateProject": "Private project",
+    "privateCover": "Project management, budgets and expenses in one place.",
+    "privateAccess": "Private platform · no public access",
+    "captions": {
+      "screenshot": "Project screenshot",
+      "redacted": "Personal data hidden",
+      "cover": "Project cover · private platform",
+      "pending": "Project cover · screenshot not published"
+    },
+    "visitWebsite": "Visit website",
+    "viewVideo": "Watch demo video",
+    "newTab": " (opens in a new tab)",
+    "previous": "Previous",
+    "next": "Next",
+    "position": "{current} of {total}",
+    "items": {
+      "sce": {
+        "name": "SCE INTERNATIONAL",
+        "challenge": "Keep construction budgets, expenses and team responsibilities connected.",
+        "solution": "A private management platform that brings project costs and role-based workflows together.",
+        "alt": "SCE INTERNATIONAL project cover",
+        "tags": {
+          "one": "Budgets",
+          "two": "Expenses",
+          "three": "Roles"
+        }
+      },
+      "trayecto": {
+        "name": "Trayecto",
+        "challenge": "Make it easier to navigate career opportunities and professional development.",
+        "solution": "Our own career platform, designed to connect people with their next professional step.",
+        "alt": "Trayecto career platform homepage",
+        "tags": {
+          "one": "Careers",
+          "two": "Opportunities",
+          "three": "Own product"
+        }
+      },
+      "vivir": {
+        "name": "Vivir Chevere",
+        "challenge": "Bring customer information and daily business operations into one workspace.",
+        "solution": "Business management software with customer, product and operational views.",
+        "alt": "Vivir Chevere interface with personal identifiers and sensitive values hidden",
+        "tags": {
+          "one": "Customers",
+          "two": "Products",
+          "three": "Operations"
+        }
+      },
+      "cil": {
+        "name": "Cíl",
+        "challenge": "Give learners a clear place to study and practise.",
+        "solution": "A multiplatform study app with structured learning resources and practice activities.",
+        "alt": "Cíl study app home screen",
+        "tags": {
+          "one": "Study",
+          "two": "Practice",
+          "three": "Multiplatform"
+        }
+      },
+      "speakpath": {
+        "name": "SpeakPath",
+        "challenge": "Make lessons and learning materials easier to follow.",
+        "solution": "An education platform that organises courses and classes in a clear learning experience.",
+        "alt": "SpeakPath course and lesson screen",
+        "tags": {
+          "one": "Courses",
+          "two": "Classes",
+          "three": "Learning"
+        }
+      },
+      "collab": {
+        "name": "Collab Map",
+        "challenge": "Support the organisation of field operations.",
+        "solution": "A private-use platform for field work. Only its cover is shown to protect internal information.",
+        "alt": "Collab Map brand cover, not an application screenshot",
+        "tags": {
+          "one": "Field operations",
+          "two": "Organisation",
+          "three": "Private platform"
+        }
+      },
+      "amarhte": {
+        "name": "Amarhte",
+        "challenge": "Communicate a wellbeing offering with clarity and a welcoming identity.",
+        "solution": "A website that introduces the brand, presents its services and makes contact accessible.",
+        "alt": "Amarhte wellbeing website homepage",
+        "tags": {
+          "one": "Brand",
+          "two": "Services",
+          "three": "Contact"
+        }
+      },
+      "perezRojas": {
+        "name": "Pérez Rojas Abogados",
+        "challenge": "Help visitors understand legal services and find a way to contact the firm.",
+        "solution": "A bilingual website with practice areas, legal insights and consultation information.",
+        "alt": "Pérez Rojas Abogados public website homepage",
+        "tags": {
+          "one": "Bilingual",
+          "two": "Practice areas",
+          "three": "Contact"
+        }
+      },
+      "biupoll": {
+        "name": "Biupoll",
+        "challenge": "Present a market-research offering clearly on the web.",
+        "solution": "A public website that introduces Biupoll and its survey-focused offering.",
+        "alt": "Biupoll public website screens",
+        "tags": {
+          "one": "Website",
+          "two": "Market research",
+          "three": "Surveys"
+        }
+      }
+    }
+  },
   "nav": {
     "home": "Home",
     "services": "Services",

@@ -53,7 +53,6 @@ export default async function HomePage({ params }: Props): Promise<ReactElement>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1800px] lg:[contain-intrinsic-size:auto_1250px]">
           <Portfolio />
         </OffscreenSection>
-        <RealProjectPortfolio />
         <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_2000px] lg:[contain-intrinsic-size:auto_1230px]">
           <DemoSection />
@@ -65,6 +64,7 @@ export default async function HomePage({ params }: Props): Promise<ReactElement>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_400px] lg:[contain-intrinsic-size:auto_270px]">
           <Stats />
         </OffscreenSection>
+        <RealProjectPortfolio />
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1170px] lg:[contain-intrinsic-size:auto_950px]">
           <CtaFinal />
         </OffscreenSection>

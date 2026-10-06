@@ -14,9 +14,15 @@ describe('homepage section composition', () => {
     const sections = [...page.matchAll(/<(Hero|BeforeAfter|Pillars|DemoSection|CasosExito|Portfolio|Stats|CtaFinal|JoinUs|Footer)\b/g)]
       .map((match) => match[1])
     expect(sections).toEqual([
-      'Hero', 'BeforeAfter', 'Pillars', 'DemoSection', 'CasosExito',
-      'Portfolio', 'Stats', 'CtaFinal', 'JoinUs', 'Footer',
+      'Hero', 'BeforeAfter', 'Portfolio', 'DemoSection', 'Pillars',
+      'Stats', 'CtaFinal', 'JoinUs', 'Footer',
     ])
+  })
+
+  it('renders the unified use cases once, immediately before the chatbot', () => {
+    expect(page.match(/<Portfolio\b/g)).toHaveLength(1)
+    expect(page).not.toContain('CasosExito')
+    expect(page).toMatch(/<Portfolio\s*\/>[\s\S]*?<DemoSection\s*\/>/)
   })
 
   it.each(['en', 'es'])('removes unused methodology copy in %s', (locale) => {

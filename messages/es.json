@@ -450,5 +450,292 @@
     "noAccount": "¿No tenés cuenta?",
     "register": "Registrate",
     "errorGeneric": "Credenciales incorrectas"
+  },
+  "useCases": {
+    "eyebrow": "Algunos casos de uso",
+    "headline": "Soluciones en acción",
+    "scope": "Algunos ejemplos de lo que podemos construir. Creamos soluciones a medida para cualquier nicho, empezando por el reto que tu negocio necesita resolver.",
+    "selection": "Explorar casos de uso",
+    "challenge": "El reto",
+    "solution": "La solución",
+    "contact": "¿Algo así para tu negocio?",
+    "disclaimer": "Recreaciones interactivas basadas en nuestra experiencia de desarrollo. Los registros, importes y escenarios son ficticios: no son datos de clientes ni resultados de rendimiento verificados. Estas demos no envían ni guardan información fuera de esta página.",
+    "cases": {
+      "construction": {
+        "label": "Obras y finanzas",
+        "title": "Un presupuesto que puedes explicar.",
+        "interaction": "Cambia la superficie y explora gastos, rentabilidad y pagos del equipo.",
+        "problem": "Presupuestos, aprobaciones y gastos repartidos entre hojas de cálculo y mensajes dificultan saber cómo va cada obra.",
+        "solution": "Una plataforma que reúne análisis de precios unitarios, aprobaciones por rol, solicitudes de fondos, comprobantes y paneles financieros. Cada trabajador dispone de un portal para salarios, adelantos y confirmación de recepción; documentos PDF y notificaciones acompañan la gestión remota.",
+        "benefits": [
+          "Costos, gastos y rentabilidad en un solo lugar",
+          "Pagos y adelantos con historial",
+          "Acceso por rol desde cualquier dispositivo"
+        ]
+      },
+      "education": {
+        "label": "Educación y formación",
+        "title": "De gestionar cursos a vivir el aprendizaje.",
+        "interaction": "Abre una lección y completa una actividad de ejemplo para ver cambiar el progreso.",
+        "problem": "Agendas separadas, materiales estáticos y seguimiento manual desconectan a estudiantes, docentes y administración.",
+        "solution": "Nuestra experiencia en plataformas de cursos y productos educativos conecta contenidos, programación de clases, progreso del estudiante y visibilidad administrativa. El mismo modelo puede extenderse a una app móvil nativa, según las necesidades de cada proyecto.",
+        "benefits": [
+          "Cursos y rutas de aprendizaje en un lugar",
+          "Experiencias para estudiantes, docentes y administración",
+          "Posibilidades web y de apps nativas"
+        ]
+      },
+      "research": {
+        "label": "Investigación de mercado",
+        "title": "De una visita en campo a una decisión.",
+        "interaction": "Registra una visita de prueba, explora el mapa ilustrativo y observa cómo cambia el resumen.",
+        "problem": "Visitas, observaciones de productos, evidencias y respuestas repartidas entre formularios, fotos y mensajes dificultan seguir el trabajo de campo.",
+        "solution": "Una plataforma de trabajo de campo asocia cada respuesta con su tienda y campaña, organiza visitas y reúne información de encuestas en mapas y métricas. La interfaz usa ejemplos anónimos inspirados en ese flujo de trabajo.",
+        "benefits": [
+          "Registrar observaciones con contexto",
+          "Consultar visitas y sus estados",
+          "Leer resultados del campo en un lugar"
+        ]
+      },
+      "food": {
+        "label": "Producción alimentaria",
+        "title": "Las cantidades claras, antes de cocinar.",
+        "interaction": "Cambia el número de porciones y observa cómo se ajustan los ingredientes necesarios.",
+        "problem": "Los cálculos manuales de producción complican la planificación cuando cambian cantidades, menús y necesidades alimentarias.",
+        "solution": "Una herramienta de producción ayuda a calcular cantidades, escalar recetas, organizar variantes de dieta y consultar registros de producción. Se adapta al uso móvil para acompañar al equipo donde se prepara la comida.",
+        "benefits": [
+          "Cantidades ajustadas al plan de producción",
+          "Menús y necesidades alimentarias organizados",
+          "Registros de producción accesibles al equipo"
+        ]
+      }
+    },
+    "preview": {
+      "demo": "Recreación interactiva · Datos ficticios",
+      "screens": "Pantallas del producto",
+      "construction": {
+        "app": "Gestión de obra",
+        "tabs": {
+          "budget": "APU",
+          "expenses": "Gastos",
+          "profit": "Rentabilidad",
+          "team": "Equipo",
+          "budgets": "Presupuestos"
+        },
+        "titles": {
+          "budget": "Pintura interior · Análisis de precios unitarios",
+          "expenses": "Presupuestado vs. real",
+          "profit": "Rentabilidad de la obra",
+          "team": "Mis pagos",
+          "budgets": "Presupuestos"
+        },
+        "project": "Obra de ejemplo / Renovación de oficina",
+        "work": "Pintura de paredes interiores",
+        "area": "Superficie a pintar",
+        "materials": "Materiales",
+        "equipment": "Equipos",
+        "labor": "Mano de obra",
+        "total": "Costo total previsto",
+        "formula": "{area} m² × USD 12 / m². Ejemplo proporcional, sin impuestos ni costos fijos.",
+        "half": "La misma obra al 50% de avance · Importes en USD",
+        "expected": "Costo previsto a este avance",
+        "actual": "Gasto registrado",
+        "difference": "Desvío sobre lo previsto",
+        "forecast": "Resultado bruto previsto",
+        "forecastNote": "Venta del ejemplo: {sale}. Gasto registrado: {actual}, más {pending} para completar el trabajo. Es una proyección, no la ganancia final.",
+        "payments": "Persona de ejemplo · Trabajo registrado",
+        "earned": "Trabajo registrado",
+        "advance": "Anticipo pagado",
+        "balance": "Saldo pendiente",
+        "roles": "Cada trabajador ve sus propios pagos. Administración sigue los adelantos y los registros de respaldo.",
+        "screens": "Pantallas de la app de obras",
+        "inProgress": "En ejecución",
+        "review": "En revisión",
+        "margin": "Margen previsto",
+        "sale": "Venta del ejemplo",
+        "remaining": "Por gastar",
+        "result": "Resultado previsto",
+        "breakdownLabel": "Venta del ejemplo: 48% de gasto registrado, 40% de costo pendiente y 12% de resultado bruto previsto.",
+        "progress": "Avance",
+        "resource": "Recurso",
+        "expectedShort": "Previsto",
+        "actualShort": "Real",
+        "differenceShort": "Desvío",
+        "openBudget": "Abrir presupuesto",
+        "listNote": "Presupuestos ficticios. Selecciona uno para explorar el detalle de pintura de la oficina.",
+        "projects": {
+          "office": "Renovación de oficina",
+          "warehouse": "Ampliación de bodega",
+          "electrical": "Instalación eléctrica"
+        }
+      },
+      "education": {
+        "app": "Campus de aprendizaje",
+        "tabs": {
+          "learning": "Mi aprendizaje",
+          "lesson": "Lección",
+          "management": "Gestión",
+          "course": "Curso"
+        },
+        "titles": {
+          "learning": "Tu espacio para aprender.",
+          "lesson": "Aprende con una situación real.",
+          "management": "Clases y coordinación"
+        },
+        "courseLabel": "Tu curso",
+        "course": "Fundamentos de comunicación",
+        "progress": "{count} de 3 actividades de ejemplo completadas",
+        "progressLabel": "Progreso del curso de ejemplo",
+        "continue": "Continuar aprendizaje",
+        "lessonLabel": "Actividad {number} / 3",
+        "lessonTitle": "Presenta tu idea",
+        "lessonCopy": "Describe un objetivo que quieras alcanzar. Explica el problema, a quién afecta y qué cambiaría si estuviera resuelto.",
+        "complete": "Completar actividad de ejemplo",
+        "finished": "Ejemplo completado",
+        "agenda": "Agenda de ejemplo",
+        "class": "Clase individual · Comunicación",
+        "time": "Martes · 10:00–10:30 · Horario de ejemplo",
+        "managementCopy": "Los estudiantes siguen su progreso, los docentes organizan clases y la administración consulta información operativa.",
+        "native": "El ejemplo muestra una experiencia web. Una app móvil nativa puede formar parte de la solución; no se muestra aquí.",
+        "screens": "Pantallas de la app de aprendizaje",
+        "greeting": "¡Hola de nuevo, estudiante!",
+        "welcomeCopy": "¿Continuamos aprendiendo hoy?",
+        "reviewLesson": "Repasar actividad",
+        "myCourses": "Mis cursos",
+        "browseCourses": "Explora tu ruta de aprendizaje",
+        "myLessons": "Mis lecciones",
+        "upcoming": "Próximas clases",
+        "courseMeta": "3 módulos · 3 actividades de ejemplo",
+        "content": "Contenido del curso",
+        "done": "Completado",
+        "activity": "1 actividad",
+        "completedModule": "Completaste este módulo.",
+        "continueModule": "Continúa con la siguiente actividad de tu ruta de aprendizaje.",
+        "teacher": "Tu docente",
+        "question": "¿Qué quieres lograr con este proyecto?",
+        "chooseAnswer": "Elige la respuesta más clara",
+        "answerCorrect": "Un objetivo claro ayuda a explicar qué cambiaría. Puedes completar esta actividad de ejemplo.",
+        "answerRetry": "Inténtalo de nuevo: elige la respuesta que explica un objetivo concreto.",
+        "answerHint": "Elige una respuesta para probar esta lección.",
+        "scheduled": "Programada",
+        "modules": {
+          "0": "Presenta tu idea",
+          "1": "Construye una conversación",
+          "2": "Explica tu objetivo"
+        },
+        "answers": {
+          "goal": "Quiero organizar las clases para que cada estudiante siga su progreso.",
+          "unclear": "Quiero algo, pero no puedo explicar qué debe resolver."
+        }
+      },
+      "food": {
+        "app": "Cocina de producción",
+        "tabs": {
+          "plan": "Calcular",
+          "dashboard": "Panel",
+          "diets": "Dietas blandas"
+        },
+        "titles": {
+          "plan": "Planifica el próximo servicio.",
+          "production": "De las porciones a la preparación."
+        },
+        "portions": "Porciones a preparar",
+        "required": "Ingrediente necesario",
+        "formula": "Ejemplo: 150 g por porción × número de porciones.",
+        "productionNote": "Las mismas cantidades acompañan la planificación de preparación y los registros de producción.",
+        "note": "Solo cantidades de una receta de ejemplo. La demo no ofrece consejo dietético ni sustituye la planificación nutricional y los procedimientos de seguridad alimentaria.",
+        "screens": "Pantallas de la app de cocina",
+        "service": "Servicio de almuerzo",
+        "patients": "ALMUERZO · Total porciones",
+        "protein": "Proteína",
+        "selected": "Seleccionado",
+        "quickSelect": "Proteína — selección rápida",
+        "unitsBox": "Unid. / caja",
+        "unitsServing": "Unid. / ración",
+        "waste": "Merma %",
+        "calculate": "Calcular producción",
+        "boxesRequired": "Cajas necesarias para este servicio de ejemplo",
+        "calculation": "{portions} porciones × {units} unidades, con {waste}% de merma y cajas de {box} unidades. Redondeado a cajas completas.",
+        "dashboardTitle": "Panel de producción",
+        "weekTitle": "Producción de la semana · Ejemplo",
+        "weekChart": "Gráfico ilustrativo de producción semanal, no son resultados de clientes.",
+        "dashboardNote": "Historial semanal ficticio. Hoy muestra las cajas de tu último cálculo en esta demostración.",
+        "dietTitle": "Preparaciones de dieta blanda",
+        "dietCopy": "Organiza preparaciones separadas del servicio principal, usando cantidades de ejemplo.",
+        "preparation": "Preparación",
+        "dietFormula": "{portions} porciones de ejemplo × 200 g.",
+        "proteins": {
+          "chicken": "Muslo de pollo",
+          "fish": "Pescado",
+          "meatballs": "Albóndigas",
+          "burger": "Hamburguesa"
+        },
+        "metrics": {
+          "weekly": "Cajas esta semana de ejemplo",
+          "average": "Media de cajas / día",
+          "preparations": "Elaboraciones",
+          "today": "Cajas previstas hoy"
+        },
+        "days": {
+          "0": "L",
+          "1": "M",
+          "2": "X",
+          "3": "J",
+          "4": "V",
+          "5": "S",
+          "6": "D"
+        },
+        "diets": {
+          "vegetables": "Puré de verduras",
+          "carrot": "Puré de zanahoria",
+          "pumpkin": "Puré de calabaza"
+        }
+      },
+      "research": {
+        "app": "Equipo de campo",
+        "demo": "Datos de demostración",
+        "screens": "Pantallas de investigación de mercado",
+        "tabs": {
+          "visit": "Visita en campo",
+          "map": "Mapa",
+          "metrics": "Métricas"
+        },
+        "titles": {
+          "visit": "Registrar visita",
+          "map": "Visitas del equipo",
+          "metrics": "Lectura del campo"
+        },
+        "store": "Tienda",
+        "storeName": "Tienda {number}",
+        "campaign": "Campaña",
+        "campaignName": "Estudio de bebida de ejemplo",
+        "product": "PRODUCTO DE EJEMPLO · OBSERVACIONES",
+        "availability": "¿Está disponible el producto en la tienda?",
+        "choices": {
+          "on": "Sí · En exhibición",
+          "off": "No exhibido",
+          "out": "Agotado"
+        },
+        "evidence": "Evidencia del producto",
+        "addEvidence": "Añadir evidencia simulada",
+        "removeEvidence": "Quitar evidencia simulada",
+        "evidenceNote": "Ilustración genérica. No es una fotografía.",
+        "save": "Guardar visita de prueba",
+        "saved": "Visita guardada en esta demo. Revisa la pestaña Métricas.",
+        "local": "Solo en esta demostración. No se envía nada.",
+        "recorded": "Registrada",
+        "pending": "Pendientes",
+        "mapLabel": "Mapa ilustrativo sin ubicaciones geográficas",
+        "selectStore": "Seleccionar tienda {number}",
+        "mapNote": "Mapa ilustrativo: sin escala ni ubicación real. La línea conecta ejemplos; no son indicaciones ni una ruta optimizada.",
+        "openVisit": "Abrir visita de tienda {number}",
+        "completed": "Visitas registradas",
+        "onShelf": "Tiendas con producto en exhibición",
+        "metricsNote": "Solo cuentan las visitas guardadas. Guardar de nuevo la misma tienda actualiza su registro sin añadir otra visita. Son respuestas ficticias, no resultados de clientes.",
+        "districtNorth": "DISTRITO NORTE",
+        "districtSouth": "DISTRITO SUR",
+        "park": "Parque"
+      }
+    }
   }
 }

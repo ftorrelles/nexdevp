@@ -11,12 +11,21 @@ describe('homepage section composition', () => {
   })
 
   it('preserves the hero and the remaining homepage sections in order', () => {
-    const sections = [...page.matchAll(/<(Hero|BeforeAfter|Pillars|DemoSection|CasosExito|Portfolio|Stats|CtaFinal|JoinUs|Footer)\b/g)]
+    const sections = [...page.matchAll(/<(Hero|BeforeAfter|Pillars|DemoSection|CasosExito|Portfolio|RealProjectPortfolio|Stats|CtaFinal|JoinUs|Footer)\b/g)]
       .map((match) => match[1])
     expect(sections).toEqual([
       'Hero', 'BeforeAfter', 'Portfolio', 'DemoSection', 'Pillars',
-      'Stats', 'CtaFinal', 'JoinUs', 'Footer',
+      'Stats', 'RealProjectPortfolio', 'CtaFinal', 'JoinUs', 'Footer',
     ])
+  })
+
+  it('places real projects immediately after stats and aligns navbar links with homepage order', () => {
+    expect(page.match(/<RealProjectPortfolio\b/g)).toHaveLength(1)
+    expect(page).toMatch(/<Stats\s*\/>\s*<\/OffscreenSection>\s*<RealProjectPortfolio\s*\/>/)
+    const navbar = readFileSync('src/components/layout/Navbar.tsx', 'utf8')
+    const links = [...navbar.matchAll(/href: '#([^']+)'/g)].map((match) => match[1])
+    expect(links).toEqual(['hero', 'casos', 'demo', 'servicios', 'portfolio', 'contacto', 'trabaja'])
+    expect(navbar).toContain("const sectionIds = ['hero', 'casos', 'demo', 'servicios', 'portfolio', 'contacto', 'trabaja']")
   })
 
   it('renders the unified use cases once, immediately before the chatbot', () => {

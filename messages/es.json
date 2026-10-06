@@ -3,6 +3,14 @@
     "eyebrow": "Trabajo seleccionado",
     "headline": "Proyectos reales. Soluciones que ya funcionan.",
     "intro": "Plataformas, apps y webs creadas para una necesidad real. Distintos retos, un mismo equipo: Nexdevp.",
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "playbackHint": "Reproducción automática cada 6 segundos. Se pausa mientras interactúas.",
+    "reducedMotionPause": "La reproducción automática está pausada porque la reducción de movimiento está activada.",
+    "enlargeImage": "Ampliar captura de {name}",
+    "imageHint": "Haz clic para ampliar",
+    "closeImage": "Cerrar imagen",
+    "projectSelector": "Seleccionar un proyecto",
     "filterLabel": "Categorías de proyectos",
     "categories": {
       "projects": "Proyectos",
@@ -24,6 +32,7 @@
     "captions": {
       "screenshot": "Captura del proyecto",
       "redacted": "Datos personales ocultos",
+      "demo": "Identificadores personales sustituidos por datos de demostración",
       "cover": "Portada del proyecto · plataforma privada",
       "pending": "Portada del proyecto · captura no publicada"
     },
@@ -38,7 +47,7 @@
         "name": "SCE INTERNATIONAL",
         "challenge": "Conectar presupuestos de obra, gastos y responsabilidades del equipo.",
         "solution": "Una plataforma privada de gestión que reúne costos del proyecto y flujos de trabajo por rol.",
-        "alt": "Portada del proyecto SCE INTERNATIONAL",
+        "alt": "Panel de SCE INTERNATIONAL con registros ficticios de proyectos y finanzas",
         "tags": {
           "one": "Presupuestos",
           "two": "Gastos",
@@ -60,7 +69,7 @@
         "name": "Vivir Chevere",
         "challenge": "Reunir la información de clientes y la operación diaria del negocio.",
         "solution": "Software de gestión empresarial con vistas de clientes, productos y operaciones.",
-        "alt": "Interfaz de Vivir Chevere con identificadores personales y valores sensibles ocultos",
+        "alt": "Interfaz de Vivir Chevere con nombres ficticios e identificadores de demostración",
         "tags": {
           "one": "Clientes",
           "two": "Productos",

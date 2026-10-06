@@ -3,6 +3,14 @@
     "eyebrow": "Selected work",
     "headline": "Real projects. Solutions in use.",
     "intro": "Platforms, apps and websites built around a real need. Different challenges, one team: Nexdevp.",
+    "play": "Play",
+    "pause": "Pause",
+    "playbackHint": "Automatic playback every 6 seconds. Pauses while you interact.",
+    "reducedMotionPause": "Automatic playback is paused because reduced motion is enabled.",
+    "enlargeImage": "Enlarge {name} screenshot",
+    "imageHint": "Click to enlarge",
+    "closeImage": "Close image",
+    "projectSelector": "Choose a project",
     "filterLabel": "Project categories",
     "categories": {
       "projects": "Projects",
@@ -24,6 +32,7 @@
     "captions": {
       "screenshot": "Project screenshot",
       "redacted": "Personal data hidden",
+      "demo": "Personal identifiers replaced with demo values",
       "cover": "Project cover · private platform",
       "pending": "Project cover · screenshot not published"
     },
@@ -38,7 +47,7 @@
         "name": "SCE INTERNATIONAL",
         "challenge": "Keep construction budgets, expenses and team responsibilities connected.",
         "solution": "A private management platform that brings project costs and role-based workflows together.",
-        "alt": "SCE INTERNATIONAL project cover",
+        "alt": "SCE INTERNATIONAL dashboard with fictional project and financial records",
         "tags": {
           "one": "Budgets",
           "two": "Expenses",
@@ -60,7 +69,7 @@
         "name": "Vivir Chevere",
         "challenge": "Bring customer information and daily business operations into one workspace.",
         "solution": "Business management software with customer, product and operational views.",
-        "alt": "Vivir Chevere interface with personal identifiers and sensitive values hidden",
+        "alt": "Vivir Chevere interface with fictional names and demo identifiers",
         "tags": {
           "one": "Customers",
           "two": "Products",

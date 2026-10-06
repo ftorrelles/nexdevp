@@ -3,7 +3,7 @@ import { createElement, Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
 import { describe, expect, it } from 'vitest'
-import { getProjectIndex, getRealProjects, REAL_PROJECT_CATEGORIES, REAL_PROJECTS } from '@/content/realProjects'
+import { getRealProjects, REAL_PROJECT_CATEGORIES, REAL_PROJECTS } from '@/content/realProjects'
 import { RealProjectPortfolio } from './RealProjectPortfolio'
 import { Portfolio } from './Portfolio'
 
@@ -30,15 +30,6 @@ describe('real project inventory', () => {
     }
   })
 
-  it('clamps native scroll progress including boundary and partial-card positions', () => {
-    expect(getProjectIndex(-20, 680, 3)).toBe(0)
-    expect(getProjectIndex(0, 680, 3)).toBe(0)
-    expect(getProjectIndex(400, 680, 3)).toBe(1)
-    expect(getProjectIndex(680, 680, 3)).toBe(1)
-    expect(getProjectIndex(1360, 680, 3)).toBe(2)
-    expect(getProjectIndex(9999, 680, 3)).toBe(2)
-    expect(getProjectIndex(10, 0, 0)).toBe(0)
-  })
 })
 
 describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
@@ -61,6 +52,11 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
       expect(html).toContain(messages.realPortfolio.items[project.id].name)
       if (project.access === 'public') expect(html).toContain(`href="${project.url}"`)
       if (project.image) expect(html).toContain(messages.realPortfolio.items[project.id].alt)
+      const articleStart = html.indexOf(`data-project="${project.id}"`)
+      const articleEnd = html.indexOf('</article>', articleStart)
+      const article = html.slice(articleStart, articleEnd)
+      expect(article.indexOf('</figure>')).toBeLessThan(article.indexOf('<h3'))
+      if (project.image) expect(article).toContain('object-contain')
     }
     expect(html).not.toMatch(/Lucy|Speedy2Go|Francisco|Co-Authored/)
   })
@@ -76,14 +72,13 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
   })
 })
 
-it('progressively enhances scroll without intercepting input or clipping long content', () => {
+it('uses one-row filters and document-flow image-led stories without nested scrolling or motion', () => {
   const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
-  expect(source).toContain('min-width: 1024px')
-  expect(source).toContain('min-height: 820px')
-  expect(source).toContain('prefers-reduced-motion: no-preference')
-  expect(source).toContain('ResizeObserver')
-  expect(source).toContain('STAGE_HEIGHT - 64')
-  expect(source).toContain('motion-reduce:static')
+  const filters = source.slice(source.indexOf('<div role="group"'), source.indexOf('id="real-project-list"'))
+  expect(filters).toContain('min-h-11')
+  expect(filters).not.toContain('flex-wrap')
+  expect(source).toContain('sm:aspect-[16/10]')
+  expect(source).toContain('object-contain')
   expect(source).toContain("from 'next/image'")
-  expect(source).not.toMatch(/preventDefault|onWheel|addEventListener\(['"]wheel|style=|<img|setInterval/)
+  expect(source).not.toMatch(/680|overflow-|sticky|ResizeObserver|scrollTo|onScroll|onWheel|preventDefault|style=|<img|setInterval/)
 })

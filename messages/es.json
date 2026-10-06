@@ -1,4 +1,140 @@
 {
+  "realPortfolio": {
+    "eyebrow": "Trabajo seleccionado",
+    "headline": "Proyectos reales. Soluciones que ya funcionan.",
+    "intro": "Plataformas, apps y webs creadas para una necesidad real. Distintos retos, un mismo equipo: Nexdevp.",
+    "filterLabel": "Categorías de proyectos",
+    "categories": {
+      "projects": "Proyectos",
+      "apps": "Apps",
+      "websites": "Webs"
+    },
+    "scrollHint": "Desplázate para explorar o usa los botones anterior y siguiente.",
+    "listHint": "Explora los proyectos de esta categoría.",
+    "regionLabel": "Historias de proyectos seleccionados",
+    "relationships": {
+      "client": "Cliente",
+      "product": "Producto"
+    },
+    "challenge": "El reto",
+    "solution": "La solución",
+    "privateProject": "Proyecto privado",
+    "privateCover": "Gestión de proyectos, presupuestos y gastos en un mismo lugar.",
+    "privateAccess": "Plataforma privada · sin acceso público",
+    "captions": {
+      "screenshot": "Captura del proyecto",
+      "redacted": "Datos personales ocultos",
+      "cover": "Portada del proyecto · plataforma privada",
+      "pending": "Portada del proyecto · captura no publicada"
+    },
+    "visitWebsite": "Visitar sitio",
+    "viewVideo": "Ver video de demostración",
+    "newTab": " (se abre en una pestaña nueva)",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "position": "{current} de {total}",
+    "items": {
+      "sce": {
+        "name": "SCE INTERNATIONAL",
+        "challenge": "Conectar presupuestos de obra, gastos y responsabilidades del equipo.",
+        "solution": "Una plataforma privada de gestión que reúne costos del proyecto y flujos de trabajo por rol.",
+        "alt": "Portada del proyecto SCE INTERNATIONAL",
+        "tags": {
+          "one": "Presupuestos",
+          "two": "Gastos",
+          "three": "Roles"
+        }
+      },
+      "trayecto": {
+        "name": "Trayecto",
+        "challenge": "Facilitar la búsqueda de oportunidades y el desarrollo profesional.",
+        "solution": "Nuestra plataforma de carrera, diseñada para conectar a las personas con su siguiente paso profesional.",
+        "alt": "Página de inicio de la plataforma profesional Trayecto",
+        "tags": {
+          "one": "Carrera",
+          "two": "Oportunidades",
+          "three": "Producto propio"
+        }
+      },
+      "vivir": {
+        "name": "Vivir Chevere",
+        "challenge": "Reunir la información de clientes y la operación diaria del negocio.",
+        "solution": "Software de gestión empresarial con vistas de clientes, productos y operaciones.",
+        "alt": "Interfaz de Vivir Chevere con identificadores personales y valores sensibles ocultos",
+        "tags": {
+          "one": "Clientes",
+          "two": "Productos",
+          "three": "Operaciones"
+        }
+      },
+      "cil": {
+        "name": "Cíl",
+        "challenge": "Ofrecer un espacio claro para estudiar y practicar.",
+        "solution": "Una app de estudio multiplataforma con recursos de aprendizaje y actividades de práctica.",
+        "alt": "Pantalla de inicio de la app de estudio Cíl",
+        "tags": {
+          "one": "Estudio",
+          "two": "Práctica",
+          "three": "Multiplataforma"
+        }
+      },
+      "speakpath": {
+        "name": "SpeakPath",
+        "challenge": "Facilitar el seguimiento de las clases y los materiales de aprendizaje.",
+        "solution": "Una plataforma educativa que organiza cursos y clases en una experiencia de aprendizaje clara.",
+        "alt": "Pantalla de cursos y lecciones de SpeakPath",
+        "tags": {
+          "one": "Cursos",
+          "two": "Clases",
+          "three": "Aprendizaje"
+        }
+      },
+      "collab": {
+        "name": "Collab Map",
+        "challenge": "Apoyar la organización de las operaciones de campo.",
+        "solution": "Una plataforma de uso privado para trabajo de campo. Mostramos solo su portada para proteger la información interna.",
+        "alt": "Portada de marca de Collab Map, no es una captura de la aplicación",
+        "tags": {
+          "one": "Operación de campo",
+          "two": "Organización",
+          "three": "Plataforma privada"
+        }
+      },
+      "amarhte": {
+        "name": "Amarhte",
+        "challenge": "Comunicar una propuesta de bienestar con claridad y una identidad cercana.",
+        "solution": "Un sitio web que presenta la marca, explica sus servicios y facilita el contacto.",
+        "alt": "Página de inicio del sitio de bienestar Amarhte",
+        "tags": {
+          "one": "Marca",
+          "two": "Servicios",
+          "three": "Contacto"
+        }
+      },
+      "perezRojas": {
+        "name": "Pérez Rojas Abogados",
+        "challenge": "Ayudar a comprender los servicios jurídicos y encontrar cómo contactar al despacho.",
+        "solution": "Un sitio bilingüe con áreas de práctica, contenidos jurídicos e información de consulta.",
+        "alt": "Página de inicio del sitio público de Pérez Rojas Abogados",
+        "tags": {
+          "one": "Bilingüe",
+          "two": "Áreas de práctica",
+          "three": "Contacto"
+        }
+      },
+      "biupoll": {
+        "name": "Biupoll",
+        "challenge": "Presentar con claridad una propuesta de investigación de mercado en la web.",
+        "solution": "Un sitio público que presenta Biupoll y su propuesta orientada a encuestas.",
+        "alt": "Pantallas del sitio web público de Biupoll",
+        "tags": {
+          "one": "Sitio web",
+          "two": "Investigación",
+          "three": "Encuestas"
+        }
+      }
+    }
+  },
   "nav": {
     "home": "Inicio",
     "services": "Servicios",

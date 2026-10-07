@@ -72,13 +72,8 @@
   }
 }
 
-/* Portfolio showcase — segmented playback fill and project enter transition.
-   Transform/opacity only so both stay on the compositor. */
-@keyframes portfolio-progress-fill {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-
+/* Portfolio showcase — project enter transition. Transform/opacity only so it
+   stays on the compositor. */
 @keyframes portfolio-enter {
   from { opacity: 0; transform: translateY(14px) scale(0.99); }
   to   { opacity: 1; transform: translateY(0) scale(1); }

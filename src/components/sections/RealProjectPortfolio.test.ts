@@ -3,7 +3,7 @@ import { createElement, Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
 import { describe, expect, it } from 'vitest'
-import { getRealProjects, REAL_PROJECT_CATEGORIES, REAL_PROJECTS } from '@/content/realProjects'
+import { REAL_PROJECTS, REAL_PROJECT_CATEGORIES } from '@/content/realProjects'
 import { RealProjectPortfolio } from './RealProjectPortfolio'
 import { Portfolio } from './Portfolio'
 import { createRealProjectSelection, realProjectSelectionReducer } from './realProjectSelection'
@@ -11,9 +11,7 @@ import { createRealProjectSelection, realProjectSelectionReducer } from './realP
 describe('real project inventory', () => {
   it('preserves the approved nine projects and category order', () => {
     expect(REAL_PROJECT_CATEGORIES).toEqual(['projects', 'apps', 'websites'])
-    expect(getRealProjects('projects').map(({ id }) => id)).toEqual(['sce', 'trayecto', 'vivir'])
-    expect(getRealProjects('apps').map(({ id }) => id)).toEqual(['cil', 'speakpath', 'collab'])
-    expect(getRealProjects('websites').map(({ id }) => id)).toEqual(['amarhte', 'perezRojas', 'biupoll'])
+    expect(REAL_PROJECTS.map(({ id }) => id)).toEqual(['sce', 'trayecto', 'vivir', 'cil', 'speakpath', 'collab', 'amarhte', 'perezRojas', 'biupoll'])
   })
 
   it('keeps private URLs absent and uses only approved private imagery and demo identifiers', () => {
@@ -31,7 +29,6 @@ describe('real project inventory', () => {
       if (project.image) expect(existsSync(`public${project.image.src}`)).toBe(true)
     }
   })
-
 })
 
 describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
@@ -44,19 +41,17 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
 
   it.each(REAL_PROJECT_CATEGORIES)('renders one localized active %s story with reachable controls', (category) => {
     const html = render(createElement(RealProjectPortfolio, { initialCategory: category }))
-    expect(html.match(/aria-controls="real-project-panel"/g)).toHaveLength(9)
-    expect(html.match(/aria-pressed="true"/g)).toHaveLength(2)
+    expect(html.match(/aria-controls="real-project-panel"/g)).toHaveLength(5)
+    expect(html.match(/aria-pressed="true"/g)).toHaveLength(1)
     expect(html.match(/<article\b/g)).toHaveLength(1)
     expect(html).toContain('data-layout="showcase"')
     expect(html).toContain(messages.realPortfolio.headline)
-    expect(html).toContain(messages.realPortfolio.projectSelector)
-    expect(html).toContain(messages.realPortfolio.pause)
-    expect(html).toContain(messages.realPortfolio.playbackHint)
+    expect(html).toContain(messages.realPortfolio.filterLabel)
     expect(html).toContain(`aria-label="${messages.realPortfolio.previous}"`)
     expect(html).toContain(`aria-label="${messages.realPortfolio.next}"`)
     expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"')
     for (const item of REAL_PROJECT_CATEGORIES) expect(html).toContain(messages.realPortfolio.categories[item])
-    const active = getRealProjects(category)[0]
+    const active = REAL_PROJECTS.find((project) => project.category === category)!
     expect(html).toContain(`data-project="${active.id}"`)
     expect(html).toContain(messages.realPortfolio.items[active.id].challenge)
     expect(html).toContain(messages.realPortfolio.items[active.id].solution)
@@ -78,12 +73,8 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
       expect(html).toContain(messages.realPortfolio.imageHint)
       expect(html).not.toContain('<dialog open')
     }
-    for (const project of getRealProjects(category)) {
-      expect(html).toContain(messages.realPortfolio.items[project.id].name)
-      if (project.id !== active.id) {
-        expect(html).not.toContain(`data-project="${project.id}"`)
-        if (project.access === 'public') expect(html).not.toContain(`href="${project.url}"`)
-      }
+    for (const project of REAL_PROJECTS) {
+      if (project.id !== active.id) expect(html).not.toContain(`data-project="${project.id}"`)
     }
     expect(html).not.toMatch(/Lucy|Speedy2Go|Francisco|Co-Authored/)
   })
@@ -98,61 +89,47 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
     expect(html).toContain(messages.realPortfolio.captions.screenshot)
   })
 
-  it('renders a segmented progress bar with icon controls instead of text tabs and a glyph pause pill', () => {
+  it('flows without a progress bar or a pause/play control', () => {
     const html = render(createElement(RealProjectPortfolio, { initialCategory: 'projects' }))
+    expect(html).not.toContain('portfolio-progress')
     expect(html).not.toContain('Ⅱ')
     expect(html).not.toContain('▶')
     expect(html).not.toContain('←')
     expect(html).not.toContain('→')
     expect(html).toContain('<svg')
-    expect(html).toContain('portfolio-progress')
-    expect(html).toContain('portfolio-progress-paused')
-    expect(html).toContain(`aria-label="${messages.realPortfolio.pause}"`)
-    expect(html).toContain(messages.realPortfolio.projectSelector)
-  })
-
-  it('frames landscape shots in a browser chrome, glows the stage per category and zooms on hover', () => {
-    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'websites' }))
-    expect(html).toContain('blur-2xl')
-    expect(html).toContain('bg-nex-green/20')
-    expect(html).toContain('rounded-t-[inherit]')
-    expect(html).toContain('motion-safe:group-hover:scale-[1.03]')
-  })
-
-  it('elevates project tags as big green highlight stats instead of outline chips', () => {
-    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'projects' }))
-    expect(html).toContain('font-jost text-lg font-bold text-nex-green')
-    expect(html).not.toContain('rounded border border-nex-white/20 px-2 py-1')
+    expect(html).not.toContain(`aria-label="${messages.realPortfolio.pause}"`)
+    expect(html).not.toContain(`aria-label="${messages.realPortfolio.play}"`)
   })
 })
 
 describe('manual project selection', () => {
-  it('remembers each category independently when switching Apps and Websites', () => {
-    let state = createRealProjectSelection('apps')
-    state = realProjectSelectionReducer(state, { type: 'project', index: 2 })
-    expect(getRealProjects(state.category)[state.indices.apps].id).toBe('collab')
-    state = realProjectSelectionReducer(state, { type: 'category', category: 'websites' })
-    state = realProjectSelectionReducer(state, { type: 'step', direction: 1 })
-    state = realProjectSelectionReducer(state, { type: 'category', category: 'apps' })
-    expect(state.indices.apps).toBe(2)
-    state = realProjectSelectionReducer(state, { type: 'category', category: 'websites' })
-    expect(getRealProjects(state.category)[state.indices.websites].id).toBe('perezRojas')
-    expect(state.indices.projects).toBe(0)
+  it('cycles through all nine projects across categories on advance', () => {
+    let state = createRealProjectSelection()
+    const visited: string[] = []
+    for (let step = 0; step < 9; step++) {
+      visited.push(REAL_PROJECTS[state.index].id)
+      state = realProjectSelectionReducer(state, { type: 'advance' })
+    }
+    expect(visited).toEqual(REAL_PROJECTS.map(({ id }) => id))
+    expect(state.index).toBe(0)
   })
 
-  it.each(REAL_PROJECT_CATEGORIES)('bounds previous, next and direct selections in %s', (category) => {
-    let state = createRealProjectSelection(category)
-    expect(realProjectSelectionReducer(state, { type: 'step', direction: -1 }).indices[category]).toBe(0)
-    for (let index = 0; index < getRealProjects(category).length; index++) {
-      state = realProjectSelectionReducer(state, { type: 'project', index })
-      expect(getRealProjects(category)[state.indices[category]]).toEqual(getRealProjects(category)[index])
-    }
-    expect(realProjectSelectionReducer(state, { type: 'step', direction: 1 }).indices[category]).toBe(2)
-    expect(realProjectSelectionReducer(state, { type: 'project', index: 999 }).indices[category]).toBe(2)
-    expect(realProjectSelectionReducer(state, { type: 'project', index: -20 }).indices[category]).toBe(0)
-    expect(realProjectSelectionReducer(state, { type: 'project', index: NaN })).toBe(state)
-    expect(realProjectSelectionReducer(state, { type: 'project', index: Infinity })).toBe(state)
-    expect(realProjectSelectionReducer(state, { type: 'project', index: 1.9 }).indices[category]).toBe(1)
+  it('jumps to the first project of a category', () => {
+    let state = createRealProjectSelection()
+    state = realProjectSelectionReducer(state, { type: 'category', category: 'apps' })
+    expect(REAL_PROJECTS[state.index].id).toBe('cil')
+    state = realProjectSelectionReducer(state, { type: 'category', category: 'websites' })
+    expect(REAL_PROJECTS[state.index].id).toBe('amarhte')
+  })
+
+  it('wraps previous and next across the full list', () => {
+    let state = createRealProjectSelection()
+    state = realProjectSelectionReducer(state, { type: 'step', direction: -1 })
+    expect(state.index).toBe(8)
+    state = realProjectSelectionReducer(state, { type: 'step', direction: 1 })
+    expect(state.index).toBe(0)
+    state = realProjectSelectionReducer(state, { type: 'step', direction: 1 })
+    expect(state.index).toBe(1)
   })
 })
 
@@ -160,7 +137,7 @@ it('uses a compact split card with controls outside and no scroll interception',
   const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
   const filters = source.slice(source.indexOf('<div role="group"'), source.indexOf('id="real-project-panel"'))
   expect(filters).toContain('min-h-11')
-  expect(filters).toContain("t('projectSelector')")
+  expect(filters).toContain("t('filterLabel')")
   expect(filters).toContain("t('next')")
   expect(source).toContain('lg:grid-cols-2')
   expect(source).toContain('h-[200px]')
@@ -173,25 +150,14 @@ it('uses a compact split card with controls outside and no scroll interception',
   expect(source).not.toMatch(/aspect-square|aspect-\[16\/10\]|overflow-y|sticky|ResizeObserver|scrollTo|onScroll|onWheel|preventDefault|style=|<img|setInterval|setTimeout/)
 })
 
-it('uses a borderless floating-stage card material with a category hairline', () => {
+it('starts playback when the section is in view and pauses on focus, hidden tab or dialog', () => {
   const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
-  expect(source).toContain('from-nex-dark via-nex-black to-nex-black')
-  expect(source).toContain('shadow-2xl')
-  expect(source).toContain('via-nex-green/60')
-  expect(source).toContain('overflow-hidden')
-  expect(source).not.toContain('border-nex-white/20 bg-nex-dark')
-})
-
-it('pauses automatic playback during interaction and makes live announcements manual-only', () => {
-  const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
-  expect(source).toContain('onPointerEnter={() => setHovered(true)}')
-  expect(source).toContain('onPointerLeave={() => setHovered(false)}')
+  expect(source).toContain('IntersectionObserver')
   expect(source).toContain('onFocusCapture={() => setFocused(true)}')
   expect(source).toContain('event.currentTarget.contains(event.relatedTarget)')
   expect(source).toContain("document.addEventListener('visibilitychange', updateEnvironment)")
   expect(source).toContain("document.removeEventListener('visibilitychange', updateEnvironment)")
   expect(source).toContain("window.matchMedia('(prefers-reduced-motion: reduce)')")
-  expect(source).toContain('if (media.matches) setUserPaused(true)')
   expect(source).toContain('onClose={() => setViewerOpen(false)}')
   expect(source).toContain("aria-live={playing ? 'off' : 'polite'}")
   expect(source).toContain('[playing, selection]')
@@ -206,15 +172,4 @@ it('uses the native modal dialog for focus trapping, Escape dismissal and explic
   expect(source).toContain('backdrop:bg-black/85')
   expect(source).toContain('max-h-[72svh]')
   expect(source).not.toMatch(/onKeyDown|preventDefault|document\.body\.style/)
-})
-
-it('replaces text tabs and the pause pill with a segmented bar and CSS keyframe transition', () => {
-  const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
-  expect(source).toContain("t('segmentLabel'")
-  expect(source).toContain('portfolio-progress')
-  expect(source).toContain('animation-play-state')
-  expect(source).toContain('portfolio-enter')
-  expect(source).toContain('prefers-reduced-motion')
-  expect(source).toContain("reducedMotion ? '' : 'portfolio-enter'")
-  expect(source).toContain('key={project.id}')
 })

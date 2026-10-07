@@ -1,54 +1,35 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { canPlayPortfolio, PORTFOLIO_PLAYBACK_DELAY, schedulePortfolioAdvance, type PortfolioPlaybackConditions } from './portfolioPlayback'
-import { createRealProjectSelection, realProjectSelectionReducer } from './realProjectSelection'
-import { REAL_PROJECT_CATEGORIES } from '@/content/realProjects'
 
 const readyConditions: PortfolioPlaybackConditions = {
-  ready: true, userPaused: false, reducedMotion: false, hidden: false,
-  hovered: false, focused: false, viewerOpen: false,
+  inView: true, reducedMotion: false, hidden: false,
+  focused: false, viewerOpen: false,
 }
 
 afterEach(() => vi.useRealTimers())
 
 describe('portfolio playback conditions', () => {
-  it('starts only after client readiness and when every pause reason is absent', () => {
+  it('runs only while the section is in view and no pause reason is active', () => {
     expect(canPlayPortfolio(readyConditions)).toBe(true)
-    expect(canPlayPortfolio({ ...readyConditions, ready: false })).toBe(false)
+    expect(canPlayPortfolio({ ...readyConditions, inView: false })).toBe(false)
   })
 
-  it.each(['userPaused', 'reducedMotion', 'hidden', 'hovered', 'focused', 'viewerOpen'] as const)('does not run while %s is active', (condition) => {
+  it.each(['reducedMotion', 'hidden', 'focused', 'viewerOpen'] as const)('does not run while %s is active', (condition) => {
     expect(canPlayPortfolio({ ...readyConditions, [condition]: true })).toBe(false)
-  })
-
-  it('keeps an explicit user pause when transient interaction or visibility resumes', () => {
-    const paused = { ...readyConditions, userPaused: true, hidden: true, hovered: true }
-    expect(canPlayPortfolio({ ...paused, hidden: false, hovered: false })).toBe(false)
-    expect(canPlayPortfolio({ ...paused, hidden: false, hovered: false, userPaused: false })).toBe(true)
   })
 })
 
-describe('six-second scheduling and selected-category wrapping', () => {
-  it.each(REAL_PROJECT_CATEGORIES)('advances and wraps only %s, preserving category memory', (category) => {
-    let state = createRealProjectSelection(category)
-    state = realProjectSelectionReducer(state, { type: 'project', index: 2 })
-    state = realProjectSelectionReducer(state, { type: 'advance' })
-    expect(state.category).toBe(category)
-    expect(state.indices[category]).toBe(0)
-    state = realProjectSelectionReducer(state, { type: 'advance' })
-    expect(state.indices[category]).toBe(1)
-    for (const other of REAL_PROJECT_CATEGORIES.filter((item) => item !== category)) expect(state.indices[other]).toBe(0)
-  })
-
-  it('waits a full six seconds and advances exactly once per scheduled cycle', () => {
+describe('five-second scheduling', () => {
+  it('waits a full five seconds and advances exactly once per scheduled cycle', () => {
     vi.useFakeTimers()
     const advance = vi.fn()
     const cleanup = schedulePortfolioAdvance(true, advance)
-    expect(PORTFOLIO_PLAYBACK_DELAY).toBe(6000)
-    vi.advanceTimersByTime(5999)
+    expect(PORTFOLIO_PLAYBACK_DELAY).toBe(5000)
+    vi.advanceTimersByTime(4999)
     expect(advance).not.toHaveBeenCalled()
     vi.advanceTimersByTime(1)
     expect(advance).toHaveBeenCalledTimes(1)
-    vi.advanceTimersByTime(6000)
+    vi.advanceTimersByTime(5000)
     expect(advance).toHaveBeenCalledTimes(1)
     cleanup()
   })
@@ -57,10 +38,10 @@ describe('six-second scheduling and selected-category wrapping', () => {
     vi.useFakeTimers()
     const advance = vi.fn()
     const cancel = schedulePortfolioAdvance(true, advance)
-    vi.advanceTimersByTime(5000)
+    vi.advanceTimersByTime(4000)
     cancel()
     const cleanup = schedulePortfolioAdvance(true, advance)
-    vi.advanceTimersByTime(5999)
+    vi.advanceTimersByTime(4999)
     expect(advance).not.toHaveBeenCalled()
     vi.advanceTimersByTime(1)
     expect(advance).toHaveBeenCalledTimes(1)

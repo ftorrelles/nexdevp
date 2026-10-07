@@ -64,25 +64,34 @@ export function RealProjectPortfolio({ initialCategory = 'projects' }: RealProje
             </button>
           ))}
         </div>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-t border-nex-white/15 pt-3">
-          <div role="group" aria-label={t('projectSelector')} className="flex min-w-0 flex-wrap gap-1 sm:gap-2">
+        <div className="mb-3 flex flex-wrap items-center gap-3 border-t border-nex-white/15 pt-3">
+          <div role="group" aria-label={t('projectSelector')} className={`portfolio-progress flex min-w-0 flex-1 items-end gap-1.5 sm:gap-2 ${playing ? '' : 'portfolio-progress-paused'}`}>
             {projects.map((item, itemIndex) => (
-              <button key={item.id} type="button" aria-pressed={index === itemIndex} aria-controls="real-project-panel" onClick={() => dispatch({ type: 'project', index: itemIndex })} className={`min-h-11 rounded-md border px-3 py-2 text-xs sm:text-sm ${FOCUS} ${index === itemIndex ? 'border-nex-white/30 bg-nex-white/10 text-nex-white' : 'border-transparent text-nex-white/65 hover:text-nex-white'}`}>
-                {t(`items.${item.id}.name`)}
+              <button key={item.id} type="button" aria-pressed={index === itemIndex} aria-controls="real-project-panel" aria-label={t('segmentLabel', { name: t(`items.${item.id}.name`), position: itemIndex + 1, total: projects.length })} onClick={() => { if (index === itemIndex) setUserPaused((paused) => !paused); else dispatch({ type: 'project', index: itemIndex }) }} className={`group relative min-h-11 min-w-0 flex-1 overflow-hidden rounded-md px-1 pb-1.5 pt-1 ${FOCUS}`}>
+                <span aria-hidden="true" className="sr-only">{t(`items.${item.id}.name`)}</span>
+                <span aria-hidden="true" className="absolute inset-x-1.5 bottom-1.5 h-1 overflow-hidden rounded-full bg-nex-white/15 transition-colors group-hover:bg-nex-white/30">
+                  {index === itemIndex && (
+                    <span aria-hidden="true" className={`absolute inset-0 origin-left rounded-full bg-nex-green animate-[portfolio-progress-fill_6s_linear_forwards] ${playing ? '' : '[animation-play-state:paused]'}`} />
+                  )}
+                </span>
               </button>
             ))}
           </div>
-          <div className="flex shrink-0 items-center gap-3">
-            <button type="button" aria-controls="real-project-panel" disabled={reducedMotion} title={t(reducedMotion ? 'reducedMotionPause' : 'playbackHint')} onClick={() => setUserPaused((paused) => !paused)} className={`min-h-11 rounded-full border border-nex-white/25 px-3 text-xs text-nex-white hover:border-nex-green disabled:opacity-60 ${FOCUS}`}><span aria-hidden="true" className="mr-2">{userPaused || reducedMotion ? '▶' : 'Ⅱ'}</span>{t(userPaused || reducedMotion ? 'play' : 'pause')}</button>
-            <p className="font-dm-mono text-xs text-nex-white/70" role="status" aria-live={playing ? 'off' : 'polite'} aria-atomic="true"><span className="sr-only">{t(`items.${project.id}.name`)} · </span>{t('position', { current: index + 1, total: projects.length })}</p>
-            <div className="flex gap-2">
-              <button type="button" aria-label={t('previous')} aria-controls="real-project-panel" disabled={index === 0} onClick={() => dispatch({ type: 'step', direction: -1 })} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full border border-nex-white/25 text-lg hover:border-nex-green disabled:cursor-not-allowed disabled:opacity-30 ${FOCUS}`}><span aria-hidden="true">←</span></button>
-              <button type="button" aria-label={t('next')} aria-controls="real-project-panel" disabled={index === projects.length - 1} onClick={() => dispatch({ type: 'step', direction: 1 })} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full border border-nex-white/25 text-lg hover:border-nex-green disabled:cursor-not-allowed disabled:opacity-30 ${FOCUS}`}><span aria-hidden="true">→</span></button>
-            </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button type="button" aria-controls="real-project-panel" aria-label={t(userPaused || reducedMotion ? 'play' : 'pause')} title={t(reducedMotion ? 'reducedMotionPause' : 'playbackHint')} disabled={reducedMotion} onClick={() => setUserPaused((paused) => !paused)} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full border border-nex-white/25 text-nex-white hover:border-nex-green disabled:opacity-60 ${FOCUS}`}>
+              <span aria-hidden="true" className="flex h-4 w-4 items-center justify-center">{userPaused || reducedMotion ? <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full"><path d="M8 5.5v13l11-6.5-11-6.5z" /></svg> : <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /></svg>}</span>
+            </button>
+            <p className="sr-only" role="status" aria-live={playing ? 'off' : 'polite'} aria-atomic="true">{t(`items.${project.id}.name`)} · {t('position', { current: index + 1, total: projects.length })}</p>
+            <button type="button" aria-label={t('previous')} aria-controls="real-project-panel" disabled={index === 0} onClick={() => dispatch({ type: 'step', direction: -1 })} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full border border-nex-white/25 text-nex-white hover:border-nex-green disabled:cursor-not-allowed disabled:opacity-30 ${FOCUS}`}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M15 5l-7 7 7 7" /></svg>
+            </button>
+            <button type="button" aria-label={t('next')} aria-controls="real-project-panel" disabled={index === projects.length - 1} onClick={() => dispatch({ type: 'step', direction: 1 })} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full border border-nex-white/25 text-nex-white hover:border-nex-green disabled:cursor-not-allowed disabled:opacity-30 ${FOCUS}`}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
           </div>
         </div>
         <div id="real-project-panel" role="region" aria-label={t('regionLabel')} data-layout="showcase">
-          <article key={project.id} data-project={project.id} aria-labelledby={`real-project-${project.id}`} className="grid min-w-0 rounded-2xl border border-nex-white/20 bg-nex-dark lg:grid-cols-2">
+          <article key={project.id} data-project={project.id} aria-labelledby={`real-project-${project.id}`} className={`grid min-w-0 rounded-2xl border border-nex-white/20 bg-nex-dark lg:grid-cols-2 ${reducedMotion ? '' : 'portfolio-enter'} [@media(prefers-reduced-motion:reduce)]:!animate-none`}>
             <figure className="flex min-w-0 flex-col rounded-t-2xl border-b border-nex-white/15 bg-gradient-to-br from-nex-green/20 via-nex-black to-nex-black p-4 sm:p-5 lg:rounded-l-2xl lg:rounded-tr-none lg:border-b-0 lg:border-r">
               <div className={`relative flex min-w-0 items-center justify-center ${portrait ? 'h-[260px] sm:h-[320px] lg:h-[360px]' : 'h-[200px] sm:h-[280px] lg:h-[280px]'}`}>
                 {project.image ? (

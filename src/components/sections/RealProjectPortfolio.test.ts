@@ -97,6 +97,19 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
     expect(html).toContain(messages.realPortfolio.headline)
     expect(html).toContain(messages.realPortfolio.captions.screenshot)
   })
+
+  it('renders a segmented progress bar with icon controls instead of text tabs and a glyph pause pill', () => {
+    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'projects' }))
+    expect(html).not.toContain('Ⅱ')
+    expect(html).not.toContain('▶')
+    expect(html).not.toContain('←')
+    expect(html).not.toContain('→')
+    expect(html).toContain('<svg')
+    expect(html).toContain('portfolio-progress')
+    expect(html).toContain('portfolio-progress-paused')
+    expect(html).toContain(`aria-label="${messages.realPortfolio.pause}"`)
+    expect(html).toContain(messages.realPortfolio.projectSelector)
+  })
 })
 
 describe('manual project selection', () => {
@@ -170,4 +183,15 @@ it('uses the native modal dialog for focus trapping, Escape dismissal and explic
   expect(source).toContain('backdrop:bg-black/85')
   expect(source).toContain('max-h-[72svh]')
   expect(source).not.toMatch(/onKeyDown|preventDefault|document\.body\.style/)
+})
+
+it('replaces text tabs and the pause pill with a segmented bar and CSS keyframe transition', () => {
+  const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
+  expect(source).toContain("t('segmentLabel'")
+  expect(source).toContain('portfolio-progress')
+  expect(source).toContain('animation-play-state')
+  expect(source).toContain('portfolio-enter')
+  expect(source).toContain('prefers-reduced-motion')
+  expect(source).toContain("reducedMotion ? '' : 'portfolio-enter'")
+  expect(source).toContain('key={project.id}')
 })

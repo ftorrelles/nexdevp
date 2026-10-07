@@ -11,6 +11,7 @@
     "imageHint": "Haz clic para ampliar",
     "closeImage": "Cerrar imagen",
     "projectSelector": "Seleccionar un proyecto",
+    "segmentLabel": "Ir a {name}, proyecto {position} de {total}",
     "filterLabel": "Categorías de proyectos",
     "categories": {
       "projects": "Proyectos",

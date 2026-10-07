@@ -110,6 +110,20 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
     expect(html).toContain(`aria-label="${messages.realPortfolio.pause}"`)
     expect(html).toContain(messages.realPortfolio.projectSelector)
   })
+
+  it('frames landscape shots in a browser chrome, glows the stage per category and zooms on hover', () => {
+    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'websites' }))
+    expect(html).toContain('blur-2xl')
+    expect(html).toContain('bg-nex-green/20')
+    expect(html).toContain('rounded-t-[inherit]')
+    expect(html).toContain('motion-safe:group-hover:scale-[1.03]')
+  })
+
+  it('elevates project tags as big green highlight stats instead of outline chips', () => {
+    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'projects' }))
+    expect(html).toContain('font-jost text-lg font-bold text-nex-green')
+    expect(html).not.toContain('rounded border border-nex-white/20 px-2 py-1')
+  })
 })
 
 describe('manual project selection', () => {

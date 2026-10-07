@@ -97,6 +97,33 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
     expect(html).toContain(messages.realPortfolio.headline)
     expect(html).toContain(messages.realPortfolio.captions.screenshot)
   })
+
+  it('renders a segmented progress bar with icon controls instead of text tabs and a glyph pause pill', () => {
+    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'projects' }))
+    expect(html).not.toContain('Ⅱ')
+    expect(html).not.toContain('▶')
+    expect(html).not.toContain('←')
+    expect(html).not.toContain('→')
+    expect(html).toContain('<svg')
+    expect(html).toContain('portfolio-progress')
+    expect(html).toContain('portfolio-progress-paused')
+    expect(html).toContain(`aria-label="${messages.realPortfolio.pause}"`)
+    expect(html).toContain(messages.realPortfolio.projectSelector)
+  })
+
+  it('frames landscape shots in a browser chrome, glows the stage per category and zooms on hover', () => {
+    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'websites' }))
+    expect(html).toContain('blur-2xl')
+    expect(html).toContain('bg-nex-green/20')
+    expect(html).toContain('rounded-t-[inherit]')
+    expect(html).toContain('motion-safe:group-hover:scale-[1.03]')
+  })
+
+  it('elevates project tags as big green highlight stats instead of outline chips', () => {
+    const html = render(createElement(RealProjectPortfolio, { initialCategory: 'projects' }))
+    expect(html).toContain('font-jost text-lg font-bold text-nex-green')
+    expect(html).not.toContain('rounded border border-nex-white/20 px-2 py-1')
+  })
 })
 
 describe('manual project selection', () => {
@@ -146,6 +173,15 @@ it('uses a compact split card with controls outside and no scroll interception',
   expect(source).not.toMatch(/aspect-square|aspect-\[16\/10\]|overflow-y|sticky|ResizeObserver|scrollTo|onScroll|onWheel|preventDefault|style=|<img|setInterval|setTimeout/)
 })
 
+it('uses a borderless floating-stage card material with a category hairline', () => {
+  const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
+  expect(source).toContain('from-nex-dark via-nex-black to-nex-black')
+  expect(source).toContain('shadow-2xl')
+  expect(source).toContain('via-nex-green/60')
+  expect(source).toContain('overflow-hidden')
+  expect(source).not.toContain('border-nex-white/20 bg-nex-dark')
+})
+
 it('pauses automatic playback during interaction and makes live announcements manual-only', () => {
   const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
   expect(source).toContain('onPointerEnter={() => setHovered(true)}')
@@ -170,4 +206,15 @@ it('uses the native modal dialog for focus trapping, Escape dismissal and explic
   expect(source).toContain('backdrop:bg-black/85')
   expect(source).toContain('max-h-[72svh]')
   expect(source).not.toMatch(/onKeyDown|preventDefault|document\.body\.style/)
+})
+
+it('replaces text tabs and the pause pill with a segmented bar and CSS keyframe transition', () => {
+  const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
+  expect(source).toContain("t('segmentLabel'")
+  expect(source).toContain('portfolio-progress')
+  expect(source).toContain('animation-play-state')
+  expect(source).toContain('portfolio-enter')
+  expect(source).toContain('prefers-reduced-motion')
+  expect(source).toContain("reducedMotion ? '' : 'portfolio-enter'")
+  expect(source).toContain('key={project.id}')
 })

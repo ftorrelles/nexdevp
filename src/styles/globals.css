@@ -72,6 +72,28 @@
   }
 }
 
+/* Portfolio showcase — segmented playback fill and project enter transition.
+   Transform/opacity only so both stay on the compositor. */
+@keyframes portfolio-progress-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes portfolio-enter {
+  from { opacity: 0; transform: translateY(14px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.portfolio-enter {
+  animation: portfolio-enter 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-enter {
+    animation: none;
+  }
+}
+
 .animate-pulse-slow {
   animation: pulse-slow 2.5s ease-in-out infinite;
 }

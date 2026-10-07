@@ -2,6 +2,14 @@ export const REAL_PROJECT_CATEGORIES = ['projects', 'apps', 'websites'] as const
 export type RealProjectCategory = (typeof REAL_PROJECT_CATEGORIES)[number]
 export type RealProjectId = 'sce' | 'trayecto' | 'vivir' | 'cil' | 'speakpath' | 'collab' | 'amarhte' | 'perezRojas' | 'biupoll'
 
+// Category-tinted glow behind the showcase stage. Literal Tailwind classes so
+// the scanner picks them up; intensity varies per category.
+export const CATEGORY_GLOW: Record<RealProjectCategory, string> = {
+  projects: 'bg-nex-green/15',
+  apps: 'bg-nex-green/10',
+  websites: 'bg-nex-green/20',
+}
+
 interface ProjectImage {
   src: string
   width: number

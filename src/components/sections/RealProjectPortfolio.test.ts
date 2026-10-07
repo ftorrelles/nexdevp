@@ -173,6 +173,15 @@ it('uses a compact split card with controls outside and no scroll interception',
   expect(source).not.toMatch(/aspect-square|aspect-\[16\/10\]|overflow-y|sticky|ResizeObserver|scrollTo|onScroll|onWheel|preventDefault|style=|<img|setInterval|setTimeout/)
 })
 
+it('uses a borderless floating-stage card material with a category hairline', () => {
+  const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
+  expect(source).toContain('from-nex-dark via-nex-black to-nex-black')
+  expect(source).toContain('shadow-2xl')
+  expect(source).toContain('via-nex-green/60')
+  expect(source).toContain('overflow-hidden')
+  expect(source).not.toContain('border-nex-white/20 bg-nex-dark')
+})
+
 it('pauses automatic playback during interaction and makes live announcements manual-only', () => {
   const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
   expect(source).toContain('onPointerEnter={() => setHovered(true)}')

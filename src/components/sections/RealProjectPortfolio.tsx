@@ -105,7 +105,7 @@ export function RealProjectPortfolio({ initialCategory = 'projects' }: RealProje
           <article key={project.id} data-project={project.id} aria-labelledby={`real-project-${project.id}`} className={`relative grid min-w-0 overflow-hidden rounded-2xl border border-nex-white/5 bg-gradient-to-br from-nex-dark via-nex-black to-nex-black shadow-2xl lg:grid-cols-2 ${reducedMotion ? '' : 'portfolio-enter'} [@media(prefers-reduced-motion:reduce)]:!animate-none`}>
             <div aria-hidden="true" className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-nex-green/60 to-transparent" />
             <figure className="flex min-w-0 flex-col rounded-t-2xl border-b border-nex-white/15 bg-gradient-to-br from-nex-green/20 via-nex-black to-nex-black p-3 sm:p-4 lg:rounded-l-2xl lg:rounded-tr-none lg:border-b-0 lg:border-r">
-              <div className={`relative flex min-w-0 flex-1 items-center justify-center ${portrait ? 'h-[260px] sm:h-[320px] lg:h-[360px]' : 'h-[200px] sm:h-[280px] lg:h-[280px]'}`}>
+              <div className={`relative flex min-w-0 lg:flex-1 items-center justify-center ${portrait ? 'h-[260px] sm:h-[320px] lg:h-[360px]' : 'h-[200px] sm:h-[280px] lg:h-[280px]'}`}>
                 <div aria-hidden="true" className={`absolute left-1/2 top-1/2 h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl ${CATEGORY_GLOW[category]}`} />
                 {project.image ? (
                   <span className={`flex h-full max-w-full flex-col ${portrait ? 'aspect-[9/20] rounded-[1.5rem] border-[5px] border-nex-white/30 bg-nex-black p-1.5 shadow-2xl ring-1 ring-nex-green/40' : 'w-full rounded-lg border border-nex-white/10'}`}>

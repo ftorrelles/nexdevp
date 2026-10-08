@@ -5,12 +5,11 @@ export interface PortfolioPlaybackConditions {
   reducedMotion: boolean
   hidden: boolean
   focused: boolean
-  viewerOpen: boolean
 }
 
 export function canPlayPortfolio(conditions: PortfolioPlaybackConditions): boolean {
   return conditions.inView && !conditions.reducedMotion && !conditions.hidden
-    && !conditions.focused && !conditions.viewerOpen
+    && !conditions.focused
 }
 
 export function schedulePortfolioAdvance(enabled: boolean, advance: () => void): () => void {

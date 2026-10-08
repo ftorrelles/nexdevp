@@ -41,8 +41,8 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
 
   it.each(REAL_PROJECT_CATEGORIES)('renders one localized active %s story with reachable controls', (category) => {
     const html = render(createElement(RealProjectPortfolio, { initialCategory: category }))
-    expect(html.match(/aria-controls="real-project-panel"/g)).toHaveLength(5)
-    expect(html.match(/aria-pressed="true"/g)).toHaveLength(1)
+    expect(html.match(/aria-controls="real-project-panel"/g)).toHaveLength(8)
+    expect(html.match(/aria-pressed="true"/g)).toHaveLength(2)
     expect(html.match(/<article\b/g)).toHaveLength(1)
     expect(html).toContain('data-layout="showcase"')
     expect(html).toContain(messages.realPortfolio.headline)
@@ -51,6 +51,9 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
     expect(html).toContain(`aria-label="${messages.realPortfolio.next}"`)
     expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"')
     for (const item of REAL_PROJECT_CATEGORIES) expect(html).toContain(messages.realPortfolio.categories[item])
+    for (const item of REAL_PROJECTS.filter((project) => project.category === category)) {
+      expect(html).toContain(messages.realPortfolio.items[item.id].name)
+    }
     const active = REAL_PROJECTS.find((project) => project.category === category)!
     expect(html).toContain(`data-project="${active.id}"`)
     expect(html).toContain(messages.realPortfolio.items[active.id].challenge)
@@ -66,12 +69,8 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
       expect(html).toContain(messages.realPortfolio.items[active.id].alt)
       expect(html).toContain('object-contain')
       expect(html).not.toContain('object-cover')
-      expect(html).toContain('aria-haspopup="dialog"')
-      expect(html).toContain('aria-controls="real-project-viewer"')
-      expect(html).toContain('id="real-project-viewer" aria-labelledby="real-project-viewer-heading"')
-      expect(html).toContain(messages.realPortfolio.closeImage)
-      expect(html).toContain(messages.realPortfolio.imageHint)
-      expect(html).not.toContain('<dialog open')
+      expect(html).not.toContain('real-project-viewer')
+      expect(html).not.toContain('aria-haspopup="dialog"')
     }
     for (const project of REAL_PROJECTS) {
       if (project.id !== active.id) expect(html).not.toContain(`data-project="${project.id}"`)
@@ -103,6 +102,18 @@ describe.each(['en', 'es'])('real project stories (%s)', (locale) => {
 })
 
 describe('manual project selection', () => {
+  it('jumps to a project by flat index and clamps non-finite input', () => {
+    let state = createRealProjectSelection()
+    state = realProjectSelectionReducer(state, { type: 'project', index: 5 })
+    expect(REAL_PROJECTS[state.index].id).toBe('collab')
+    state = realProjectSelectionReducer(state, { type: 'project', index: 99 })
+    expect(state.index).toBe(8)
+    state = realProjectSelectionReducer(state, { type: 'project', index: -4 })
+    expect(state.index).toBe(0)
+    const clamped = realProjectSelectionReducer({ index: 3 }, { type: 'project', index: Number.NaN })
+    expect(clamped).toEqual({ index: 3 })
+  })
+
   it('cycles through all nine projects across categories on advance', () => {
     let state = createRealProjectSelection()
     const visited: string[] = []
@@ -158,18 +169,14 @@ it('starts playback when the section is in view and pauses on focus, hidden tab 
   expect(source).toContain("document.addEventListener('visibilitychange', updateEnvironment)")
   expect(source).toContain("document.removeEventListener('visibilitychange', updateEnvironment)")
   expect(source).toContain("window.matchMedia('(prefers-reduced-motion: reduce)')")
-  expect(source).toContain('onClose={() => setViewerOpen(false)}')
   expect(source).toContain("aria-live={playing ? 'off' : 'polite'}")
   expect(source).toContain('[playing, selection]')
 })
 
-it('uses the native modal dialog for focus trapping, Escape dismissal and explicit close/backdrop actions', () => {
+it('shows the project image without an enlargement dialog', () => {
   const source = readFileSync('src/components/sections/RealProjectPortfolio.tsx', 'utf8')
-  expect(source).toContain('useRef<HTMLDialogElement>(null)')
-  expect(source).toContain('imageViewer.current?.showModal()')
-  expect(source).toContain('imageViewer.current?.close()')
-  expect(source).toContain('event.target === event.currentTarget')
-  expect(source).toContain('backdrop:bg-black/85')
-  expect(source).toContain('max-h-[72svh]')
-  expect(source).not.toMatch(/onKeyDown|preventDefault|document\.body\.style/)
+  expect(source).not.toContain('<dialog')
+  expect(source).not.toContain('showModal')
+  expect(source).not.toContain('aria-haspopup')
+  expect(source).not.toContain('cursor-zoom-in')
 })

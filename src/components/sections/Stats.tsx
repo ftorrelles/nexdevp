@@ -1,11 +1,28 @@
+import type { ReactElement } from 'react'
 import { getTranslations } from 'next-intl/server'
+import { CountUp } from '@/components/ui/CountUp'
 
-export async function Stats() {
+interface ParsedNumber {
+  prefix: string
+  digits: string
+  value: number
+  width: number
+  suffix: string
+}
+
+function parseNumber(raw: string): ParsedNumber {
+  const match = raw.match(/^(\D*)(\d+)(\D*)$/)
+  if (!match) return { prefix: '', digits: '', value: 0, width: 0, suffix: raw }
+  const [, prefix, digits, suffix] = match
+  return { prefix, digits, value: Number(digits), width: digits.length, suffix }
+}
+
+export async function Stats(): Promise<ReactElement> {
   const t = await getTranslations('stats')
   const stats = [
-    { number: t('stat1_number'), label: t('stat1_label'), description: t('stat1_desc') },
-    { number: t('stat2_number'), label: t('stat2_label'), description: t('stat2_desc') },
-    { number: t('stat3_number'), label: t('stat3_label'), description: t('stat3_desc') },
+    { number: parseNumber(t('stat1_number')), label: t('stat1_label'), description: t('stat1_desc') },
+    { number: parseNumber(t('stat2_number')), label: t('stat2_label'), description: t('stat2_desc') },
+    { number: parseNumber(t('stat3_number')), label: t('stat3_label'), description: t('stat3_desc') },
   ]
 
   return (
@@ -15,7 +32,12 @@ export async function Stats() {
           {stats.map((stat) => (
             <div key={stat.label} className="md:px-12 first:pl-0 last:pr-0 text-center md:text-left">
               <p className="font-jost font-bold text-5xl lg:text-6xl text-nex-green mb-2">
-                {stat.number}
+                <CountUp
+                  value={stat.number.value}
+                  prefix={stat.number.prefix}
+                  padTo={stat.number.width}
+                  suffix={stat.number.suffix}
+                />
               </p>
               <p className="font-dm-mono text-xs text-nex-grey uppercase tracking-[0.15em] mb-2">
                 {stat.label}

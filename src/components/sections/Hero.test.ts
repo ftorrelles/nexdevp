@@ -58,4 +58,16 @@ describe.each(['en', 'es'])('solution-first hero (%s)', (locale) => {
     const original = JSON.parse(readFileSync(`docs/reference/hero-original-2026-10-05/hero.${locale}.json`, 'utf8'))
     expect(messages.hero).toMatchObject(original)
   })
+
+  it('centers the editorial composition with a content-growing viewport minimum and height-aware title', async () => {
+    const html = await renderHero()
+    expect(html).toContain('flex min-h-[calc(100svh-65px)] items-center')
+    expect(html).toContain('py-[clamp(1.5rem,6svh,5rem)]')
+    expect(html).toContain('text-[clamp(2.5rem,min(6.2vw,10svh),5.5rem)]')
+    expect(html).toContain('lg:justify-between')
+    expect(html).toContain('mt-9 border-t border-nex-ink/15 pt-4')
+    expect(html).not.toContain('rounded-2xl')
+    expect(html).not.toContain('grid-cols-')
+    expect(html).not.toContain('h-screen')
+  })
 })

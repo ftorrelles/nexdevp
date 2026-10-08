@@ -30,7 +30,7 @@ export function HeroGoalRail(): ReactElement {
                   : 'border-transparent text-nex-white/70 hover:border-nex-white/40 hover:text-nex-white'
               }`}
             >
-              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${selectedGoal === goal ? 'bg-nex-green' : 'bg-nex-white/30'}`} />
+              <span aria-hidden="true" className={`dot-pulse h-1.5 w-1.5 rounded-full ${selectedGoal === goal ? 'bg-nex-green' : 'bg-nex-white/30'}`} />
               {t(`${goal}.label`)}
             </button>
           ))}

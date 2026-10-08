@@ -3,7 +3,7 @@ import { canPlayPortfolio, PORTFOLIO_PLAYBACK_DELAY, schedulePortfolioAdvance, t
 
 const readyConditions: PortfolioPlaybackConditions = {
   inView: true, reducedMotion: false, hidden: false,
-  focused: false, viewerOpen: false,
+  focused: false,
 }
 
 afterEach(() => vi.useRealTimers())
@@ -14,7 +14,7 @@ describe('portfolio playback conditions', () => {
     expect(canPlayPortfolio({ ...readyConditions, inView: false })).toBe(false)
   })
 
-  it.each(['reducedMotion', 'hidden', 'focused', 'viewerOpen'] as const)('does not run while %s is active', (condition) => {
+  it.each(['reducedMotion', 'hidden', 'focused'] as const)('does not run while %s is active', (condition) => {
     expect(canPlayPortfolio({ ...readyConditions, [condition]: true })).toBe(false)
   })
 })

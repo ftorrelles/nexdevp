@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { CountUp } from '@/components/ui/CountUp'
 import { calculateBudget } from './useCaseSimulation'
 
 const tabs = ['profit', 'expenses', 'budgets', 'budget', 'team'] as const
@@ -14,6 +15,7 @@ export function ConstructionPreview(): ReactElement {
   const [area, setArea] = useState(100)
   const budget = calculateBudget(area)
   const money = (value: number): string => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value)
+  const percent = (value: number): string => `${Math.round(value)}%`
   const resources = [
     { key: 'materials', expected: area * 2, actual: area * 3 },
     { key: 'equipment', expected: area * 0.5, actual: area * 0.7 },
@@ -30,7 +32,7 @@ export function ConstructionPreview(): ReactElement {
       </div>
       <div role="group" aria-label={t('screens')} className="flex flex-wrap gap-2 bg-white/[0.03] p-3">
         {tabs.map((key) => (
-          <button key={key} type="button" aria-pressed={screen === key} onClick={() => setScreen(key)} className={`min-h-11 rounded-md border px-3 text-xs ${focus} ${screen === key ? 'border-nex-green bg-nex-green font-semibold text-nex-black' : 'border-white/15 bg-white/[0.03] text-nex-grey hover:text-nex-white'}`}>
+          <button key={key} type="button" aria-pressed={screen === key} onClick={() => setScreen(key)} className={`min-h-11 rounded-md border px-3 text-xs ${focus} ${screen === key ? 'border-nex-green bg-nex-green font-semibold text-nex-black' : 'tab-breathe border-white/15 bg-white/[0.03] text-nex-grey hover:text-nex-white'}`}>
             {t(`tabs.${key}`)}
           </button>
         ))}
@@ -43,19 +45,19 @@ export function ConstructionPreview(): ReactElement {
               <span className="rounded-full border border-white/15 px-2.5 py-1 text-xs text-nex-grey">{t('inProgress')}</span>
             </div>
             <div className="my-5 flex flex-wrap items-baseline justify-between gap-3">
-              <p className="text-4xl font-bold tracking-tight sm:text-5xl">{money(budget.forecast)}</p>
-              <p className="text-xs text-nex-grey">{t('margin')} <strong className="text-nex-green">12%</strong></p>
+              <p className="text-4xl font-bold tracking-tight sm:text-5xl"><CountUp value={budget.forecast} format={money} /></p>
+              <p className="text-xs text-nex-grey">{t('margin')} <strong className="text-nex-green"><CountUp value={12} format={percent} /></strong></p>
             </div>
-            <p className="mb-2 text-xs text-nex-grey">{t('sale')} <strong className="text-nex-white">{money(budget.sale)}</strong></p>
+            <p className="mb-2 text-xs text-nex-grey">{t('sale')} <strong className="text-nex-white"><CountUp value={budget.sale} format={money} /></strong></p>
             <svg viewBox="0 0 100 3" role="img" aria-label={t('breakdownLabel')} className="h-3 w-full overflow-hidden rounded-full" preserveAspectRatio="none">
               <rect width="48" height="3" className="fill-slate-500" />
               <rect x="48" width="40" height="3" className="fill-slate-800" />
               <rect x="88" width="12" height="3" className="fill-nex-green" />
             </svg>
             <div className="my-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-nex-grey">
-              <p><span className="mr-1 text-slate-400">●</span>{t('actual')} <strong className="text-nex-white">{money(budget.actual)}</strong></p>
-              <p><span className="mr-1 text-slate-600">●</span>{t('remaining')} <strong className="text-nex-white">{money(budget.total / 2)}</strong></p>
-              <p><span className="mr-1 text-nex-green">●</span>{t('result')} <strong className="text-nex-green">{money(budget.forecast)}</strong></p>
+              <p><span className="mr-1 text-slate-400">●</span>{t('actual')} <strong className="text-nex-white"><CountUp value={budget.actual} format={money} /></strong></p>
+              <p><span className="mr-1 text-slate-600">●</span>{t('remaining')} <strong className="text-nex-white"><CountUp value={budget.total / 2} format={money} /></strong></p>
+              <p><span className="mr-1 text-nex-green">●</span>{t('result')} <strong className="text-nex-green"><CountUp value={budget.forecast} format={money} /></strong></p>
             </div>
             <p className="mt-5 rounded-lg border border-nex-green/20 bg-nex-green/5 p-3 text-xs leading-relaxed text-nex-grey">{t('forecastNote', { sale: money(budget.sale), actual: money(budget.actual), pending: money(budget.total / 2) })}</p>
           </>
@@ -64,11 +66,11 @@ export function ConstructionPreview(): ReactElement {
             <h4 className="mb-3 text-base font-semibold">{t('titles.expenses')}</h4>
             <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
-                { key: 'expected', value: money(budget.total / 2) },
-                { key: 'actual', value: money(budget.actual) },
-                { key: 'difference', value: money(budget.actual - budget.total / 2) },
-                { key: 'progress', value: '50%' },
-              ].map((item) => <div key={item.key} className={`${panel} p-3`}><p className="text-[11px] text-nex-grey">{t(item.key)}</p><p className={`mt-1 text-sm font-semibold ${item.key === 'difference' ? 'text-amber-300' : ''}`}>{item.value}</p></div>)}
+                { key: 'expected', value: budget.total / 2, format: money },
+                { key: 'actual', value: budget.actual, format: money },
+                { key: 'difference', value: budget.actual - budget.total / 2, format: money },
+                { key: 'progress', value: 50, format: percent },
+              ].map((item) => <div key={item.key} className={`${panel} p-3`}><p className="text-[11px] text-nex-grey">{t(item.key)}</p><p className={`mt-1 text-sm font-semibold ${item.key === 'difference' ? 'text-amber-300' : ''}`}><CountUp value={item.value} format={item.format} /></p></div>)}
             </div>
             <table className="w-full border-collapse text-xs">
               <caption className="mb-3 text-left text-xs text-nex-grey">{t('half')}</caption>
@@ -77,9 +79,9 @@ export function ConstructionPreview(): ReactElement {
                 {resources.map((resource) => (
                   <tr key={resource.key} className="border-b border-white/5">
                     <th scope="row" className="py-3 text-left font-medium">{t(resource.key)}</th>
-                    <td className="text-right tabular-nums text-nex-grey">{money(resource.expected)}</td>
-                    <td className="text-right tabular-nums text-nex-grey">{money(resource.actual)}</td>
-                    <td className={`text-right tabular-nums ${resource.actual > resource.expected ? 'text-amber-300' : 'text-nex-green'}`}>{money(resource.actual - resource.expected)}</td>
+                    <td className="text-right tabular-nums text-nex-grey"><CountUp value={resource.expected} format={money} /></td>
+                    <td className="text-right tabular-nums text-nex-grey"><CountUp value={resource.actual} format={money} /></td>
+                    <td className={`text-right tabular-nums ${resource.actual > resource.expected ? 'text-amber-300' : 'text-nex-green'}`}><CountUp value={resource.actual - resource.expected} format={money} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -92,7 +94,7 @@ export function ConstructionPreview(): ReactElement {
               {['office', 'warehouse', 'electrical'].map((key, index) => (
                 <button key={key} type="button" onClick={() => setScreen('budget')} className={`w-full rounded-lg border border-white/10 border-l-[3px] p-3 text-left ${index === 1 ? 'border-l-blue-400' : 'border-l-nex-green'} ${focus}`}>
                   <span className="flex flex-wrap justify-between gap-2 text-[10px] text-nex-grey"><span>PRE-DEMO-00{index + 1}</span><span className={index === 1 ? 'text-blue-300' : 'text-nex-green'}>● {t(index === 1 ? 'review' : 'inProgress')}</span></span>
-                  <span className="mt-2 flex flex-wrap justify-between gap-2"><span className="text-sm">{t(`projects.${key}`)}</span><strong className="text-sm">{money(index === 0 ? budget.sale : index === 1 ? 4200 : 2600)}</strong></span>
+                  <span className="mt-2 flex flex-wrap justify-between gap-2"><span className="text-sm">{t(`projects.${key}`)}</span><strong className="text-sm"><CountUp value={index === 0 ? budget.sale : index === 1 ? 4200 : 2600} format={money} /></strong></span>
                 </button>
               ))}
             </div>
@@ -106,9 +108,9 @@ export function ConstructionPreview(): ReactElement {
               <span>{t('area')}</span><span className="flex items-center gap-2"><input id="use-case-area" type="number" min="10" max="500" step="10" value={area} onChange={(event) => { const value = Number(event.target.value); if (value >= 10 && value <= 500) setArea(value) }} className={`min-h-11 w-24 rounded border border-nex-green/60 bg-[#090c0b] p-2 text-lg ${focus}`} />m²</span>
             </label>
             <div className={`${panel} px-3`}>
-              {(['materials', 'equipment', 'labor'] as const).map((key) => <p key={key} className="flex justify-between gap-3 border-b border-white/10 py-3 text-sm last:border-0"><span className="text-nex-grey">{t(key)}</span><strong>{money(budget[key])}</strong></p>)}
+              {(['materials', 'equipment', 'labor'] as const).map((key) => <p key={key} className="flex justify-between gap-3 border-b border-white/10 py-3 text-sm last:border-0"><span className="text-nex-grey">{t(key)}</span><strong><CountUp value={budget[key]} format={money} /></strong></p>)}
             </div>
-            <div role="status" className="mt-4 rounded-lg border border-nex-green/20 bg-nex-green/5 p-4"><p className="text-xs text-nex-grey">{t('total')}</p><p className="my-2 text-3xl font-semibold text-nex-green">{money(budget.total)}</p><p className="text-xs leading-relaxed text-nex-grey">{t('formula', { area })}</p></div>
+            <div role="status" className="mt-4 rounded-lg border border-nex-green/20 bg-nex-green/5 p-4"><p className="text-xs text-nex-grey">{t('total')}</p><p className="my-2 text-3xl font-semibold text-nex-green"><CountUp value={budget.total} format={money} /></p><p className="text-xs leading-relaxed text-nex-grey">{t('formula', { area })}</p></div>
           </>
         ) : (
           <>
@@ -119,7 +121,7 @@ export function ConstructionPreview(): ReactElement {
                 { key: 'earned', value: area * 3.5 },
                 { key: 'advance', value: area },
                 { key: 'balance', value: area * 2.5 },
-              ].map((item) => <p key={item.key} className="flex justify-between gap-3 border-b border-white/10 py-4 text-sm last:border-0"><span className="text-nex-grey">{t(item.key)}</span><strong>{money(item.value)}</strong></p>)}
+              ].map((item) => <p key={item.key} className="flex justify-between gap-3 border-b border-white/10 py-4 text-sm last:border-0"><span className="text-nex-grey">{t(item.key)}</span><strong><CountUp value={item.value} format={money} /></strong></p>)}
             </div>
             <p className="mt-4 text-xs leading-relaxed text-nex-grey">{t('roles')}</p>
           </>

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { getTranslations } from 'next-intl/server'
+import { HeroEnergy } from './HeroEnergy'
 import { HeroGoalRail } from './HeroGoalRail'
 import { HeroMesh } from './HeroMesh'
 
@@ -10,9 +11,10 @@ export async function Hero(): Promise<ReactElement> {
     // Navbar uses h-16 (64px) plus its 1px bottom border; min-height still permits content growth.
     <section id="hero" aria-labelledby="hero-heading" className="relative isolate flex min-h-[calc(100svh-65px)] items-center overflow-hidden bg-nex-black px-6 py-[clamp(1.5rem,6svh,5rem)] text-nex-white lg:px-16">
       <HeroMesh />
+      <HeroEnergy />
       <div className="relative z-10 mx-auto w-full max-w-7xl">
         <p className="mb-6 flex items-center gap-3 font-dm-mono text-[11px] uppercase tracking-[0.18em] text-nex-white/70">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-nex-green" />
+          <span aria-hidden="true" className="dot-pulse h-1.5 w-1.5 rounded-full bg-nex-green" />
           {t('eyebrow')}
         </p>
 
@@ -22,7 +24,7 @@ export async function Hero(): Promise<ReactElement> {
         </h1>
 
         <div className="mt-7 flex flex-col gap-7 lg:mt-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
-          <p className="max-w-md font-jost text-base leading-relaxed text-nex-white/70 sm:text-lg">
+          <p className="relative max-w-md rounded-xl bg-nex-black/65 px-4 py-3 font-jost text-base leading-relaxed text-nex-white/70 backdrop-blur-[2px] sm:text-lg">
             {t('support')}
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -43,7 +45,9 @@ export async function Hero(): Promise<ReactElement> {
           </div>
         </div>
 
-        <HeroGoalRail />
+        <div className="relative rounded-xl bg-nex-black/65 px-5 py-4 backdrop-blur-[2px]">
+          <HeroGoalRail />
+        </div>
       </div>
     </section>
   )

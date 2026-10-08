@@ -89,8 +89,75 @@
   }
 }
 
+/* Live-page hints: marker dots twinkle and navigable tabs breathe softly, so the
+   page reads as alive and interactive. Both are disabled under reduced motion. */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.42; transform: scale(0.72); }
+  50%      { opacity: 1;    transform: scale(1.28); }
+}
+
+.dot-pulse {
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tab-breathe {
+  0%, 100% { border-color: rgb(var(--nex-white) / 0.22); box-shadow: 0 0 0 0 rgb(var(--nex-green) / 0); }
+  50%      { border-color: rgb(var(--nex-green) / 0.7);  box-shadow: 0 0 0 4px rgb(var(--nex-green) / 0.15); }
+}
+
+.tab-breathe {
+  animation: tab-breathe 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-pulse,
+  .tab-breathe {
+    animation: none;
+  }
+}
+
 .animate-pulse-slow {
   animation: pulse-slow 2.5s ease-in-out infinite;
+}
+
+/* Contact card perimeter — a conic-gradient ring travels around the card
+   border. --neon-angle is registered as an <angle> so the browser can
+   interpolate it; the ring is masked out of the content box so only the
+   border band paints. Purely decorative: pointer-events are disabled. */
+@property --neon-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes neon-travel {
+  from { --neon-angle: 0deg; }
+  to   { --neon-angle: 360deg; }
+}
+
+.neon-frame {
+  position: relative;
+}
+
+.neon-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--neon-angle), transparent 0deg, rgb(var(--nex-green)) 40deg, transparent 90deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: neon-travel 6s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-frame::before {
+    animation: none;
+  }
 }
 
 /* Hint ring on the idle inner tabs of the "casos" device. A pseudo-element

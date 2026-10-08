@@ -24,7 +24,7 @@ export function Portfolio(): ReactElement {
               aria-pressed={selected === id}
               aria-controls="use-case-story"
               onClick={() => setSelected(id)}
-              className={`min-h-11 rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-nex-green ${selected === id ? 'border-nex-green bg-nex-green font-semibold text-nex-black' : 'border-white/20 bg-nex-dark text-nex-grey hover:border-nex-green/60 hover:text-nex-white'}`}
+              className={`min-h-11 rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-nex-green ${selected === id ? 'border-nex-green bg-nex-green font-semibold text-nex-black' : 'tab-breathe border-white/20 bg-nex-dark text-nex-grey hover:border-nex-green/60 hover:text-nex-white'}`}
             >
               {t(`cases.${id}.label`)}
             </button>

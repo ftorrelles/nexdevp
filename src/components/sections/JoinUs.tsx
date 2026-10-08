@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
+import { JoinUsNetwork } from './JoinUsNetwork'
 import type { Locale } from '@/content/types'
 
 interface JoinUsProps {
@@ -16,54 +17,34 @@ export async function JoinUs({ locale }: JoinUsProps) {
   ] as const
 
   return (
-    <section id="trabaja" className="bg-nex-black py-24 px-6 lg:px-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="rounded-2xl border border-white/10 bg-nex-dark p-10 lg:p-16 relative overflow-hidden">
-          {/* Subtle green glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-px bg-gradient-to-r from-transparent via-nex-green/60 to-transparent" />
+    <section id="trabaja" className="relative overflow-hidden bg-nex-black px-6 py-24 text-nex-white lg:px-12">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <JoinUsNetwork />
+        <div className="absolute left-1/2 top-0 h-[380px] w-[46rem] max-w-none -translate-x-1/2 rounded-full bg-nex-green/15 blur-3xl" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-nex-black to-transparent" />
+      </div>
+      <div className="relative z-10 mx-auto max-w-5xl text-center">
+        <p className="mb-4 font-mono text-xs uppercase tracking-[0.25em] text-nex-green">{t('eyebrow')}</p>
+        <h2 className="font-jost font-extrabold text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
+          {t('heading')} <span className="text-nex-green">{t('heading_accent')}</span>
+        </h2>
+        <p className="mx-auto mt-6 max-w-2xl font-jost text-lg leading-relaxed text-nex-white/70">{t('sub')}</p>
 
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="font-mono text-nex-green text-xs tracking-[0.25em] uppercase mb-4">
-              {t('eyebrow')}
-            </p>
-            <h2 className="font-jost font-extrabold text-4xl sm:text-5xl text-nex-white mb-4 leading-tight">
-              {t('heading')}{' '}
-              <span className="text-nex-green">{t('heading_accent')}</span>
-            </h2>
-            <p className="font-jost text-nex-grey text-lg mb-12 max-w-2xl mx-auto">
-              {t('sub')}
-            </p>
-          </div>
+        <div className="mt-14 grid gap-4 sm:grid-cols-3">
+          {benefits.map((b) => (
+            <div key={b.titleKey} className="rounded-xl border border-nex-white/10 bg-nex-white/5 p-6 text-left">
+              <span className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-nex-green/15 text-lg font-bold text-nex-green">{b.icon}</span>
+              <h3 className="mb-2 font-jost text-lg font-bold text-nex-white">{t(b.titleKey)}</h3>
+              <p className="font-jost text-sm leading-relaxed text-nex-white/70">{t(b.bodyKey)}</p>
+            </div>
+          ))}
+        </div>
 
-          {/* Benefits */}
-          <div className="grid sm:grid-cols-3 gap-6 mb-12">
-            {benefits.map((b) => (
-              <div
-                key={b.titleKey}
-                className="rounded-xl border border-white/10 bg-nex-black p-6"
-              >
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-nex-green/10 text-nex-green text-lg font-bold mb-4">
-                  {b.icon}
-                </span>
-                <h3 className="font-jost font-bold text-lg text-nex-white mb-2">
-                  {t(b.titleKey)}
-                </h3>
-                <p className="font-jost text-sm text-nex-grey leading-relaxed">
-                  {t(b.bodyKey)}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Link
-              href="/careers"
-              className="inline-flex items-center gap-2 bg-nex-green text-nex-black font-jost font-bold py-3 px-7 rounded-lg hover:bg-nex-green/90 transition-colors"
-            >
-              {t('cta')}
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+        <div className="mt-14">
+          <Link href="/careers" className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-nex-green px-7 py-3 font-jost font-bold text-nex-black transition-colors hover:bg-nex-green/90">
+            {t('cta')}
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
     </section>

@@ -2,9 +2,12 @@
 
 import { useState, type ReactElement } from 'react'
 import { useTranslations } from 'next-intl'
+import { CountUp } from '@/components/ui/CountUp'
 import { summarizeVisits, type Availability, type VisitRecord } from './useCaseSimulation'
 
 const control = 'min-h-11 rounded-lg border border-stone-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-900'
+const formatInteger = (value: number): string => String(Math.round(value))
+const formatCountOfFour = (value: number): string => `${Math.round(value)} / 4`
 const choices = ['on', 'off', 'out'] as const
 const pinPositions = ['left-[22%] top-[22%]', 'left-[56%] top-[31%]', 'left-[72%] top-[60%]', 'left-[31%] top-[73%]']
 
@@ -29,7 +32,7 @@ export function MarketResearchPreview(): ReactElement {
     <div className="min-w-0 overflow-hidden rounded-xl border border-stone-300 bg-stone-100 text-stone-950 shadow-xl">
       <div className="border-b border-stone-300 bg-stone-900 px-4 py-3 text-white"><strong className="text-sm">{t('app')}</strong></div>
       <div role="group" aria-label={t('screens')} className="flex flex-wrap gap-2 border-b border-stone-300 p-3">
-        {['visit', 'map', 'metrics'].map((key) => <button key={key} type="button" onClick={() => setTab(key)} aria-pressed={tab === key} className={`${control} ${tab === key ? 'border-lime-300 bg-lime-300 font-semibold' : 'bg-white'}`}>{t(`tabs.${key}`)}</button>)}
+        {['visit', 'map', 'metrics'].map((key) => <button key={key} type="button" onClick={() => setTab(key)} aria-pressed={tab === key} className={`${control} ${tab === key ? 'border-lime-300 bg-lime-300 font-semibold' : 'tab-breathe bg-white'}`}>{t(`tabs.${key}`)}</button>)}
       </div>
       <div className="min-h-[340px] space-y-4 p-4 sm:p-6">
         <h4 className="text-2xl font-semibold">{t(`titles.${tab}`)}</h4>
@@ -76,8 +79,8 @@ export function MarketResearchPreview(): ReactElement {
           </>
         ) : (
           <>
-            <div className="grid gap-3 sm:grid-cols-3">{[['completed', `${summary.completed} / 4`], ['pending', String(summary.pending)], ['onShelf', String(summary.onShelf)]].map(([key, value]) => <div key={key} className="rounded-xl border border-stone-200 bg-white p-4"><p className="text-3xl font-semibold">{value}</p><p className="mt-2 text-sm">{t(key)}</p></div>)}</div>
-            <div className="space-y-4 rounded-xl border border-stone-200 bg-white p-4">{choices.map((key) => { const count = records.filter((record) => record.saved && record.availability === key).length; return <div key={key}><p className="mb-2 flex justify-between gap-2 text-sm"><span>{t(`choices.${key}`)}</span><strong>{count} / 4</strong></p><progress value={count} max="4" aria-label={t(`choices.${key}`)} className="h-3 w-full accent-pink-600" /></div> })}</div>
+            <div className="grid gap-3 sm:grid-cols-3">{[{ key: 'completed', value: summary.completed, format: formatCountOfFour }, { key: 'pending', value: summary.pending, format: formatInteger }, { key: 'onShelf', value: summary.onShelf, format: formatInteger }].map((item) => <div key={item.key} className="rounded-xl border border-stone-200 bg-white p-4"><p className="text-3xl font-semibold"><CountUp value={item.value} format={item.format} /></p><p className="mt-2 text-sm">{t(item.key)}</p></div>)}</div>
+            <div className="space-y-4 rounded-xl border border-stone-200 bg-white p-4">{choices.map((key) => { const count = records.filter((record) => record.saved && record.availability === key).length; return <div key={key}><p className="mb-2 flex justify-between gap-2 text-sm"><span>{t(`choices.${key}`)}</span><strong><CountUp value={count} format={formatCountOfFour} /></strong></p><progress value={count} max="4" aria-label={t(`choices.${key}`)} className="h-3 w-full accent-pink-600" /></div> })}</div>
             <p className="text-xs leading-relaxed">{t('metricsNote')}</p>
           </>
         )}

@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from 'react'
 import { useTranslations } from 'next-intl'
+import { CountUp } from '@/components/ui/CountUp'
 
 const tabs = ['learning', 'course', 'lesson', 'management'] as const
 const focus = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700'
@@ -23,7 +24,7 @@ export function EducationPreview(): ReactElement {
     <div data-product="education" className="min-w-0 overflow-hidden rounded-xl border border-blue-100 bg-[#f6f7fb] text-[#1a2238] shadow-xl">
       <div className="flex items-center justify-between border-b border-[#e6e9f2] bg-white px-4 py-3"><strong className="text-sm font-bold text-[#234fe0]">{t('app')}</strong><span aria-hidden="true" className="text-lg text-slate-500">≡</span></div>
       <div role="group" aria-label={t('screens')} className="flex flex-wrap gap-2 bg-[#eef1f6] p-3">
-        {tabs.map((key) => <button key={key} type="button" onClick={() => setScreen(key)} aria-pressed={screen === key} className={`min-h-11 rounded-md border px-3 text-xs ${focus} ${screen === key ? 'border-[#234fe0] bg-[#234fe0] font-semibold text-white' : 'border-[#d6deec] bg-[#e9edf6] text-[#53617e]'}`}>{t(`tabs.${key}`)}</button>)}
+        {tabs.map((key) => <button key={key} type="button" onClick={() => setScreen(key)} aria-pressed={screen === key} className={`min-h-11 rounded-md border px-3 text-xs ${focus} ${screen === key ? 'border-[#234fe0] bg-[#234fe0] font-semibold text-white' : 'tab-breathe border-[#d6deec] bg-[#e9edf6] text-[#53617e]'}`}>{t(`tabs.${key}`)}</button>)}
       </div>
       <div className="min-h-[340px] space-y-4 p-4 sm:p-5">
         {screen === 'learning' ? (
@@ -49,7 +50,7 @@ export function EducationPreview(): ReactElement {
             </div>
             <h5 className="text-sm font-semibold">{t('content')}</h5>
             <div className="space-y-2">
-              {[0, 1, 2].map((index) => <button key={index} type="button" onClick={openLesson} className={`${card} w-full border-l-[3px] p-3 text-left ${lesson > index ? 'border-l-[#234fe0]' : 'border-l-slate-300'} ${focus}`}><span className="flex justify-between gap-2"><span className="text-sm font-semibold">{index + 1} · {t(`modules.${index}`)}</span><span className="text-xs text-[#58637e]">{t(lesson > index ? 'done' : 'activity')}</span></span><span className="mt-2 block text-xs text-[#58637e]">{t(lesson > index ? 'completedModule' : 'continueModule')}</span></button>)}
+              {[0, 1, 2].map((index) => <button key={index} type="button" onClick={openLesson} className={`${card} w-full border-l-[3px] p-3 text-left ${lesson > index ? 'border-l-[#234fe0]' : 'border-l-slate-300'} ${focus}`}><span className="flex justify-between gap-2"><span className="text-sm font-semibold"><CountUp value={index + 1} /> · {t(`modules.${index}`)}</span><span className="text-xs text-[#58637e]">{t(lesson > index ? 'done' : 'activity')}</span></span><span className="mt-2 block text-xs text-[#58637e]">{t(lesson > index ? 'completedModule' : 'continueModule')}</span></button>)}
             </div>
           </>
         ) : screen === 'lesson' ? (

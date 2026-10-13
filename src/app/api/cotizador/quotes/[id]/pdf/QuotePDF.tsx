@@ -3,7 +3,6 @@ import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/render
 
 const BRAND  = '#15803d'
 const DARK   = '#111111'
-const MID    = '#F2F2F2'
 const GREY   = '#666666'
 const WHITE  = '#FFFFFF'
 const LIGHT  = '#F8F8F8'

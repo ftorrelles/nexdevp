@@ -11,7 +11,7 @@ type Step = 'loading' | 'set-password' | 'success' | 'error'
 export default function AuthSetupPage() {
   const router = useRouter()
   const [step,         setStep]         = useState<Step>('loading')
-  const [role,         setRole]         = useState<string | null>(null)
+  const [,             setRole]         = useState<string | null>(null)
   const [password,     setPassword]     = useState('')
   const [confirm,      setConfirm]      = useState('')
   const [showPassword, setShowPassword] = useState(false)

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import NextLink from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/content/types'
@@ -85,12 +86,12 @@ export function Footer({ locale }: FooterProps) {
           <div>
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-nex-green mb-4">{t('languageHeading')}</p>
             <LocaleSwitcher locale={locale} />
-            <a
+            <NextLink
               href="/admin"
               className="mt-4 inline-block font-mono text-[10px] tracking-[0.2em] uppercase text-nex-grey/40 hover:text-nex-grey transition-colors"
             >
               Admin
-            </a>
+            </NextLink>
           </div>
         </div>
 

@@ -47,7 +47,7 @@ export default async function HomePage({ params }: Props): Promise<ReactElement>
       <main>
         <Navbar locale={locale as Locale} />
         <Hero />
-        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1000px] lg:[contain-intrinsic-size:auto_620px]">
+        <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1000px] lg:[contain-intrinsic-size:auto_1250px]">
           <BeforeAfter />
         </OffscreenSection>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1800px] lg:[contain-intrinsic-size:auto_1250px]">
@@ -65,11 +65,12 @@ export default async function HomePage({ params }: Props): Promise<ReactElement>
           <Stats />
         </OffscreenSection>
         <RealProjectPortfolio />
+        <div aria-hidden="true" className="h-px bg-gradient-to-r from-transparent via-nex-green/20 to-transparent" />
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1170px] lg:[contain-intrinsic-size:auto_950px]">
           <CtaFinal />
         </OffscreenSection>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_1200px] lg:[contain-intrinsic-size:auto_900px]">
-          <JoinUs locale={locale as Locale} />
+          <JoinUs />
         </OffscreenSection>
         <OffscreenSection sizeClass="[contain-intrinsic-size:auto_900px] lg:[contain-intrinsic-size:auto_440px]">
           <Footer locale={locale as Locale} />

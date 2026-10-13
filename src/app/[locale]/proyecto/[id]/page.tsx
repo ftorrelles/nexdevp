@@ -61,7 +61,7 @@ export default async function ProyectoDetailPage({ params }: Props): Promise<Rea
 
   // Pre-fetch comments for all deliverables
   const deliverableIds = deliverables.map((d) => d.id)
-  let commentsByDeliverable: Record<string, CommentRow[]> = {}
+  const commentsByDeliverable: Record<string, CommentRow[]> = {}
   if (deliverableIds.length > 0) {
     const { data: allComments } = await db
       .from('deliverable_comments')

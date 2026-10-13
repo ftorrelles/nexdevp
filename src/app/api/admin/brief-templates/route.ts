@@ -14,7 +14,7 @@ async function requireOwnerSupervisor() {
 }
 
 export async function GET() {
-  const { user, error } = await requireOwnerSupervisor()
+  const { error } = await requireOwnerSupervisor()
   if (error) return error
 
   const client = createServiceClient()

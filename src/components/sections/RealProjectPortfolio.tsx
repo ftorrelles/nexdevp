@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Fragment, useEffect, useReducer, useRef, useState, type ReactElement } from 'react'
+import { Fragment, useEffect, useReducer, useRef, useState, type PointerEvent, type ReactElement } from 'react'
 import { useTranslations } from 'next-intl'
 import { REAL_PROJECTS, REAL_PROJECT_CATEGORIES, CATEGORY_GLOW, type RealProjectCategory } from '@/content/realProjects'
 import { firstIndexForCategory, realProjectSelectionReducer, type RealProjectSelection } from './realProjectSelection'
@@ -29,6 +29,30 @@ export function RealProjectPortfolio({ initialCategory = 'projects' }: RealProje
   const project = REAL_PROJECTS[selection.index]
   const category = project.category
   const portrait = project.image ? project.image.height >= project.image.width * 1.6 : false
+  const tiltRef = useRef<HTMLElement>(null)
+
+  function handleTilt(event: PointerEvent<HTMLDivElement>): void {
+    if (reducedMotion || event.pointerType !== 'mouse') return
+    const element = tiltRef.current
+    if (!element) return
+    const rect = element.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) return
+    const offsetX = (event.clientX - rect.left) / rect.width - 0.5
+    const offsetY = (event.clientY - rect.top) / rect.height - 0.5
+    element.style.setProperty('--tilt-x', `${(-offsetY * 9).toFixed(2)}deg`)
+    element.style.setProperty('--tilt-y', `${(offsetX * 9).toFixed(2)}deg`)
+    element.style.setProperty('--px', offsetX.toFixed(3))
+    element.style.setProperty('--py', offsetY.toFixed(3))
+  }
+
+  function resetTilt(): void {
+    const element = tiltRef.current
+    if (!element) return
+    element.style.setProperty('--tilt-x', '0deg')
+    element.style.setProperty('--tilt-y', '0deg')
+    element.style.setProperty('--px', '0')
+    element.style.setProperty('--py', '0')
+  }
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -62,8 +86,8 @@ export function RealProjectPortfolio({ initialCategory = 'projects' }: RealProje
   useEffect(() => schedulePortfolioAdvance(playing, () => dispatch({ type: 'advance' })), [playing, selection])
 
   return (
-    <section ref={sectionRef} id="proyectos" aria-labelledby="real-projects-heading" onFocusCapture={() => setFocused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }} className="scroll-mt-20 bg-nex-black px-4 py-16 text-nex-white sm:px-6 lg:px-12 lg:py-8">
-      <div id="portfolio" className="mx-auto max-w-6xl scroll-mt-20">
+    <section ref={sectionRef} id="proyectos" aria-labelledby="real-projects-heading" onFocusCapture={() => setFocused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }} className="scroll-mt-20 bg-nex-black px-4 py-16 text-nex-white sm:px-6 lg:px-12 lg:py-32">
+      <div id="portfolio" className="mx-auto max-w-7xl scroll-mt-20">
         <div className="mb-5 max-w-3xl">
           <p className="mb-2 font-dm-mono text-xs uppercase tracking-[0.2em] text-nex-green">{t('eyebrow')}</p>
           <h2 id="real-projects-heading" className="font-jost text-3xl font-semibold leading-tight sm:text-4xl">{t('headline')}</h2>
@@ -101,14 +125,14 @@ export function RealProjectPortfolio({ initialCategory = 'projects' }: RealProje
             </button>
           </div>
         </div>
-        <div id="real-project-panel" role="region" aria-label={t('regionLabel')} data-layout="showcase">
-          <article key={project.id} data-project={project.id} aria-labelledby={`real-project-${project.id}`} className={`relative grid min-w-0 overflow-hidden rounded-2xl border border-nex-white/5 bg-gradient-to-br from-nex-dark via-nex-black to-nex-black shadow-2xl lg:grid-cols-2 ${reducedMotion ? '' : 'portfolio-enter'} [@media(prefers-reduced-motion:reduce)]:!animate-none`}>
+        <div id="real-project-panel" role="region" aria-label={t('regionLabel')} data-layout="showcase" className="[perspective:1500px]">
+          <article key={project.id} data-project={project.id} ref={tiltRef} onPointerMove={handleTilt} onPointerLeave={resetTilt} aria-labelledby={`real-project-${project.id}`} className={`portfolio-tilt relative grid min-w-0 overflow-hidden rounded-2xl border border-nex-ink/15 bg-gradient-to-b from-nex-ink/[0.09] to-nex-ink/[0.05] shadow-2xl lg:grid-cols-2 ${reducedMotion ? '' : 'portfolio-enter'} [@media(prefers-reduced-motion:reduce)]:!animate-none`}>
             <div aria-hidden="true" className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-nex-green/60 to-transparent" />
-            <figure className="flex min-w-0 flex-col rounded-t-2xl border-b border-nex-white/15 bg-gradient-to-br from-nex-green/20 via-nex-black to-nex-black p-3 sm:p-4 lg:rounded-l-2xl lg:rounded-tr-none lg:border-b-0 lg:border-r">
-              <div className={`relative flex min-w-0 lg:flex-1 items-center justify-center ${portrait ? 'h-[260px] sm:h-[320px] lg:h-[360px]' : 'h-[200px] sm:h-[280px] lg:h-[280px]'}`}>
+            <figure className="flex min-w-0 flex-col rounded-t-2xl border-b border-nex-white/15 bg-gradient-to-br from-nex-green/20 via-transparent to-transparent p-3 sm:p-4 lg:rounded-l-2xl lg:rounded-tr-none lg:border-b-0 lg:border-r">
+              <div className={`relative flex min-w-0 lg:flex-1 items-center justify-center ${portrait ? 'h-[260px] sm:h-[400px] lg:h-[500px]' : 'h-[200px] sm:h-[350px] lg:h-[390px]'}`}>
                 <div aria-hidden="true" className={`absolute left-1/2 top-1/2 h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl ${CATEGORY_GLOW[category]}`} />
                 {project.image ? (
-                  <span className={`flex h-full max-w-full flex-col ${portrait ? 'aspect-[9/20] rounded-[1.5rem] border-[5px] border-nex-white/30 bg-nex-black p-1.5 shadow-2xl ring-1 ring-nex-green/40' : 'w-full rounded-lg border border-nex-white/10'}`}>
+                  <span className={`portfolio-layer-mid flex h-full max-w-full flex-col ${portrait ? 'aspect-[9/20] rounded-[1.5rem] border-[5px] border-nex-white/30 bg-nex-black p-1.5 shadow-2xl ring-1 ring-nex-green/40' : 'w-full rounded-lg border border-nex-white/10'}`}>
                     {!portrait && (
                       <span aria-hidden="true" className="mb-1.5 flex shrink-0 items-center gap-1.5 rounded-t-[inherit] border border-nex-white/10 bg-nex-black/70 px-2 py-1">
                         <span className="h-1.5 w-1.5 rounded-full bg-nex-white/25" />
@@ -131,9 +155,9 @@ export function RealProjectPortfolio({ initialCategory = 'projects' }: RealProje
               </div>
               <figcaption className="mt-3 text-center text-[11px] leading-relaxed text-nex-white/70">{t(`captions.${project.image?.kind ?? 'pending'}`)}</figcaption>
             </figure>
-            <div className="flex min-w-0 flex-col items-start p-5 sm:p-6 lg:p-6">
+            <div className="portfolio-layer-near flex min-w-0 flex-col items-start p-5 sm:p-6 lg:p-6">
               <p className="rounded border border-nex-green/60 px-2 py-1 font-dm-mono text-[10px] uppercase tracking-[0.15em} text-nex-green">{t(`relationships.${project.relationship}`)}</p>
-              <h3 id={`real-project-${project.id}`} className="mt-3 break-words font-jost text-3xl font-semibold leading-tight sm:text-4xl">{t(`items.${project.id}.name`)}</h3>
+              <h3 id={`real-project-${project.id}`} className="mt-3 break-words font-jost text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{t(`items.${project.id}.name`)}</h3>
               <dl className="mt-4 space-y-3 text-sm leading-relaxed">
                 <div><dt className="mb-1 text-xs font-semibold uppercase tracking-wider text-nex-white/50">{t('challenge')}</dt><dd className="text-nex-white/80">{t(`items.${project.id}.challenge`)}</dd></div>
                 <div><dt className="mb-1 text-xs font-semibold uppercase tracking-wider text-nex-white/50">{t('solution')}</dt><dd className="text-nex-white/80">{t(`items.${project.id}.solution`)}</dd></div>

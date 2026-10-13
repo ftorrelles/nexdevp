@@ -80,12 +80,42 @@
 }
 
 .portfolio-enter {
-  animation: portfolio-enter 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: portfolio-enter 500ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .portfolio-enter {
     animation: none;
+  }
+}
+
+/* Portfolio showcase — 3D depth on pointer hover. The `.portfolio-tilt` card
+   receives --tilt-x/--tilt-y (degrees) and --px/--py (-1..1) from the component,
+   rotates inside the panel's perspective, and drives a shallow layer parallax.
+   Everything is inert under reduced motion. */
+.portfolio-tilt {
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform 200ms ease-out;
+  will-change: transform;
+}
+
+.portfolio-layer-mid {
+  transform: translate3d(calc(var(--px, 0) * 9px), calc(var(--py, 0) * 9px), 0);
+}
+
+.portfolio-layer-near {
+  transform: translate3d(calc(var(--px, 0) * 5px), calc(var(--py, 0) * 5px), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-tilt {
+    transform: none;
+    transition: none;
+  }
+
+  .portfolio-layer-mid,
+  .portfolio-layer-near {
+    transform: none;
   }
 }
 

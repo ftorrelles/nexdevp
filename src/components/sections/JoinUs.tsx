@@ -1,13 +1,8 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { JoinUsNetwork } from './JoinUsNetwork'
-import type { Locale } from '@/content/types'
 
-interface JoinUsProps {
-  locale: Locale
-}
-
-export async function JoinUs({ locale }: JoinUsProps) {
+export async function JoinUs() {
   const t = await getTranslations('joinUs')
 
   const benefits = [
@@ -20,7 +15,6 @@ export async function JoinUs({ locale }: JoinUsProps) {
     <section id="trabaja" className="relative overflow-hidden bg-nex-black px-6 py-24 text-nex-white lg:px-12">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <JoinUsNetwork />
-        <div className="absolute left-1/2 top-0 h-[380px] w-[46rem] max-w-none -translate-x-1/2 rounded-full bg-nex-green/15 blur-3xl" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-nex-black to-transparent" />
       </div>
       <div className="relative z-10 mx-auto max-w-5xl text-center">

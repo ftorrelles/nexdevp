@@ -13,18 +13,23 @@
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.16",
     "@react-pdf/renderer": "^4.5.1",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "@react-three/postprocessing": "^3.2.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
     "framer-motion": "^12.40.0",
     "next": "^16.2.9",
     "next-intl": "^4.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
     "autoprefixer": "^10.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",

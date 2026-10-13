@@ -1,11 +1,13 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
+import { ParticleBackground } from './ParticleBackground'
 
 export async function Pillars() {
   const t = await getTranslations('pillars')
   return (
-    <section id="servicios" className="bg-nex-dark py-24 px-6 lg:px-12">
-      <div className="max-w-7xl mx-auto">
+    <section id="servicios" className="relative overflow-hidden bg-nex-dark py-24 px-6 lg:px-12">
+      <ParticleBackground />
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <p className="font-dm-mono text-xs text-nex-green uppercase tracking-[0.2em] mb-4">

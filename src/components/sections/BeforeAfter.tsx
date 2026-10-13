@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { CyberGridBackdrop } from './CyberGridBackdrop'
 
 export function BeforeAfter() {
   const t = useTranslations('beforeAfter')
@@ -31,8 +32,9 @@ export function BeforeAfter() {
   }, [started])
 
   return (
-    <section id="before-after-section" className="bg-nex-black border-t border-white/5 py-24 px-6 lg:px-12">
-      <div className="max-w-5xl mx-auto">
+    <section id="before-after-section" className="relative overflow-hidden bg-nex-black border-t border-white/5 py-24 px-6 lg:flex lg:min-h-screen lg:flex-col lg:px-12">
+      <CyberGridBackdrop />
+      <div className="relative z-10 w-full max-w-5xl mx-auto">
         <div className="text-center mb-14">
           <p className="font-dm-mono text-[10px] tracking-[0.28em] uppercase text-nex-green mb-3">
             {t('eyebrow')}
@@ -42,7 +44,7 @@ export function BeforeAfter() {
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-2 rounded-2xl overflow-hidden border border-white/5">
+        <div className="grid lg:grid-cols-2 rounded-2xl overflow-hidden border border-white/5 bg-nex-black/90">
           {/* LEFT — Before */}
           <div className="relative flex flex-col px-10 py-12 border-b lg:border-b-0 lg:border-r border-white/5">
             <div className="absolute inset-0 bg-red-500/[0.03] pointer-events-none" />
@@ -92,6 +94,7 @@ export function BeforeAfter() {
           </div>
         </div>
       </div>
+      <div aria-hidden="true" className="hidden lg:block lg:min-h-[22rem] lg:flex-1" />
     </section>
   )
 }

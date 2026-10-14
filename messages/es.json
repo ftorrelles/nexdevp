@@ -100,10 +100,10 @@
         }
       },
       "collab": {
-        "name": "Collab Map",
+        "name": "App Mapas",
         "challenge": "Apoyar la organización de las operaciones de campo.",
         "solution": "Una plataforma de uso privado para trabajo de campo. Mostramos solo su portada para proteger la información interna.",
-        "alt": "Portada de marca de Collab Map, no es una captura de la aplicación",
+        "alt": "Portada de marca de App Mapas, no es una captura de la aplicación",
         "tags": {
           "one": "Operación de campo",
           "two": "Organización",

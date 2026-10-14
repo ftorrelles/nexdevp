@@ -30,15 +30,15 @@ export type RealProject = ProjectBase & (
 )
 
 export const REAL_PROJECTS: readonly RealProject[] = [
-  { id: 'sce', category: 'projects', relationship: 'client', access: 'private', image: { src: '/portfolio/sce-dashboard.png', width: 1916, height: 1030, kind: 'screenshot' } },
-  { id: 'trayecto', category: 'projects', relationship: 'product', access: 'public', url: 'https://trayecto.app/', linkKind: 'website', image: { src: '/portfolio/trayecto.png', width: 1578, height: 883, kind: 'screenshot' } },
-  { id: 'vivir', category: 'projects', relationship: 'client', access: 'public', url: 'https://youtube.com/watch?v=KKoggMgaJDw', linkKind: 'video', image: { src: '/portfolio/vivir-chevere-demo.png', width: 1402, height: 1122, kind: 'demo' } },
-  { id: 'cil', category: 'apps', relationship: 'product', access: 'public', url: 'https://cambridge-helper-cumorah.vercel.app/', linkKind: 'website', image: { src: '/portfolio/cil.png', width: 720, height: 1600, kind: 'screenshot' } },
-  { id: 'speakpath', category: 'apps', relationship: 'product', access: 'public', url: 'https://speakpath-ten.vercel.app/', linkKind: 'website', image: { src: '/portfolio/speakpath.jpg', width: 720, height: 1600, kind: 'screenshot' } },
-  { id: 'collab', category: 'apps', relationship: 'client', access: 'private', image: { src: '/portfolio/collab-map-cover.png', width: 572, height: 609, kind: 'cover' } },
-  { id: 'amarhte', category: 'websites', relationship: 'client', access: 'public', url: 'https://amarhte.com/', linkKind: 'website', image: { src: '/portfolio/amarhte.png', width: 1885, height: 902, kind: 'screenshot' } },
-  { id: 'perezRojas', category: 'websites', relationship: 'client', access: 'public', url: 'https://www.perezrojasabogados.com/en', linkKind: 'website', image: { src: '/portfolio/perez-rojas.png', width: 1898, height: 911, kind: 'screenshot' } },
-  { id: 'biupoll', category: 'websites', relationship: 'client', access: 'public', url: 'https://www.biupoll.com.co/', linkKind: 'website', image: { src: '/portfolio/biupoll.jpg', width: 2000, height: 1600, kind: 'screenshot' } },
+  { id: 'sce', category: 'projects', relationship: 'client', access: 'private', image: { src: '/portfolio/sce-dashboard-v3.png', width: 1024, height: 571, kind: 'screenshot' } },
+  { id: 'trayecto', category: 'projects', relationship: 'product', access: 'public', url: 'https://trayecto.app/', linkKind: 'website', image: { src: '/portfolio/trayecto-v4.jpg', width: 1024, height: 571, kind: 'screenshot' } },
+  { id: 'vivir', category: 'projects', relationship: 'client', access: 'public', url: 'https://youtube.com/watch?v=KKoggMgaJDw', linkKind: 'video', image: { src: '/portfolio/vivir-chevere-v3.png', width: 1024, height: 571, kind: 'demo' } },
+  { id: 'cil', category: 'apps', relationship: 'product', access: 'public', url: 'https://cambridge-helper-cumorah.vercel.app/', linkKind: 'website', image: { src: '/portfolio/cil-v4.jpg', width: 1024, height: 571, kind: 'screenshot' } },
+  { id: 'speakpath', category: 'apps', relationship: 'product', access: 'public', url: 'https://speakpath-ten.vercel.app/', linkKind: 'website', image: { src: '/portfolio/speakpath-v4.jpg', width: 1024, height: 571, kind: 'screenshot' } },
+  { id: 'collab', category: 'apps', relationship: 'client', access: 'private', image: { src: '/portfolio/app-mapas-v5.jpg', width: 1024, height: 571, kind: 'cover' } },
+  { id: 'amarhte', category: 'websites', relationship: 'client', access: 'public', url: 'https://amarhte.com/', linkKind: 'website', image: { src: '/portfolio/amarhte-v5.jpg', width: 1024, height: 571, kind: 'screenshot' } },
+  { id: 'perezRojas', category: 'websites', relationship: 'client', access: 'public', url: 'https://www.perezrojasabogados.com/en', linkKind: 'website', image: { src: '/portfolio/perez-rojas-v5.jpg', width: 1024, height: 571, kind: 'screenshot' } },
+  { id: 'biupoll', category: 'websites', relationship: 'client', access: 'public', url: 'https://www.biupoll.com.co/', linkKind: 'website', image: { src: '/portfolio/biupoll-v5.jpg', width: 1024, height: 571, kind: 'screenshot' } },
 ]
 
 export function getRealProjects(category: RealProjectCategory): readonly RealProject[] {

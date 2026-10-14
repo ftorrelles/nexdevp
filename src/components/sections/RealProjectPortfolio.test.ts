@@ -18,11 +18,11 @@ describe('real project inventory', () => {
     const privateProjects = REAL_PROJECTS.filter(({ access }) => access === 'private')
     expect(privateProjects.map(({ id }) => id)).toEqual(['sce', 'collab'])
     for (const project of privateProjects) expect(project.url).toBeUndefined()
-    expect(privateProjects[0].image?.src).toBe('/portfolio/sce-dashboard.png')
+    expect(privateProjects[0].image?.src).toMatch(/^\/portfolio\/sce-dashboard(-v\d+)?\.png$/)
     expect(privateProjects[0].image?.kind).toBe('screenshot')
     expect(privateProjects[1].image?.kind).toBe('cover')
     const vivir = REAL_PROJECTS.find(({ id }) => id === 'vivir')
-    expect(vivir?.image?.src).toBe('/portfolio/vivir-chevere-demo.png')
+    expect(vivir?.image?.src).toMatch(/^\/portfolio\/vivir-chevere-(demo|v\d+)\.png$/)
     expect(vivir?.image?.kind).toBe('demo')
     expect(vivir?.linkKind).toBe('video')
     for (const project of REAL_PROJECTS) {

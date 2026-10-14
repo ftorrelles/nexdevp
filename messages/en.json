@@ -100,10 +100,10 @@
         }
       },
       "collab": {
-        "name": "Collab Map",
+        "name": "App Maps",
         "challenge": "Support the organisation of field operations.",
         "solution": "A private-use platform for field work. Only its cover is shown to protect internal information.",
-        "alt": "Collab Map brand cover, not an application screenshot",
+        "alt": "App Maps brand cover, not an application screenshot",
         "tags": {
           "one": "Field operations",
           "two": "Organisation",
